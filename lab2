@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+
+import os
+import numpy as np
+
+# Clear screen
+#os.system('clear')
+
+
+class FileOperation:
+    """get 2D array line, word by line"""
+
+    def __init__(self,_file):
+        """ init file number of columns and lines"""
+        self.column=26
+        # append file name
+        self.f=_file
+        try:
+            #open file
+            self.o=open(self.f,'r')
+            self.line=sum(1 for line in self.o)
+        
+        finally:
+            #closing file to make data reusable
+            (self.o).close()
+
+
+    def getNumLine(self):
+        """return the number of lines in file"""
+        return self.line
+
+    def getNumColumn(self):
+        """return the number of columns in file"""
+        return self.column
+
+    def parseFile(self):
+        """return a 2D array of data [line][column]"""
+        num_line=0
+
+        try:
+            f=open(self.f,'r')
+            lin,col = self.line,self.column 
+            # Create 2D(float) array 
+            data_2d_arr= [[float(x) for x in range(col)] for y in range(lin)]
+            
+            l=0
+            for line in f:
+                #print(line)
+                c=0
+                for word in line.split():
+                    data_2d_arr[l][c]=word
+                 #   print("matrice[{:3}][{:2}]=\t{:20} ".format(l,c,data_2d_arr[l][c]))
+                    c+=1
+                l+=1
+        
+        finally:
+            f.close()
+            return data_2d_arr
+
+class voiceData:
+    """re arange data"""
+    def __init__(self,data,line,column,size):
+        # static data
+        self.sd_begin=0
+        self.sd_end=11
+        #static energy
+        self.se=12
+        #dynamic data
+        self.dd_begin=13
+        self.dd_end=24
+        #dynamic energy
+        self.de=25
+        #size of array
+        self.data_size=12
+        self.energy_size=1
+        
+        self.d=data
+        self.l=line
+        self.c=column
+        #number of return value
+        self.s=size
+        print(self.l,self.c)
+
+    def staticData(self):
+        """return static data array
+        first part of data: vector 0 to 11
+        """
+        tmp_array=[[0 for x in range(self.data_size)] for y in range(self.l)]
+        for i in range(self.l):
+            for j in range(self.data_size):
+                tmp_array[i][j]=self.d[i][j]
+        print(tmp_array)
+        print()
+        return tmp_array
+
+    def staticEnergy(self):
+        """return static energy
+        second part of data: vector 12
+        """
+        tmp_array=[]
+        for i in range(self.l):
+            tmp_array.append(self.d[i][self.se])
+        print(tmp_array)
+        print()
+        return tmp_array
+
+    def dynamicData(self):
+        """return dynamic data array
+        third part of data: vector 13 to 24
+        """
+        tmp_array=[[0 for x in range(self.data_size)] for y in range(self.l)]
+        print(tmp_array)
+        for i in range(self.l):
+            for j in range(self.data_size):
+                #get value after static data and static energy
+                tmp_array[i][j]=self.d[i][j+self.data_size+self.energy_size]
+        print(tmp_array)
+        print()
+        return tmp_array
+
+    def dynamicEnergy(self):
+        """return dynamic energy
+        fourth part of data: vector 12
+        """
+        tmp_array=[]
+        print(tmp_array)
+        for i in range(self.l):
+            tmp_array.append(self.d[i][self.de])
+        print(tmp_array)
+        print()
+        return tmp_array
+
+if __name__ == '__main__':
+
+    dir_path=os.path.dirname(__file__)
+    data_file=dir_path+"/test_data/man/kr/1a.txt"
+    
+    fo=FileOperation(data_file)
+    fo.parseFile()
+
+    do=voiceData(fo.parseFile(),fo.getNumLine(),fo.getNumColumn(),60) 
+    do.dynamicEnergy()
+    #do.dynamicData()
+    #do.staticEnergy()
+    #do.staticData()
