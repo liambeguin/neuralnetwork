@@ -4,6 +4,7 @@
 
 import numpy, pylab
 import scipy.stats as stats
+import os
 
 
 # Here is how a line is organised
@@ -12,11 +13,12 @@ import scipy.stats as stats
 #  [13:24] : dynamic MFCC values
 #  [25]    : Dynamic energy
 
-# FILE = 'test_data/man/kr/1a.txt'
-FILE = 'test_data/man/nf/6b.txt'
-
-
-
+COL_LABELS = ['static 1', 'static 2', 'static 3', 'static 4', 'static 5', 'static 6', \
+              'static 7', 'static 8', 'static 9', 'static 10', 'static 11', 'static 12', \
+              'static Energy', \
+              'dynamic 1', 'dynamic 2', 'dynamic 3', 'dynamic 4', 'dynamic 5', 'dynamic 6', \
+              'dynamic 7', 'dynamic 8', 'dynamic 9', 'dynamic 10', 'dynamic 11', 'dynamic 12', \
+              'dynamic Energy' ]
 
 def extract_data(filename):
     """
@@ -52,13 +54,33 @@ def convert_log(data):
     """
     converts MFCC values to non log scale
     """
-    print "TBD"
+    return "TBD"
 
 
 
 
+def get_filelist(number):
+    import fnmatch
+
+    inDIR = 'test_data'
+    pattern = str(number) + '*'
+    fileList = []
+
+    for dName, sdName, fList in os.walk(inDIR):
+        for fileName in fList:
+            if fnmatch.fnmatch(fileName, pattern):
+                fileList.append(os.path.join(dName, fileName))
+
+    return fileList
 
 
+def extract_full_data(num):
+    data = []
+    for file in get_filelist(num):
+        for line in extract_data(file):
+            data.append(line)
+
+    return data
 
 
 
@@ -68,33 +90,38 @@ def convert_log(data):
 
 def qqplot(data):
 
-    for i in range(12):
+    for i in range(len(data[0])):
         col = [ x[i] for x in data ]
 
         stats.probplot(col, dist="norm", plot=pylab)
+        pylab.title(COL_LABELS[i])
         pylab.show()
 
 
 
 
-def get_info(data):
+def get_static_info(data):
 
     print "Number_of_OBS Min Max Mean Variance Skewness Kurtosis"
 
-    for i in range(12):
+    for i in range(13):
         col = [ float(x[i]) for x in data ]
         print stats.describe(col)
 
 
 
 
-if __name__ == "__main__":
-# get data from file
-    data = extract_data(FILE)
-# remove lines where dynamic energy is 0
-    new = filter_dynamic(data)
-# Convert back to non log scale
-    foo = convert_log(new)
-# Keep quantiles depending on size of array
 
-    get_info(new)
+
+if __name__ == "__main__":
+
+    # get data from files
+    data = extract_full_data(1)
+    # remove lines where dynamic energy is 0
+    new = filter_dynamic(data)
+    # Convert back to non log scale
+    foo = convert_log(new)
+    # Keep quantiles depending on size of array
+
+    # get_static_info(new)
+    qqplot(new)
