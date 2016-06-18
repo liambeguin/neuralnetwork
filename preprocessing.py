@@ -42,18 +42,29 @@ class Preprocessing:
         self.data = self.data[c:]
 
 
-    def start_point_delta_detection(self, ratio):
+    def start_point_delta_detection(self, threshold, delta):
         d = self.get_column(COL_STATIC_E)
         c = 0
         prv = 0
         for idx, val in enumerate(d):
-
-            if (val - prv) < ratio:
+            if val <= threshold and (val - prv) < delta:
                 c += 1
-            else:
-                break
 
         self.data = self.data[c:]
+
+
+    def static_energy_threshold(self, threshold):
+        self.data = [ x for x in self.data if x[COL_STATIC_E] > threshold ]
+
+
+    def static_energy_keep_nmax(self):
+
+        test = [ abs(x) for x in self.get_column(COL_STATIC_E) ]
+        test.sort()
+        test.reverse()
+        a = test[self.count]
+
+        self.data = [ x for x in self.data if abs(x[COL_STATIC_E]) >= a]
 
 
     def fit(self):
@@ -106,8 +117,10 @@ def get_filelist(input_dir, number):
 def main():
     for num in range(1, 10):
         for i in get_filelist('raw', num):
-            data = Preprocessing(i, 40)
-            data.start_point_detection(0.8)
+            data = Preprocessing(i, 60)
+            data.static_energy_keep_nmax()
+            data.start_point_detection(0.6)
+            # data.start_point_delta_detection(0.1, 0.4)
             data.fit()
             data.save('out')
 
