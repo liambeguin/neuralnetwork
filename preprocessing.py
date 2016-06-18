@@ -42,6 +42,20 @@ class Preprocessing:
         self.data = self.data[c:]
 
 
+    def start_point_delta_detection(self, ratio):
+        d = self.get_column(COL_STATIC_E)
+        c = 0
+        prv = 0
+        for idx, val in enumerate(d):
+
+            if (val - prv) < ratio:
+                c += 1
+            else:
+                break
+
+        self.data = self.data[c:]
+
+
     def fit(self):
         if len(self.data) > self.count:
             self.data = self.data[0:self.count]
