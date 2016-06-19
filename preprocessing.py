@@ -48,8 +48,10 @@ class Preprocessing:
         for idx, val in enumerate(d):
             if val <= threshold or (val - prv) <= delta:
                 c += 1
+                prv = val
             else:
                 break
+
 
         self.data = self.data[c:]
 
@@ -66,6 +68,28 @@ class Preprocessing:
         a = test[self.count]
 
         self.data = [ x for x in self.data if abs(x[COL_STATIC_E]) >= a]
+
+
+    def moving_average_fit(self, delta_min, delta_max, column, n=2):
+        """
+        n symetric
+        """
+        col = [0.0] * n + self.get_column(column) + [0.0] * n
+        d = []
+
+        for idx, line in enumerate(self.data):
+            # get window of 2n+1 values
+            if idx >= n and idx < len(self.data) - (n+1):
+                win = col[idx-n:idx+(n+1)]
+                avg = sum(win)/len(win)
+                err = abs(avg - line[column])
+
+                if err < delta_min or err > delta_max :
+                    d.append(line)
+
+
+        self.data = d
+
 
 
     def fit(self):
@@ -93,13 +117,6 @@ class Preprocessing:
 
 
 
-
-
-
-
-
-
-
 def get_filelist(input_dir, number):
 
     pattern = str(number) + '*'
@@ -119,9 +136,11 @@ def main():
     for num in range(1, 10):
         for i in get_filelist('raw', num):
             data = Preprocessing(i, 60)
-            # data.start_point_detection(0.7)
-            data.start_point_delta_detection(0.1, 0.8)
-            data.fit()
+            # data.moving_average_fit(0.1, 10, COL_DYNAMIC_E, n=4)
+            data.moving_average_fit(0.1, 0.2, COL_STATIC_E, n=2)
+            # data.start_point_detection(0.35)
+            # data.start_point_delta_detection(0.01, 0.2)
+            # data.fit()
             data.save('out')
 
 
