@@ -4,96 +4,71 @@
 
 import os, fnmatch
 
+import logging
+logging.basicConfig(format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
-# Here is how a line is organised
-#  [0:11]  : static MFCC values
-#  [12]    : static energy
-#  [13:24] : dynamic MFCC values
-#  [25]    : Dynamic energy
 COL_STATIC_E = 12
 COL_DYNAMIC_E = 25
 
 class Preprocessing:
     def __init__(self, filename, count):
-        """
-        Takes a CSV like file and converts it to a
-        list of list of floats for easier processing
-        """
+        """Takes a CSV like file and converts it to a 2D float array for easy
+        processing."""
+
         lines = open(filename).readlines()
         self.filename = filename
         self.count = count
         self.data = [ [ float(x) for x in line.split() ] for line in lines ]
 
+        if len(self.data) < self.count:
+            logger.warning("Not enough lines [%d/%d] in file: %s " \
+                    %(len(self.data), self.count, self.filename))
 
-    def get_column(self, column):
+
+    def __get_column(self, column):
+        """Return a single column of the dataset."""
+
         return [ x[column] for x in self.data ]
 
 
-    def start_point_detection(self, threshold_s, threshold_d):
-        c = 0
-        for line in self.data:
-            if line[COL_STATIC_E] < threshold_s and line[COL_DYNAMIC_E] < threshold_d:
-                c += 1
-            else:
-                break
-
-        self.data = self.data[c:]
+    def __check_size(self, prefix=''):
+        """Check the size of the dataset."""
+        if len(self.data) < self.count - 10:
+            logger.debug("%s Low count [%d/%d]..." %(prefix, len(self.data), self.count))
 
 
-    def static_energy_threshold(self, threshold):
-        self.data = [ x for x in self.data if x[COL_STATIC_E] > threshold ]
+    def start_point_detection(self, threshold=0.5, n=10):
+        """Detect beginning of voice activity using static energy."""
 
-
-    def threshold_filer(self, threshold, column=COL_STATIC_E):
-        self.data = [ x for x in self.data if x[column] > threshold ]
-
-
-    def static_energy_keep_nmax(self):
-
-        test = [ abs(x) for x in self.get_column(COL_STATIC_E) ]
-        test.sort()
-        test.reverse()
-        a = test[self.count]
-
-        self.data = [ x for x in self.data if abs(x[COL_STATIC_E]) >= a]
-
-
-    def start_stat(self, threshold, n=2):
-        static = self.get_column(COL_STATIC_E)
-        dyn = self.get_column(COL_DYNAMIC_E)
-        d = []
+        col = self.__get_column(COL_STATIC_E)
 
         for idx, line in enumerate(self.data):
-            win_s = static[idx:idx+(n+1)]
-            avg_s = sum(win_s)/len(win_s)
-            win_d = dyn[idx:idx+(n+1)]
-            avg_d = sum(win_d)/len(win_d)
+            win = col[idx:idx+(n+1)]
+            avg = sum(win)/len(win)
 
-            if avg_s > threshold and avg_d > 0:
-                d = self.data[idx:]
+            if avg > threshold:
+                self.data = self.data[idx:]
                 break
 
-        self.data = d
-
-    def cut_arround_max(self, n_before, n_after, column=COL_DYNAMIC_E):
-        col = self.get_column(column)
-        pos = col.index(max(col))
-        self.data = self.data[pos-n_before:pos+n_after]
+        self.__check_size()
 
 
-    def cut_arround_first_max(self, n=40, column=COL_DYNAMIC_E):
+    def cut_first_max(self, n=20, column=COL_DYNAMIC_E):
+        """Ignore data before first local maximum."""
 
-        col = self.get_column(column)[0:n]
+        col = self.__get_column(column)[0:n]
         pos = col.index(max(col))
         self.data = self.data[pos:]
-
+        self.__check_size(prefix=self.cut_first_max.__name__)
 
 
     def moving_average_fit(self, delta_min, threshold, column, n=2):
-        """
-        n symetric
-        """
-        col = [0.0] * n + self.get_column(column) + [0.0] * n
+        """Filter data using a symetrical moving average."""
+
+        col = [0.0] * n + self.__get_column(column) + [0.0] * n
         d = []
 
         for idx, line in enumerate(self.data):
@@ -111,19 +86,22 @@ class Preprocessing:
                     break
 
         self.data = d
-
+        self.__check_size(prefix=self.moving_average_fit.__name__)
 
 
     def fit(self):
+        """"Make sure data is the right length."""
         if len(self.data) > self.count:
             self.data = self.data[0:self.count]
         else:
             pad = [0] * len(self.data[0])
-            pad[COL_STATIC_E] = min(self.get_column(COL_STATIC_E))
+            pad[COL_STATIC_E] = min(self.__get_column(COL_STATIC_E))
             self.data += [pad] * (self.count - len(self.data))
 
 
     def save(self, prefix):
+        """Save data to a new location."""
+
         out = os.path.join(prefix, self.filename)
 
         if not os.path.exists(os.path.dirname(out)):
@@ -140,6 +118,7 @@ class Preprocessing:
 
 
 def get_filelist(input_dir, number):
+    """ Returns a list of files  for a given number."""
 
     pattern = str(number) + '*'
     fileList = []
@@ -158,15 +137,9 @@ def main():
     for num in range(1, 10):
         for i in get_filelist('train', num):
             data = Preprocessing(i, 60)
-            if len(data.data) < data.count:
-                print " *** Not enough lines [%d/%d] in file: " %(len(data.data), data.count)  + data.filename
-
-            data.start_stat(0.5, n=10)
-            data.cut_arround_first_max(20)
+            data.start_point_detection(threshold=0.5, n=10)
+            data.cut_first_max(n=20)
             data.fit()
-
-            if len(data.data) < data.count:
-                print "after fit ", len(data.data), data.filename
             data.save('out')
 
 
