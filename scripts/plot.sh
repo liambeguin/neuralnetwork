@@ -59,6 +59,7 @@ case "$type" in
 	raw) dir="raw" plot_simple;;
 	test)dir="out" plot_simple;;
 	comp) plot_comp ;;
+	dump) gp_file_list $dir_raw 1 $column ;;
 	*) echo "bad arg"; exit 1;;
 esac
 
