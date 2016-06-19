@@ -2,7 +2,6 @@
 # vim: cc=80:
 
 
-import scipy.stats as stats
 import os, fnmatch
 
 
@@ -47,8 +46,10 @@ class Preprocessing:
         c = 0
         prv = 0
         for idx, val in enumerate(d):
-            if val <= threshold and (val - prv) < delta:
+            if val <= threshold or (val - prv) <= delta:
                 c += 1
+            else:
+                break
 
         self.data = self.data[c:]
 
@@ -118,9 +119,8 @@ def main():
     for num in range(1, 10):
         for i in get_filelist('raw', num):
             data = Preprocessing(i, 60)
-            data.static_energy_keep_nmax()
-            data.start_point_detection(0.6)
-            # data.start_point_delta_detection(0.1, 0.4)
+            # data.start_point_detection(0.7)
+            data.start_point_delta_detection(0.1, 0.8)
             data.fit()
             data.save('out')
 
