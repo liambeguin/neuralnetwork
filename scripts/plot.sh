@@ -5,7 +5,7 @@ prefix="${type}_"
 column="${2:-26}"
 count="$3"
 
-dir_raw="raw"
+dir_raw="train"
 dir_tst="out"
 
 out_dir="plot/${type}"
@@ -65,7 +65,7 @@ EOF
 
 
 case "$type" in
-	raw) dir="raw" plot_simple;;
+	raw) dir="train" plot_simple;;
 	test)dir="out" plot_simple;;
 	comp) plot_comp ;;
 	dump) gp_file_list $dir_raw 1 $column ;;
