@@ -30,9 +30,9 @@ class Preprocessing:
         return [ x[column] for x in self.data ]
 
 
-    def start_point_detection(self, ratio):
+    def start_point_detection(self, ratio, column=COL_STATIC_E):
         c = 0
-        for i in self.get_column(COL_STATIC_E):
+        for i in self.get_column(column):
             if i < ratio:
                 c += 1
             else:
@@ -41,8 +41,8 @@ class Preprocessing:
         self.data = self.data[c:]
 
 
-    def start_point_delta_detection(self, threshold, delta):
-        d = self.get_column(COL_STATIC_E)
+    def start_point_delta_detection(self, threshold, delta, column=COL_STATIC_E):
+        d = self.get_column(column)
         c = 0
         prv = 0
         for idx, val in enumerate(d):
