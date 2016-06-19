@@ -3,6 +3,7 @@
 type="${1:-comp}"
 prefix="${type}_"
 column="${2:-26}"
+count="$3"
 
 dir_raw="raw"
 dir_tst="out"
@@ -17,7 +18,13 @@ gp_file_list(){
 	local col="$3"
 
 	out="plot $(find ${dir} -name ${num}\*.txt -exec echo "\"{}\" using ${col} smooth csplines, " \;)"
-	echo $out | sed 's/,$//g'
+
+	if [ -z "$count" ]; then
+		echo $out | sed 's/,$//g'
+	else
+		echo $out | cut -d',' -f1-$count
+	fi
+
 }
 
 plot_simple() {
