@@ -30,34 +30,23 @@ class Preprocessing:
         return [ x[column] for x in self.data ]
 
 
-    def start_point_detection(self, ratio, column=COL_STATIC_E):
+    def start_point_detection(self, threshold_s, threshold_d):
         c = 0
-        for i in self.get_column(column):
-            if i < ratio:
+        for line in self.data:
+            if line[COL_STATIC_E] < threshold_s and line[COL_DYNAMIC_E] < threshold_d:
                 c += 1
             else:
                 break
-
-        self.data = self.data[c:]
-
-
-    def start_point_delta_detection(self, threshold, delta, column=COL_STATIC_E):
-        d = self.get_column(column)
-        c = 0
-        prv = 0
-        for idx, val in enumerate(d):
-            if val <= threshold or (val - prv) <= delta:
-                c += 1
-                prv = val
-            else:
-                break
-
 
         self.data = self.data[c:]
 
 
     def static_energy_threshold(self, threshold):
         self.data = [ x for x in self.data if x[COL_STATIC_E] > threshold ]
+
+
+    def threshold_filer(self, threshold, column=COL_STATIC_E):
+        self.data = [ x for x in self.data if x[column] > threshold ]
 
 
     def static_energy_keep_nmax(self):
@@ -70,7 +59,38 @@ class Preprocessing:
         self.data = [ x for x in self.data if abs(x[COL_STATIC_E]) >= a]
 
 
-    def moving_average_fit(self, delta_min, delta_max, column, n=2):
+    def start_stat(self, threshold, n=2):
+        static = self.get_column(COL_STATIC_E)
+        dyn = self.get_column(COL_DYNAMIC_E)
+        d = []
+
+        for idx, line in enumerate(self.data):
+            win_s = static[idx:idx+(n+1)]
+            avg_s = sum(win_s)/len(win_s)
+            win_d = dyn[idx:idx+(n+1)]
+            avg_d = sum(win_d)/len(win_d)
+
+            if avg_s > threshold and avg_d > 0:
+                d = self.data[idx:]
+                break
+
+        self.data = d
+
+    def cut_arround_max(self, n_before, n_after, column=COL_DYNAMIC_E):
+        col = self.get_column(column)
+        pos = col.index(max(col))
+        self.data = self.data[pos-n_before:pos+n_after]
+
+
+    def cut_arround_first_max(self, n=40, column=COL_DYNAMIC_E):
+
+        col = self.get_column(column)[0:n]
+        pos = col.index(max(col))
+        self.data = self.data[pos:]
+
+
+
+    def moving_average_fit(self, delta_min, threshold, column, n=2):
         """
         n symetric
         """
@@ -84,9 +104,12 @@ class Preprocessing:
                 avg = sum(win)/len(win)
                 err = abs(avg - line[column])
 
-                if err < delta_min or err > delta_max :
+                if err < delta_min:
                     d.append(line)
 
+                if line[column] > threshold :
+                    d += self.data[idx:]
+                    break
 
         self.data = d
 
@@ -134,13 +157,17 @@ def get_filelist(input_dir, number):
 
 def main():
     for num in range(1, 10):
-        for i in get_filelist('raw', num):
+        for i in get_filelist('train', num):
             data = Preprocessing(i, 60)
-            # data.moving_average_fit(0.1, 10, COL_DYNAMIC_E, n=4)
-            data.moving_average_fit(0.1, 0.2, COL_STATIC_E, n=2)
-            # data.start_point_detection(0.35)
-            # data.start_point_delta_detection(0.01, 0.2)
-            # data.fit()
+            if len(data.data) < data.count:
+                print " *** Not enough lines [%d/%d] in file: " %(len(data.data), data.count)  + data.filename
+
+            data.start_stat(0.5, n=10)
+            data.cut_arround_first_max(20)
+            data.fit()
+
+            if len(data.data) < data.count:
+                print "after fit ", len(data.data), data.filename
             data.save('out')
 
 
