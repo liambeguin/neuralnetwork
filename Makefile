@@ -22,7 +22,6 @@ rd: prep
 	./scripts/plot.sh raw 26 $N
 
 
-FILE = "raw/man/ni/6a.txt"
 single: prep
-	echo "plot '$(FILE)' using 13 with lines, \
-		'out/$(FILE)' using 13 with lines" | gnuplot -p
+	echo "plot '$(FILE)' using $(COL) with lines, \
+		'out/$(FILE)' using $(COL) with lines" | gnuplot -p
