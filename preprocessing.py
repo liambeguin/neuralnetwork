@@ -10,7 +10,7 @@ import os, fnmatch
 #  [12]    : static energy
 #  [13:24] : dynamic MFCC values
 #  [25]    : Dynamic energy
-
+A=1
 COL_STATIC_E = 12
 COL_DYNAMIC_E = 25
 
