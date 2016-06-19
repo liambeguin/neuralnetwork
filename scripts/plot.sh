@@ -2,10 +2,12 @@
 
 type="${1:-comp}"
 prefix="${type}_"
-col="26"
-out_dir="plot/${type}"
+column="${2:-26}"
+
 dir_raw="raw"
 dir_tst="out"
+
+out_dir="plot/${type}"
 mkdir -p $out_dir
 
 
@@ -20,14 +22,12 @@ gp_file_list(){
 
 plot_simple() {
 	for i in $(seq 1 9) ; do
-		files="plot $(find ${dir} -name $i\*.txt -exec echo "\"{}\" using ${col} title \"${i}\", " \;)"
-		files="$(echo $files | sed 's/,$//g')"
 		cat << EOF | gnuplot
 set terminal png size 1920,1080
 set output '${out_dir}/${i}.png'
 set title "$prefix$i"
 set style data linespoints
-$files
+$(gp_file_list $dir $i $column)
 EOF
 	done
 }
