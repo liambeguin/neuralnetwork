@@ -16,7 +16,7 @@ gp_file_list(){
 	local num="$2"
 	local col="$3"
 
-	out="plot $(find ${dir} -name ${num}\*.txt -exec echo "\"{}\" using ${col}, " \;)"
+	out="plot $(find ${dir} -name ${num}\*.txt -exec echo "\"{}\" using ${col} smooth csplines, " \;)"
 	echo $out | sed 's/,$//g'
 }
 
@@ -25,8 +25,10 @@ plot_simple() {
 		cat << EOF | gnuplot
 set terminal png size 1920,1080
 set output '${out_dir}/${i}.png'
+set style data lines
+set nokey
+
 set title "$prefix$i"
-set style data linespoints
 $(gp_file_list $dir $i $column)
 EOF
 	done
