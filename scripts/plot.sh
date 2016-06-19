@@ -38,7 +38,7 @@ plot_comp(){
 set terminal png size 1920,1080
 set output '${out_dir}/${i}.png'
 set multiplot layout 4,1
-set style data linespoints
+set style data lines
 set nokey
 
 set title "raw-stat_$i"
