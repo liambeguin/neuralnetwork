@@ -1,5 +1,6 @@
 # ELE778
 ## Dependencies
+* linux
 * python
 * make
 * gnuplot
