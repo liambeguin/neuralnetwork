@@ -62,12 +62,54 @@ EOF
 	done
 }
 
+plot_all(){
+	local dir="$1"
+	for i in $(seq 1 9) ; do
+	cat << EOF | gnuplot
+set terminal png size 1080,3840
+set output '${out_dir}/${i}.png'
+set multiplot layout 14,1
+set style data lines
+set nokey
+
+set title "C1_$i"
+$(gp_file_list $dir $i 1)
+set title "C2_$i"
+$(gp_file_list $dir $i 2)
+set title "C3_$i"
+$(gp_file_list $dir $i 3)
+set title "C4_$i"
+$(gp_file_list $dir $i 4)
+set title "C5_$i"
+$(gp_file_list $dir $i 5)
+set title "C6_$i"
+$(gp_file_list $dir $i 6)
+set title "C7_$i"
+$(gp_file_list $dir $i 7)
+set title "C8_$i"
+$(gp_file_list $dir $i 8)
+set title "C9_$i"
+$(gp_file_list $dir $i 9)
+set title "C10_$i"
+$(gp_file_list $dir $i 10)
+set title "C11_$i"
+$(gp_file_list $dir $i 11)
+set title "C12_$i"
+$(gp_file_list $dir $i 12)
+set title "SE_$i"
+$(gp_file_list $dir $i 13)
+set title "DE_$i"
+$(gp_file_list $dir $i 26)
+EOF
+	done
+}
 
 
 case "$type" in
 	raw) dir="train" plot_simple;;
 	test)dir="out" plot_simple;;
 	comp) plot_comp ;;
+	all) plot_all $dir_tst;;
 	dump) gp_file_list $dir_raw 1 $column ;;
 	*) echo "bad arg"; exit 1;;
 esac
