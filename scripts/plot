@@ -1,0 +1,96 @@
+#!/usr/bin/gnuplot -p
+
+#reading arguments from CLI
+type = ARG1
+count = ARG2
+
+set style data linespoints
+
+headers = "\
+Static_1 static_2 static_3 static_4 static_5 static_6 static_7 static_8 \
+Static_9 static_{10} static_{11} static_{12} static_{Energy} \
+Dynamic_1 dynamic_2 dynamic_3 dynamic_4 dynamic_5 dynamic_6 dynamic_7 \
+Dynamic_8 dynamic_9 dynamic_{10} dynamic_{11} dynamic_{12} dynamic_{Energy}"
+
+if (type eq "help") {
+	print "USAGE: gnuplot -p -c scripts/plot <type>"
+	print ""
+	print "type can be one of the following:"
+	print "     help ........... print this message"
+	print "     simple ......... generate images of the output dataset"
+	print "     train .......... generate images of the training dataset"
+	print "     comp ........... generate images of both datasets for comparaison"
+	print "     matrix ......... generate a matrix image of a dataset"
+}
+if (type eq "simple"){
+
+	system("mkdir -p plot/out")
+	set terminal png size 1920,1080
+	set nokey
+
+	do for [i=1:9] for [col=13:26:13] {
+		set output sprintf("plot/out/%d_%d.png", i, col)
+		set title word(headers, col)
+
+		if (count ne "") {
+			filenames = system(sprintf("find out/ -iname %d*.txt | head -n %s", i, count))
+		} else {
+			filenames = system(sprintf("find out/ -iname %d*.txt", i))
+		}
+
+		plot for [file in filenames] file using col
+	}
+}
+
+if (type eq "train"){
+
+	system("mkdir -p plot/train")
+	set terminal png size 1920,1080
+	set nokey
+
+	do for [i=1:9] for [col=13:26:13] {
+		set output sprintf("plot/train/%d.png", i)
+		set title word(headers, col)
+
+		if (count ne "") {
+			filenames = system(sprintf("find train/ -iname %d*.txt | head -n %s", i, count))
+		} else {
+			filenames = system(sprintf("find train/ -iname %d*.txt", i))
+		}
+
+		plot for [file in filenames] file using col
+	}
+}
+
+if (type eq "comp"){
+	dirs = "train out"
+	system("mkdir -p plot/comp")
+	set terminal png size 1920,1080
+	do for [i=1:9] {
+		set output sprintf("plot/comp/%d.png", i)
+		set multiplot layout 4, 1
+		set nokey
+
+		do for [col=13:26:13] for [idx=1:2] {
+			set title sprintf("%s-%d", word(dirs, idx), col)
+
+			if (count ne "") {
+				filenames = system(sprintf("find %s/ -iname %d*.txt | head -n %s", word(dirs, idx), i, count))
+			} else {
+				filenames = system(sprintf("find %s/ -iname %d*.txt", word(dirs, idx), i))
+			}
+			plot for [file in filenames] file using col
+		}
+		unset multiplot
+		unset output
+	}
+}
+
+
+if (type eq "matrix") {
+	filenames = system(sprintf("find out/ -iname %d*.txt", 1))
+
+	plot for [file in filenames] file matrix every 1:12:1 w image
+}
+
+# vim: cc=80:
