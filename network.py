@@ -7,6 +7,21 @@ import numpy as np
 
 
 
+# Activation functions
+def sigmoid(z, prime=False):
+    if prime:
+        return np.exp(-z)/((1+np.exp(-z))**2)
+    else:
+        return 1.0 / (1.0 + np.exp(-z))
+
+def tanh(s, prime=False):
+    if prime:
+        return 1.0/(np.cosh(z)**2)
+    else:
+        return np.tanh(z)
+
+
+
 class Network:
     def __init__(self, struct, activation=sigmoid):
         """Generate the network's architecture based on a list.
@@ -23,6 +38,18 @@ class Network:
         self.weights = [np.random.randn(x, y)
                         for x, y in zip(struct[:-1], struct[1:])]
 
+
+    def feedforward(self, X):
+        """Propagate input data through the network."""
+        z = X
+        for w in self.weights:
+            z = self.act(np.dot(z, w))
+        return z
+
+    def cost_function(self, X, y):
+        self.yHat = self.feedforward(X)
+        J = 0.5 * sum((y-self.yHat)**2)
+        return J
 
 
     def inspect(self):
@@ -51,8 +78,11 @@ if __name__ == "__main__":
 
     # training set
     i = [[3,5], [5,1], [10,2]]
+    y = [75, 82, 93]
+    y = np.multiply(y, 1.0/100)
 
     a = Network([2, 3, 1])
+    yHat = a.feedforward(i)
 
 
 # vim: set cc=80:
