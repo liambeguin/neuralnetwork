@@ -25,6 +25,24 @@ class Network:
 
 
 
+    def inspect(self):
+        # n -1 because input layer does not count
+        print "Number of layers : ", self.n_layers - 1
+
+        print "-- Input Layer --"
+        print self.struct[0], " Neurons"
+
+        if self.n_layers > 2:
+            for idx, val in enumerate(self.struct[1:-1]):
+                print "-- Hidden Layer %d --" % (idx +1)
+                print val, " Neurons"
+                print "weights:"
+                print self.weights[idx]
+
+        print " -- Output Layer --"
+        print self.struct[-1], " Neurons"
+        print "weights:"
+        print self.weights[-1]
 
 
 
