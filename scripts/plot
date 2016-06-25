@@ -79,6 +79,12 @@ if (type eq "comp"){
 			} else {
 				filenames = system(sprintf("find %s/ -iname %d*.txt", word(dirs, idx), i))
 			}
+			if (col == 13) {
+				set yrange [-0.2:1.1]
+			} else {
+				set yrange [-0.4:0.4]
+			}
+
 			plot for [file in filenames] file using col
 		}
 		unset multiplot

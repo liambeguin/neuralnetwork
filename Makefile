@@ -4,7 +4,7 @@ plot: prep
 	gnuplot -c ./scripts/plot comp $N
 
 prep:
-	./preprocessing.py
+	./lib/preprocessing.py
 
 clean:
 	rm -rf out/ plot/

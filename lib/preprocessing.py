@@ -3,6 +3,7 @@
 
 
 import os, fnmatch
+import numpy as np
 
 import logging
 logging.basicConfig(format='%(levelname)s: %(message)s')
@@ -17,11 +18,12 @@ class Preprocessing:
     def __init__(self, filename, count):
         """Takes a CSV like file and converts it to a 2D float array for easy
         processing."""
-
-        lines = open(filename).readlines()
-        self.filename = filename
         self.count = count
-        self.data = [ [ float(x) for x in line.split() ] for line in lines ]
+        self.filename = filename
+        # Get array from file
+        self.data = np.fromfile(filename, sep=' ')
+        # Resize to match the file format
+        self.data = self.data.reshape((len(self.data)/26, 26))
 
         if len(self.data) < self.count:
             logger.warning("Not enough lines [%d/%d] in file: %s " \
@@ -94,9 +96,12 @@ class Preprocessing:
         if len(self.data) > self.count:
             self.data = self.data[0:self.count]
         else:
-            pad = [0] * len(self.data[0])
-            pad[COL_STATIC_E] = min(self.__get_column(COL_STATIC_E))
-            self.data += [pad] * (self.count - len(self.data))
+            pad = np.zeros((self.count - len(self.data), len(self.data[0])))
+
+            for line in pad:
+                line[COL_STATIC_E] = min(self.__get_column(COL_STATIC_E))
+
+            self.data = np.concatenate((self.data, pad))
 
 
     def save(self, prefix):
@@ -107,12 +112,7 @@ class Preprocessing:
         if not os.path.exists(os.path.dirname(out)):
             os.makedirs(os.path.dirname(out))
 
-        f = open(out, 'w')
-        for line in self.data:
-            for i in line:
-                f.write(str(i) + ' ')
-            f.write('\n')
-        f.close()
+        np.savetxt(out, self.data, delimiter=' ')
 
 
 
@@ -134,7 +134,7 @@ def get_filelist(input_dir, number):
 
 
 def main():
-    for num in range(1, 10):
+    for num in xrange(1, 10):
         for i in get_filelist('train', num):
             data = Preprocessing(i, 60)
             data.start_point_detection(threshold=0.5, n=10)
