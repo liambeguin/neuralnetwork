@@ -116,36 +116,3 @@ class Preprocessing:
 
 
 
-
-def get_filelist(input_dir, number):
-    """ Returns a list of files  for a given number."""
-
-    pattern = str(number) + '*'
-    fileList = []
-
-    for dName, sdName, fList in os.walk(input_dir):
-        for fileName in fList:
-            if fnmatch.fnmatch(fileName, pattern):
-                fileList.append(os.path.join(dName, fileName))
-
-    return fileList
-
-
-
-
-def main():
-    for num in xrange(1, 10):
-        for i in get_filelist('train', num):
-            data = Preprocessing(i, 60)
-            data.start_point_detection(threshold=0.5, n=10)
-            data.cut_first_max(n=20)
-            data.fit()
-            data.save('out')
-
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Interrupted by user.")
