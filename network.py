@@ -85,7 +85,8 @@ class Network:
                         for w, nw in zip(self.weights, nabla_w) ]
 
             if test_data:
-                print "Epoch {}: {}".format(i, self.error_rate(test_data))
+                print "Epoch {}: {} {}/{}".format(i, self.error_rate(test_data), \
+                        self.evaluate(test_data), len(test_data))
             else:
                 print "Epoch {}".format(i)
 
@@ -115,6 +116,16 @@ class Network:
         return (nabla_b, nabla_w)
 
 
+    def evaluate(self, test_data):
+        """Return the number of test inputs for which the neural
+        network outputs the correct result. Note that the neural
+        network's output is assumed to be the index of whichever
+        neuron in the final layer has the highest activation."""
+        test_results = [(np.argmax(self.feedforward(x)), y)
+                        for (x, y) in test_data]
+        return sum(int(x == y) for (x, y) in test_results)
+
+
     def error_rate(self, test_data):
         """Returns the error rate of the network while using a given set of
         weights and biases.
@@ -124,21 +135,10 @@ class Network:
         test_results = [ (np.argmax(self.feedforward(x)), y) \
                 for (x, y) in test_data ]
 
-        return 1 - (float(sum(int(x == y) \
-                for (x, y) in test_results)) / len(test_results))
+        return 100 * (1 - (float(sum(int(x == y) \
+                for (x, y) in test_results)) / len(test_results)))
 
 
-
-
-if __name__ == "__main__":
-
-    # training set
-    i = [[3,5], [5,1], [10,2]]
-    y = [75, 82, 93]
-    y = np.multiply(y, 1.0/100)
-
-    a = Network([2, 3, 1])
-    yHat = a.feedforward(i)
 
 
 # vim: set cc=80:
