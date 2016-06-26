@@ -92,11 +92,27 @@ if (type eq "comp"){
 	}
 }
 
-
 if (type eq "matrix") {
 	filenames = system(sprintf("find out/ -iname %d*.txt", 1))
 
 	plot for [file in filenames] file matrix every 1:12:1 w image
+}
+
+if (type eq "learning") {
+	set terminal png
+	set output "plot/learning.png"
+	set yrange [0:]
+	set xtics 0, 1 rotate by 45 offset -1, -1
+	set ytics 0, 1
+	set title 'Output Error rate'
+	set xlabel 'Epoch'
+	set ylabel '% Error'
+	set nokey
+	set grid
+	plot 'out/learning' using 3 with linespoints smooth acsplines, \
+	'' using 3 with points
+	# NOTE: This adds labels to each point
+	# '' using 0:3:3 with labels offset 0, char 1 rotate by 45
 }
 
 # vim: cc=80:
