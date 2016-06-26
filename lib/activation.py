@@ -11,7 +11,7 @@ def sigmoid(z, prime=False):
     else:
         return 1.0 / (1.0 + np.exp(-z))
 
-def tanh(s, prime=False):
+def tanh(z, prime=False):
     if prime:
         return 1.0/(np.cosh(z)**2)
     else:
