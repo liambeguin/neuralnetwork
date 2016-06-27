@@ -49,7 +49,7 @@ class Network:
         self.z = [ np.random.randn(layer,1) for layer in struct ]
 
         self.biases  = [ np.random.randn(y, 1) for y in struct[1:] ]
-        self.weights = [ np.random.randn(y, x) \
+        self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
                         for x, y in zip(struct[:-1], struct[1:]) ]
 
 
