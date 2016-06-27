@@ -3,10 +3,8 @@
 
 import numpy as np
 
-
 def sigmoid(z, prime=False):
     if prime:
-        # return np.exp(-z)/((1+np.exp(-z))**2)
         return sigmoid(z)*(1-sigmoid(z))
     else:
         return 1.0 / (1.0 + np.exp(-z))
@@ -26,6 +24,7 @@ activation_functions = {
 class ActivationFunction():
     def __init__(self,func='sigmoid'):
         self.function = activation_functions[func]
+        self.type = func
 
     def __call__(self, z):
         return self.function(z)
