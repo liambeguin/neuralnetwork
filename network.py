@@ -51,6 +51,48 @@ class Network:
                         for x, y in zip(struct[:-1], struct[1:]) ]
 
 
+    def __repr__(self):
+        ret  = "Neural Network      : {}\n".format(self.struct)
+        ret += "Activation function : {}\n".format(self.activation.type)
+        ret += "Cost function       : {}\n\n".format(self.cost.type)
+        if max(self.struct) <= 35:
+            for idx, val in enumerate(self.struct):
+                ret += 'L{:>0{n}} {:^{num}}\n'.format(str(idx), \
+                        '* '*val, n=len(str(len(self.struct))), \
+                        num=2*max(self.struct))
+        return ret
+
+
+    def __call__(self, X):
+        self.feedforward(X)
+
+
+    def save(self, filename):
+        data = {
+                "struct"     : self.struct,
+                "activation" : self.activation.type,
+                "cost"       : self.cost.type,
+                "eta"        : self.eta,
+                "weights"    : [ w.tolist() for w in self.weights ],
+                "biases"     : [ b.tolist() for b in self.biases  ],
+                }
+        with open(filename, 'wb') as f:
+            yaml.dump(data, f)
+
+
+    def load(self, filename):
+        with open(filename, 'rb') as f:
+            data = yaml.load(f)
+
+            self.struct = data['struct']
+            self.activation = ActivationFunction(func=data['activation'])
+            self.cost = CostFunction(func=data['cost'])
+            self.eta = data['eta']
+
+            self.biases  = [ np.array(b) for b in data['biases']  ]
+            self.weights = [ np.array(w) for w in data['weights'] ]
+
+
     def feedforward(self, X):
         """Propagate input data through the network and store z and a values."""
         act = X
