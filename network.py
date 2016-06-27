@@ -30,6 +30,10 @@ class Network:
         we'll use w^l_{jk} to denote the weight of the connection from the k^th
         neuron in the (l-1)^th layer to the j^th neuron in the l^th layer
         """
+
+        if cost == 'cross-entropy' and activation != 'sigmoid':
+            raise Exception("cross-entropy can only be used with a sigmoid activation")
+
         self.n_layers = len(struct)
         self.struct = struct
         self.activation = ActivationFunction(func=activation)
@@ -99,8 +103,11 @@ class Network:
         self.feedforward(X)
 
         # Before the for loop, delta = delta_L
-        delta = self.cost.derivative(self.a[-1], y) * \
-                self.activation.derivative(self.z[-1])
+        if self.cost.type == 'cross-entropy':
+            delta = self.cost.derivative(self.a[-1], y)
+        else:
+            delta = self.cost.derivative(self.a[-1], y) * \
+                    self.activation.derivative(self.z[-1])
 
         nabla_b[-1] = delta
         nabla_w[-1] = np.dot(delta, self.a[-2].transpose())

@@ -10,9 +10,19 @@ def quadratic(a, y, prime=False):
         return 0.5 * sum((a-y)**2)
 
 
+def crossentropy(a, y, prime=False):
+    if prime:
+        return (a - y)
+    else:
+        return np.sum(y*np.log(a) + (1-y)*np.log(1-a))
+
+# Add log-likelihood to be used with softmax output layer
+# This outputs a probability distribution
+
 
 cost_functions = {
-        'quadratic' : quadratic
+        'quadratic': quadratic,
+        'cross-entropy': crossentropy
         }
 
 class CostFunction():
