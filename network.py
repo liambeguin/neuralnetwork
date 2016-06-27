@@ -7,6 +7,7 @@ import numpy as np
 import random
 import datetime
 
+from lib.regularization import RegularizationFunction
 from lib.activation import ActivationFunction
 from lib.cost import CostFunction
 from lib import utils
@@ -16,7 +17,7 @@ from lib import utils
 
 class Network:
     def __init__(self, struct, \
-            activation='sigmoid', cost='quadratic', \
+            activation='sigmoid', cost='quadratic', regularization='none', \
             learning_rate=3.0, momentum=0.5):
         """Generate the network's architecture based on a list.
 
@@ -37,6 +38,7 @@ class Network:
 
         self.n_layers = len(struct)
         self.struct = struct
+        self.regularization = RegularizationFunction(func=regularization)
         self.activation = ActivationFunction(func=activation)
         self.cost = CostFunction(func=cost)
         self.eta = learning_rate
@@ -111,7 +113,7 @@ class Network:
 
 
     # if batch_size is 1 this is called online learning
-    def train(self, training_dataset, epochs, batch_size, test_data=None):
+    def train(self, training_dataset, epochs, batch_size, lambda_=0.1, test_data=None):
         """Train the network using stichastic gradient descent."""
         self.learn_time = datetime.datetime.now()
 
@@ -129,9 +131,11 @@ class Network:
                     nabla_w = [ nw + dnw for nw, dnw in zip(nabla_w, delta_nabla_w) ]
 
                 # Update weights
-                self.biases  = [ b - (self.eta / len(mini_batch)) * nb \
+                self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_b) ]
-                self.weights = [ w - (self.eta / len(mini_batch)) * nw \
+                self.weights = [ w - self.eta * (nw + \
+                    self.regularization.derivative(w, lambda_, \
+                    len(training_dataset))) \
                         for w, nw in zip(self.weights, nabla_w) ]
 
             if test_data:
