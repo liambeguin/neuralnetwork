@@ -91,6 +91,10 @@ class Preprocessing:
         self.__check_size(prefix=self.moving_average_fit.__name__)
 
 
+    def cutout_dynamics(self):
+        self.data = np.delete(self.data, np.s_[COL_STATIC_E+1:COL_DYNAMIC_E], 1)
+
+
     def fit(self):
         """"Make sure data is the right length."""
         if len(self.data) > self.count:
