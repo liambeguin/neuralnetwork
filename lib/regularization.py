@@ -21,9 +21,16 @@ def weightdecay(w, lambda_, n, prime=False):
         return (lambda_ / (2 * n)) * np.sum(w**2)
 
 
+def l1_reg(w, lambda_, n, prime=False):
+    if prime:
+        return (lambda_ / n) * np.sign(w)
+    else:
+        return (lambda_ / n) * np.sum(np.absolute(w))
+
+
 regularization_functions = {
         'none': noreg,
-        'L1': noreg,
+        'L1': l1_reg,
         'L2': weightdecay,
         'weight-decay': weightdecay,
         }
