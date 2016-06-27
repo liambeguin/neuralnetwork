@@ -33,9 +33,9 @@ if lab:
     training_data = training_data_lvb
     test_data = test_data_lvb
 
-    net = network.Network(layers, activation='sigmoid', cost='cross-entropy')
-    net.eta = 0.1
-    net.train(training_data, 100, 10, test_data=test_data)
+    net = network.Network(layers, activation='sigmoid', cost='cross-entropy', regularization='L2',
+            learning_rate=0.1)
+    net.train(training_data, 30, 10, test_data=test_data)
 
     foo = test_data[0]
 
@@ -47,16 +47,16 @@ else:
     training_data = training_data_ini
     test_data = test_data_ini
 
-    net = network.Network(layers, activation='sigmoid', cost='cross-entropy',
+    net = network.Network(layers, activation='sigmoid', cost='cross-entropy', regularization='L2',
             learning_rate=eta)
-    net.train(training_data, 1, 10, test_data=test_data)
+    net.train(training_data, 30, 10, lambda_=2.0, test_data=test_data)
 
     foo = (test_data[0][0], u.vectorize_output(test_data[0][1]))
 
 
 
 print foo[1]
-print net.feedforward(foo[0])
+print net(foo[0])
 print
 print "learned in {}".format(net.learn_time)
 f.write('learned in {}\n'.format(net.learn_time))
