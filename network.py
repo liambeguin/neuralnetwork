@@ -66,7 +66,7 @@ class Network:
 
 
     def __call__(self, X):
-        self.feedforward(X)
+        return self.feedforward(X)
 
 
     def save(self, filename):
@@ -139,7 +139,7 @@ class Network:
                         for w, nw in zip(self.weights, nabla_w) ]
 
             if test_data:
-                print "Epoch {:5}: {:3.2%} {:4} / {}".format(i, self.error_rate(test_data), \
+                print "Epoch {:3}: {:.03f} {:4} / {}".format(i, self.error_rate(test_data), \
                         self.evaluate(test_data), len(test_data))
                 self.err = np.append(self.err, self.error_rate(test_data))
             else:
