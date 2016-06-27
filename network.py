@@ -5,6 +5,7 @@ import yaml
 # Use numpy and matices to speed up the processing
 import numpy as np
 import random
+import datetime
 
 from lib.activation import ActivationFunction
 from lib.cost import CostFunction
@@ -40,6 +41,7 @@ class Network:
         self.cost = CostFunction(func=cost)
         self.eta = learning_rate
         self.alpha = momentum
+        self.err = np.array([1.0])
 
         self.a = [ np.random.randn(layer,1) for layer in struct ]
         self.z = [ np.random.randn(layer,1) for layer in struct ]
@@ -69,6 +71,8 @@ class Network:
     # if batch_size is 1 this is called online learning
     def train(self, training_dataset, epochs, batch_size, test_data=None):
         """Train the network using stichastic gradient descent."""
+        self.learn_time = datetime.datetime.now()
+
         for i in xrange(epochs):
             # Select a random mini batch in the training dataset
             random.shuffle(training_dataset)
@@ -89,10 +93,13 @@ class Network:
                         for w, nw in zip(self.weights, nabla_w) ]
 
             if test_data:
-                print "Epoch {}: {} {}/{}".format(i, self.error_rate(test_data), \
+                print "Epoch {:5}: {:3.2%} {:4} / {}".format(i, self.error_rate(test_data), \
                         self.evaluate(test_data), len(test_data))
+                self.err = np.append(self.err, self.error_rate(test_data))
             else:
-                print "Epoch {}".format(i)
+                print "Epoch {:02}".format(i)
+
+        self.learn_time = datetime.datetime.now() - self.learn_time
 
 
     def backpropagation(self, X, y):
@@ -142,8 +149,8 @@ class Network:
         test_results = [ (np.argmax(self.feedforward(x)), y) \
                 for (x, y) in test_data ]
 
-        return 100 * (1 - (float(sum(int(x == y) \
-                for (x, y) in test_results)) / len(test_results)))
+        return 1 - (float(sum(int(x == y) \
+                for (x, y) in test_results)) / len(test_results))
 
 
 

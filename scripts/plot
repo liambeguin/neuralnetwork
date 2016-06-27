@@ -99,20 +99,16 @@ if (type eq "matrix") {
 }
 
 if (type eq "learning") {
-	set terminal png
+	set terminal png size 1920,1080
 	set output "plot/learning.png"
-	set yrange [0:]
-	set xtics 0, 1 rotate by 45 offset -1, -1
-	set ytics 0, 1
+	set xtics 0, 1
 	set title 'Output Error rate'
 	set xlabel 'Epoch'
 	set ylabel '% Error'
 	set nokey
 	set grid
-	plot 'out/learning' using 3 with linespoints smooth acsplines, \
-	'' using 3 with points
-	# NOTE: This adds labels to each point
-	# '' using 0:3:3 with labels offset 0, char 1 rotate by 45
+	plot 'out/learning' i 1 using 1 with linespoints smooth acsplines, \
+	'' i 1 using 1 with points
 }
 
 # vim: cc=80:

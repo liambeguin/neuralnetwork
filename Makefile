@@ -1,8 +1,7 @@
 
 learn:
-	time ./run.py > out/learning
+	./run.py
 	gnuplot -c ./scripts/plot learning
-	tail -n 2 out/learning
 
 plot: prep
 	gnuplot -c ./scripts/plot comp $N
