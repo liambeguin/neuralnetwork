@@ -321,7 +321,7 @@ class centralWidget(QWidget):
             hLL=self.hiddenLayersLayout
             w=hLL.itemAt(hLL.count()-1).widget().deleteLater()
             self.plainTextEdit.insertPlainText("Remove -- layer number{}\n".format(self.hiddenLayersLayout.count()))
-        self.drawHiddenLayerNeurone.emit(self.i,0)
+            self.drawHiddenLayerNeurone.emit(self.i,0)
 
 #------------------------------------------------------------------------------- 
 #
@@ -330,20 +330,23 @@ class centralWidget(QWidget):
 #-------------------------------------------------------------------------------
     @pyqtSlot(int,int)
     def on_drawHiddenLayerNeurone(self,layer,neurone):
-        self.plainTextEdit.clear()
-        self.plainTextEdit.insertPlainText("layer {},neurone{}\n".format(layer,neurone))
-        if len(self.hm)<=layer:
+        #self.plainTextEdit.clear()
+        self.plainTextEdit.insertPlainText("layer {},neurone{} --len {}\n".format(layer,neurone,len(self.hm)))
+        if len(self.hm)<layer:
             self.hm.append(neurone)
-            self.plainTextEdit.insertPlainText("++len {}\n".format(len(self.hm)))
+            self.plainTextEdit.insertPlainText("++append\n")
+        elif neurone==0:
+            del self.hm[layer-1]
         else:
             self.hm[layer-1]=neurone
-            self.plainTextEdit.insertPlainText("==len {}\n".format(len(self.hm)))
+            self.plainTextEdit.insertPlainText("==rewrite {}\n")
         
         self.plainTextEdit.insertPlainText("len {}\n".format(self.hm))
-        
+#        
         hl=neuralNetworkWidget(20,120,self.hm)        
-        hl.drawNeurones()
-        hl.drawLines()
+        if len(self.hm)>1:
+            hl.drawNeurones()
+            hl.drawLines()
         self.graphicsView.setScene(hl.getScene())
         
 #------------------------------------------------------------------------------- 

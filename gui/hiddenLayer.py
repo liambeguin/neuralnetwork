@@ -31,7 +31,7 @@ class neuralNetworkWidget():
         return self.scene
     
     def setLayer(self,layer):
-        if len(layer)<2:
+        if len(layer)<1:
             print("Error layer size must be greater ")
         else:
             return layer
