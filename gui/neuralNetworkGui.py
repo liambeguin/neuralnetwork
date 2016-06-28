@@ -10,12 +10,12 @@ matplotlib.use('Qt5Agg')
 
 from hiddenLayer import neuralNetworkWidget
 from PyQt5 import QtCore,QtWidgets,QtSvg,QtGui
-from PyQt5.QtGui import QTextCursor,QColor,QBrush,QPen,QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow ,QWidget, \
+from PyQt5.QtGui import QTextCursor,QColor,QBrush,QPen,QPixmap,QPainter,QPainterPath
+from PyQt5.QtWidgets import QApplication, QMainWindow ,QWidget, QDesktopWidget, \
                 QGridLayout,QHBoxLayout, \
                 QGraphicsView,QGraphicsScene,QGraphicsRectItem, \
                 QPushButton,QLabel,QPlainTextEdit,QComboBox, \
-                QSpacerItem,QSizePolicy
+                QSpacerItem,QSizePolicy,QGraphicsPixmapItem
 
 from PyQt5.QtCore import QRect,QRectF,pyqtSignal,pyqtSlot
 
@@ -81,23 +81,42 @@ class MyDynamicMplCanvas(MyMplCanvas):
 
 
 
+
 class hiddenLayer(QWidget):
     """ creating a hidden layer interface"""
     def __init__(self):
         super(hiddenLayer,self).__init__()
         self.layout=QGridLayout(self)
         
+        pix=QtGui.QPixmap(os.getcwd() + "/ressource/icons/pluss.png")
+#        painter=QPainter()
+#        painter.begin()
+#        painter.setRenderHint(QPainter.Antialiasing)
+#        path=QPainterPath()
+# 
+#        path.addEllipse(64, 64, 32, 32)
+#        painter.setClipPath(path)
+#        painter.drawPixmap(64, 64, 32, 32,pix);
+#        painter.end()
+
         self.i=1
         self.extendLabelPlus=ExtendedQLabel()
-        self.extendLabelPlus.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/pluss.png"))
+        self.extendLabelPlus.setPixmap(pix)
+
+
+#        self.extendLabelPlus.setFixedSize(64,64)
         
         self.extendLabelMinus=ExtendedQLabel()
         self.extendLabelMinus.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/minuss.png"))
+#        self.extendLabelMinus.setFixedSize(32,32)
         
         self.extendLabelTitle=QLabel("{} Neurones".format(self.i))
-        self.layout.addWidget(self.extendLabelPlus,0,0)
-        self.layout.addWidget(self.extendLabelMinus,0,1)
-        self.layout.addWidget(self.extendLabelTitle,1,0)
+        self.layout.addWidget(self.extendLabelPlus,0,0,QtCore.Qt.AlignHCenter)
+        self.layout.addWidget(self.extendLabelMinus,0,1,QtCore.Qt.AlignHCenter)
+        self.layout.addWidget(self.extendLabelTitle,1,0,1,-1,QtCore.Qt.AlignHCenter)
+        self.setFixedSize(190,90)
+       # self.setStyleSheet("background-color: rgb(255,0,0); margin:5px; border:1px solid rgb(0, 255, 0); ")
+
         #self.setFixedSize(100,100)
 
 
@@ -181,6 +200,7 @@ class centralWidget(QWidget):
 #
 ################################################################################
         self.layerManager=QWidget()
+        self.layerManager.setFixedSize(600,70)
         self.layerManagerLayout=QHBoxLayout(self.layerManager)
         #Features
         self.featuresManager =QLabel("Features")
@@ -240,20 +260,21 @@ class centralWidget(QWidget):
 ################################################################################ 
         self.spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding,QSizePolicy.Minimum)
         
-        self.gridLayout.addItem(self.spacerItem,0,0)
-        self.gridLayout.addWidget(self.settingsWidget,0,1)
-        self.gridLayout.addItem(self.spacerItem,0,2)
+        self.span=1
+        self.gridLayout.addItem(self.spacerItem,0,0,self.span,self.span)
+        self.gridLayout.addWidget(self.settingsWidget,0,1,self.span,self.span,QtCore.Qt.AlignHCenter)
+        self.gridLayout.addItem(self.spacerItem,0,2,self.span,self.span)
 
-        self.gridLayout.addItem(self.spacerItem,1,0)
-        self.gridLayout.addWidget(self.layerManager,1,1)
-        self.gridLayout.addItem(self.spacerItem,1,2)
+        self.gridLayout.addItem(self.spacerItem,1,0,self.span,self.span)
+        self.gridLayout.addWidget(self.layerManager,1,1,self.span,self.span,QtCore.Qt.AlignHCenter)
+        self.gridLayout.addItem(self.spacerItem,1,2,self.span,self.span)
         
-        self.gridLayout.addItem(self.spacerItem,2,0)
-        self.gridLayout.addWidget(self.hiddenLayers,2,1)
-        self.gridLayout.addItem(self.spacerItem,2,2)
+        self.gridLayout.addItem(self.spacerItem,2,0,self.span,self.span)
+        self.gridLayout.addWidget(self.hiddenLayers,2,1,self.span,self.span)
+        self.gridLayout.addItem(self.spacerItem,2,2,self.span,self.span)
 
         self.gridLayout.addWidget(self.graphicsView,3,0,1,-1)
-        self.gridLayout.addWidget(self.plainTextEdit,4,0,1,-1)
+        self.gridLayout.addWidget(self.plainTextEdit,4,0,2,-1)
 
 ################################################################################ 
 #
@@ -304,14 +325,15 @@ class centralWidget(QWidget):
 #-------------------------------------------------------------------------------
     @pyqtSlot()
     def on_extendLabelHiddenManagerPlusClicked(self):
-        self.i+=1
-        self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
-        hLL=self.hiddenLayersLayout
-        hLL.addWidget(hiddenLayer())
-        
-        self.plainTextEdit.insertPlainText("Add -- layer number:{}\n".format(hLL.count()))
-        self.hiddenLayerCreated.emit(self.i)
-        self.drawHiddenLayerNeurone.emit(self.i,1)
+        if self.i <10:
+            self.i+=1
+            self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
+            hLL=self.hiddenLayersLayout
+            hLL.addWidget(hiddenLayer())
+            
+            self.plainTextEdit.insertPlainText("Add -- layer number:{}\n".format(hLL.count()))
+            self.hiddenLayerCreated.emit(self.i)
+            self.drawHiddenLayerNeurone.emit(self.i,1)
     
     @pyqtSlot()
     def on_extendLabelHiddenManagerMinusClicked(self):
@@ -325,7 +347,7 @@ class centralWidget(QWidget):
 
 #------------------------------------------------------------------------------- 
 #
-#       Test slot
+#       drawing hidden layer  slot
 #
 #-------------------------------------------------------------------------------
     @pyqtSlot(int,int)
@@ -371,6 +393,7 @@ class MainWindow(QMainWindow): #, Ui_MainWindow):
         self.initUi()
         # Set up the user interface from Designer.
     def initUi(self):
+
         self.setCentralWidget(centralWidget())
 
 
@@ -378,7 +401,13 @@ class MainWindow(QMainWindow): #, Ui_MainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    dw=QDesktopWidget()
+    x=dw.width()
+    y=dw.height()
+
+
     window = MainWindow()
+    window.setFixedSize(x,y)
     window.show()
     sys.exit(app.exec_())
 
