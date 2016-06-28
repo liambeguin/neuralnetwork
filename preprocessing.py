@@ -137,7 +137,10 @@ def main():
     for num in range(1, 10):
         for i in get_filelist('train', num):
             data = Preprocessing(i, 60)
+
+#           data.moving_average_fit(0.1, 2.0, COL_DYNAMIC_E,3)
             data.start_point_detection(threshold=0.5, n=10)
+#            data.cut_first_max(n=20)
             data.cut_first_max(n=20)
             data.fit()
             data.save('out')
