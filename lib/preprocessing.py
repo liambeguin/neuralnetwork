@@ -95,6 +95,10 @@ class Preprocessing:
         self.data = np.delete(self.data, np.s_[COL_STATIC_E+1:COL_DYNAMIC_E], 1)
 
 
+    def only_static_data(self):
+        self.data = np.delete(self.data, np.s_[0:COL_STATIC_E], 1)
+
+
     def fit(self):
         """"Make sure data is the right length."""
         if len(self.data) > self.count:

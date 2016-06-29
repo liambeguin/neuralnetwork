@@ -29,6 +29,7 @@ def _extract(dirname='train', size=60, vectorize=False):
             x = prep.Preprocessing(file_, size)
             x.start_point_detection(threshold=0.5, n=10)
             x.cut_first_max(n=20)
+            x.only_static_data()
             x.fit()
             # make a column of the whole array
             input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
