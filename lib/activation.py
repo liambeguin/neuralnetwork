@@ -15,9 +15,20 @@ def tanh(z, prime=False):
     else:
         return np.tanh(z)
 
+def softplus(z, prime=False):
+    """NOTE: this is a smoothed approximation of the ReLU
+    activation function. It's easier to implement using
+    numpy."""
+    if prime:
+        return sigmoid(z)
+    else:
+        return np.log(1 + np.exp(np.clip(z, -50, 50)))
+
+
 activation_functions = {
         'sigmoid' : sigmoid,
-        'tanh'    : tanh
+        'tanh'    : tanh,
+        'softplus': softplus,
         }
 
 # Activation functions
