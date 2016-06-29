@@ -7,11 +7,11 @@ def sigmoid(z, prime=False):
     if prime:
         return sigmoid(z)*(1-sigmoid(z))
     else:
-        return 1.0 / (1.0 + np.exp(-z))
+        return 1.0 / (1.0 + np.exp(np.negative(np.clip(z, -50, 50))))
 
 def tanh(z, prime=False):
     if prime:
-        return 1.0/(np.cosh(z)**2)
+        return 1.0 / np.square(np.cosh(z))
     else:
         return np.tanh(z)
 
