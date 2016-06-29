@@ -6,7 +6,7 @@ def quadratic(a, y, prime=False):
     if prime:
         return (1.0 / len(a)) * (a - y)
     else:
-        return (np.linalg.norm(a-y)**2) / 2 * len(a)
+        return (np.linalg.norm(y-a)**2) / (2 * len(a))
 
 
 def crossentropy(a, y, prime=False):
