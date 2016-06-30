@@ -18,7 +18,7 @@ def weightdecay(w, lambda_, n, prime=False):
     if prime:
         return (lambda_ / n) * w
     else:
-        return (lambda_ / (2 * n)) * np.sum(w**2)
+        return (lambda_ / (2 * n)) * np.square(np.linalg.norm(w))
 
 
 def l1_reg(w, lambda_, n, prime=False):
@@ -28,20 +28,21 @@ def l1_reg(w, lambda_, n, prime=False):
         return (lambda_ / n) * np.sum(np.absolute(w))
 
 
-regularization_functions = {
-        'none': noreg,
-        'L1': l1_reg,
-        'L2': weightdecay,
-        'weight-decay': weightdecay,
-        }
-
 class RegularizationFunction():
+
+    regularization_functions = {
+            'none': noreg,
+            'L1': l1_reg,
+            'L2': weightdecay,
+            'weight-decay': weightdecay,
+            }
+
     def __init__(self, func='none'):
-        self.function = regularization_functions[func]
+        self.function = RegularizationFunction.regularization_functions[func]
         self.type = func
 
-    def __call__(self, w, lambda_):
-        return self.function(w, lambda_, prime=False)
+    def __call__(self, w, lambda_, n):
+        return self.function(w, lambda_, n, prime=False)
 
     def derivative(self, w, lambda_, n):
         return self.function(w, lambda_, n, prime=True)

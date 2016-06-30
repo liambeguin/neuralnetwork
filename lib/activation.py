@@ -25,16 +25,17 @@ def softplus(z, prime=False):
         return np.log(1 + np.exp(np.clip(z, -50, 50)))
 
 
-activation_functions = {
-        'sigmoid' : sigmoid,
-        'tanh'    : tanh,
-        'softplus': softplus,
-        }
-
 # Activation functions
 class ActivationFunction():
+
+    activation_functions = {
+            'sigmoid' : sigmoid,
+            'tanh'    : tanh,
+            'softplus': softplus,
+            }
+
     def __init__(self,func='sigmoid'):
-        self.function = activation_functions[func]
+        self.function = ActivationFunction.activation_functions[func]
         self.type = func
 
     def __call__(self, z):
