@@ -45,10 +45,6 @@ def _extract(dirname='train', size=60, vectorize=False):
 
 def inspect_dataset(dataset, size=60):
     print "-- Dataset inspection --"
-    # for i in dataset:
-    #     if len(i[0]) != size*26:
-    #         print "BAD input"
-
     print "size : {}".format(len(dataset))
     print "input  shape: {}".format(dataset[0][0].shape)
     if isinstance(dataset[0][1], np.ndarray):
