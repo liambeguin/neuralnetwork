@@ -1,70 +1,72 @@
 #!/usr/bin/python
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import lib.utils as u
 import network
 
-lab = 1
+lab = 0
 
 
 
 
 # Get input data
 import mnist_loader
-training_data_ini, validation_data_ini, test_data_ini = mnist_loader.load_data_wrapper()
+print " ** Extracting DATA ..."
 training_data_lvb, test_data_lvb = u.extract_datasets(size=40)
 
-f = open('out/learning', 'w')
+input_size = len(training_data_lvb[0][0])
+output_size = len(training_data_lvb[0][1])
 
-f.write("Header\n")
-f.write('len training: {}\n'.format(len(training_data_lvb)))
-f.write('len test: {}\n'.format(len(test_data_lvb)))
+print " ** lvb input size : {}".format(input_size)
+print " ** Starting training ..."
 
-# print " *** lvb *** "
-# u.inspect_dataset(training_data_lvb)
-# print
-# print
-# print " *** ini *** "
-# u.inspect_dataset(training_data_ini)
 
 if lab:
-    input_size = len(training_data_lvb[0][0])
-    output_size = len(training_data_lvb[0][1])
-    layers = [input_size, 100, output_size]
+    layers = [input_size, 10, output_size]
     training_data = training_data_lvb
     test_data = test_data_lvb
 
-    net = network.Network(layers, activation='sigmoid', cost='cross-entropy', regularization='L2',
-            learning_rate=0.1)
-    net.train(training_data, 30, 10, test_data=test_data)
+    net = network.Network(layers,
+            activation='sigmoid',
+            cost='cross-entropy',
+            regularization='L2',
+            learning_rate=0.2,
+            lambda_=0.0)
 
-    foo = test_data[0]
-
+    tr_acc, tr_err, tr_cost, va_acc, va_err, va_cost = net.train(training_data,
+            epochs=50,
+            batch_size=20,
+            va_d=test_data,
+            monitoring={'error':True, 'accuracy':True, 'cost':False})
 
 
 else:
-    layers = [784, 30, 10]
-    eta = 0.5
+    training_data_ini, validation_data_ini, test_data_ini = mnist_loader.load_data_wrapper()
+    layers = [784, 100, 10]
     training_data = training_data_ini
     test_data = test_data_ini
 
-    net = network.Network(layers, activation='sigmoid', cost='cross-entropy', regularization='L2',
-            learning_rate=eta)
-    net.train(training_data, 30, 10, lambda_=2.0, test_data=test_data)
+    net = network.Network(layers,
+            activation='sigmoid',
+            cost='cross-entropy',
+            regularization='L2',
+            learning_rate=0.5,
+            lambda_=1.1)
 
-    foo = (test_data[0][0], u.vectorize_output(test_data[0][1]))
-
-
-
-print foo[1]
-print net(foo[0])
-print
-print "learned in {}".format(net.learn_time)
-f.write('learned in {}\n'.format(net.learn_time))
-
-f.write('\n\n')
-f.write('error rate\n')
-for i in net.err:
-    f.write(str(i)+'\n')
+    tr_acc, tr_err, tr_cost, va_acc, va_err, va_cost = net.train(training_data,
+            epochs=30,
+            batch_size=10,
+            va_d=test_data,
+            monitoring={'error':True, 'accuracy':True, 'cost':False})
 
 
-f.close()
+
+plt.xlabel('Epoch')
+plt.ylabel('Error rate')
+plt.plot(tr_err, label='error on training')
+plt.plot(va_err, label='error on validation')
+plt.legend(loc="lower right")
+plt.savefig('out/learning.png')

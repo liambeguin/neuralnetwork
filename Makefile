@@ -1,7 +1,6 @@
 
 learn:
 	./run.py
-	gnuplot -c ./scripts/plot learning
 
 plot: prep
 	gnuplot -c ./scripts/plot comp $N
