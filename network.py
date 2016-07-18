@@ -41,10 +41,10 @@ class Network:
         self.n_layers = len(struct)
         self.struct = struct
         self.regularization = RegularizationFunction(func=regularization)
-        self.activation = ActivationFunction(func=activation)
-        self.cost = CostFunction(func=cost)
-        self.eta = learning_rate
-        self.alpha = momentum
+        self.activation     = ActivationFunction(func=activation)
+        self.cost           = CostFunction(func=cost)
+        self.eta     = learning_rate
+        self.alpha   = momentum
         self.lambda_ = lambda_
 
         self.a = [ np.random.randn(layer,1) for layer in struct ]

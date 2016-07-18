@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import lib.utils as u
 import network
 
-lab = 0
+lab = 1
 
 
 
@@ -25,6 +25,7 @@ print " ** Starting training ..."
 
 
 if lab:
+    plt.title('TIDIGITS')
     layers = [input_size, 10, output_size]
     training_data = training_data_lvb
     test_data = test_data_lvb
@@ -33,17 +34,18 @@ if lab:
             activation='sigmoid',
             cost='cross-entropy',
             regularization='L2',
-            learning_rate=0.2,
-            lambda_=0.0)
+            learning_rate=0.1,
+            lambda_=0.10)
 
     tr_acc, tr_err, tr_cost, va_acc, va_err, va_cost = net.train(training_data,
             epochs=50,
-            batch_size=20,
+            batch_size=1,
             va_d=test_data,
             monitoring={'error':True, 'accuracy':True, 'cost':False})
 
 
 else:
+    plt.title('MNIST')
     training_data_ini, validation_data_ini, test_data_ini = mnist_loader.load_data_wrapper()
     layers = [784, 100, 10]
     training_data = training_data_ini

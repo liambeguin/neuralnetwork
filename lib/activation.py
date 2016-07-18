@@ -11,7 +11,7 @@ def sigmoid(z, prime=False):
 
 def tanh(z, prime=False):
     if prime:
-        return 1.0 / np.square(np.cosh(z))
+        return 1.0 - np.square(tanh(z))
     else:
         return np.tanh(z)
 
