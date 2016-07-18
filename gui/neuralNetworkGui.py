@@ -4,76 +4,46 @@ from __future__ import unicode_literals
 import sys
 import os
 
-from hiddenLayer import neuralNetworkWidget
-from PyQt5 import QtCore,QtWidgets,QtSvg,QtGui
-from PyQt5.QtGui import QTextCursor,QColor,QBrush,QPen,QPixmap,QPainter,QPainterPath
+from neuralNetworkGraphicsView import drawNeuralNetworkWidget
+from neuronManager import neuronManagerWidget
+from extendedQLabel import clickableLabel
+
+
+from PyQt5 import QtCore,QtWidgets,QtGui
+from PyQt5.QtGui import QTextCursor,QColor,QPixmap,QPainter,QPainterPath,QRegion
 from PyQt5.QtWidgets import QApplication, QMainWindow ,QWidget, QDesktopWidget, \
                 QGridLayout,QHBoxLayout, \
                 QGraphicsView,QGraphicsScene,QGraphicsRectItem, \
                 QPushButton,QLabel,QPlainTextEdit,QComboBox, \
                 QSpacerItem,QSizePolicy,QGraphicsPixmapItem
 
-from PyQt5.QtCore import QRect,QRectF,pyqtSignal,pyqtSlot
-
-
-class hiddenLayer(QWidget):
-    """ creating a hidden layer interface"""
-    def __init__(self):
-        super(hiddenLayer,self).__init__()
-        self.layout=QGridLayout(self)
-        
-        pix=QtGui.QPixmap(os.getcwd() + "/ressource/icons/pluss.png")
-
-
-        self.i=1
-        self.extendLabelPlus=ExtendedQLabel()
-        self.extendLabelPlus.setPixmap(pix)
-        #self.extendLabelPlus.setMask(pix.mask())
-
-
-#        self.extendLabelPlus.setFixedSize(64,64)
-        
-        self.extendLabelMinus=ExtendedQLabel()
-        self.extendLabelMinus.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/minuss.png"))
-#        self.extendLabelMinus.setFixedSize(32,32)
-        
-        self.extendLabelTitle=QLabel("{} Neurones".format(self.i))
-
-
-
-        self.extendLabelPlus.setObjectName("plus")
-        self.extendLabelMinus.setObjectName("minus")
-        self.extendLabelMinus.setObjectName("title")
-
-        self.layout.addWidget(self.extendLabelPlus,0,0,QtCore.Qt.AlignHCenter)
-        self.layout.addWidget(self.extendLabelMinus,0,1,QtCore.Qt.AlignHCenter)
-        self.layout.addWidget(self.extendLabelTitle,1,0,1,-1,QtCore.Qt.AlignHCenter)
-        self.setFixedSize(190,90)
-        self.setStyleSheet("background-color: rgb(255,0,0); margin:5px; border:1px solid rgb(0, 255, 0); ")
-
-        #self.setFixedSize(100,100)
-
-
-class ExtendedQLabel(QLabel):
-    """Re implemented QLabel: clickable QLabel"""
-    trigger=pyqtSignal()
-    def __init__(self):
-        super(ExtendedQLabel,self).__init__()
- 
-    def mouseReleaseEvent(self, ev):
-        self.trigger.emit()
-
-
+from PyQt5.QtCore import Qt,pyqtSignal,pyqtSlot
 
 class centralWidget(QWidget):
-    """ main widget"""
+    """ 
+    central widget for the main window
+    ----------------------------------
+    structure
+    +-----------------------------------------------------------------------------+
+    |                                   Settings                                  |
+    +-----------------------------------------------------------------------------|
+    |                                 Layer Manager                               |
+    +-----------------------------------------------------------------------------+
+    |                                Hidden Layers                                |
+    +--------------------------------------+--------------------------------------+
+    |          NN graphicsview             |              Graphs                  |
+    +--------------------------------------+--------------------------------------+
+    """
 
-    hiddenLayerCreated=pyqtSignal(int)
-    drawHiddenLayerNeurone=pyqtSignal(int,int)
+    hiddenLayerCreated     = pyqtSignal(int)
+    drawHiddenLayerNeurone = pyqtSignal(int,int)
 
 
     def __init__(self):
         super(centralWidget, self).__init__()
+        scr=QDesktopWidget()
+        self.w=scr.width()
+        self.h=scr.height()
         self.initUi()
 
         #self.dc = MyDynamicMplCanvas(self.widget, width=5, height=4, dpi=100)
@@ -88,17 +58,24 @@ class centralWidget(QWidget):
 #
 ################################################################################ 
         self.settingsWidget=QWidget()
+        self.settingsWidget.setStyleSheet(
+                "border-style: outset; "+
+                "border-width: 1px;    "+
+                "border-color: red;  "
+                )
+
+        
         self.settingsLayout=QGridLayout(self.settingsWidget)
         
-        self.reloadLabel=ExtendedQLabel()
+        self.reloadLabel=clickableLabel()
         self.reloadLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/reload.png"))
         self.settingsLayout.addWidget(self.reloadLabel,0,0,0,1)
         
-        self.pauseLabel=ExtendedQLabel()
+        self.pauseLabel=clickableLabel()
         self.pauseLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/pause.png"))
         self.settingsLayout.addWidget(self.pauseLabel,0,1,0,1)
         
-        self.playLabel=ExtendedQLabel()
+        self.playLabel=clickableLabel()
         self.playLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/play.png"))
         self.settingsLayout.addWidget(self.playLabel,0,2,0,1)
         
@@ -134,34 +111,43 @@ class centralWidget(QWidget):
 #
 ################################################################################
         self.layerManager=QWidget()
-        self.layerManager.setFixedSize(600,70)
+
+        self.layerManager.setStyleSheet(
+                "border-style: outset; "+
+                "border-width: 1px;    "+
+                "border-color: red;  "
+                )
+        self.layerManager.setFixedSize((self.w*2)//3,70)
         self.layerManagerLayout=QHBoxLayout(self.layerManager)
         #Features
         self.featuresManager =QLabel("Features")
         
         #Number hidden layout
         self.hiddenManagerLayer=QWidget()
+        self.hiddenManagerLayer.setFixedSize((self.w//6)+80,50)
         self.hiddenManagerLayerLayout=QHBoxLayout(self.hiddenManagerLayer)
         
         self.i=0
         self.extendLabelHiddenManagerTitle=QLabel("{} HIDDEN LAYER".format(self.i))
         
-        self.extendLabelHiddenManagerPlus=ExtendedQLabel()
-        self.extendLabelHiddenManagerPlus.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/pluss.png"))
+        self.extendLabelHiddenManagerPlus=clickableLabel(pixmap="/ressource/icons/pluss.png")
+        self.extendLabelHiddenManagerPlus.scaleRegion(48,8,36,34,QRegion.Ellipse)
         
-        self.extendLabelHiddenManagerMinus=ExtendedQLabel()
-        self.extendLabelHiddenManagerMinus.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/minuss.png"))
+        self.extendLabelHiddenManagerMinus=clickableLabel("/ressource/icons/minuss.png")
+        self.extendLabelHiddenManagerMinus.scaleRegion(48,8,36,34,QRegion.Ellipse)
+        self.hiddenManagerLayerLayout.setSpacing(0)
+        self.hiddenManagerLayerLayout.setContentsMargins(0,0,0,0)
         
         self.hiddenManagerLayerLayout.addWidget(self.extendLabelHiddenManagerPlus)
         self.hiddenManagerLayerLayout.addWidget(self.extendLabelHiddenManagerMinus)
         self.hiddenManagerLayerLayout.addWidget(self.extendLabelHiddenManagerTitle)
         
         #Output
-        self.outputManager =QLabel("Output")
+        self.outputManager = QLabel("Output")
         #Setup layer manager layout
-        self.layerManagerLayout.addWidget(self.featuresManager)
-        self.layerManagerLayout.addWidget(self.hiddenManagerLayer)
-        self.layerManagerLayout.addWidget(self.outputManager)
+        self.layerManagerLayout.addWidget(self.featuresManager,Qt.AlignLeft)
+        self.layerManagerLayout.addWidget(self.hiddenManagerLayer,Qt.AlignHCenter)
+        self.layerManagerLayout.addWidget(self.outputManager,Qt.AlignLeft)
 
 ################################################################################ 
 #
@@ -169,6 +155,11 @@ class centralWidget(QWidget):
 #
 ################################################################################ 
         self.hiddenLayers=QWidget()       
+        self.hiddenLayers.setStyleSheet(
+                "border-style: outset; "+
+                "border-width: 1px;    "+
+                "border-color: red;  "
+                )
         self.hiddenLayersLayout=QHBoxLayout(self.hiddenLayers)
 
 ################################################################################ 
@@ -186,6 +177,7 @@ class centralWidget(QWidget):
 ################################################################################ 
         self.plainTextEdit=QPlainTextEdit()
         self.plainTextEdit.setReadOnly(True)
+        self.textCursor=QTextCursor()
 
 ################################################################################ 
 #
@@ -195,20 +187,20 @@ class centralWidget(QWidget):
         self.spacerItem = QSpacerItem(40, 20, QSizePolicy.Expanding,QSizePolicy.Minimum)
         
         self.span=1
-        self.gridLayout.addItem(self.spacerItem,0,0,self.span,self.span)
-        self.gridLayout.addWidget(self.settingsWidget,0,1,self.span,self.span,QtCore.Qt.AlignHCenter)
-        self.gridLayout.addItem(self.spacerItem,0,2,self.span,self.span)
+        self.gridLayout.addItem(    self.spacerItem     ,0,0,self.span,self.span)
+        self.gridLayout.addWidget(  self.settingsWidget ,0,1,self.span,self.span,QtCore.Qt.AlignHCenter)
+        self.gridLayout.addItem(    self.spacerItem     ,0,2,self.span,self.span)
 
-        self.gridLayout.addItem(self.spacerItem,1,0,self.span,self.span)
-        self.gridLayout.addWidget(self.layerManager,1,1,self.span,self.span,QtCore.Qt.AlignHCenter)
-        self.gridLayout.addItem(self.spacerItem,1,2,self.span,self.span)
+        self.gridLayout.addItem(    self.spacerItem     ,1,0,self.span,self.span)
+        self.gridLayout.addWidget(  self.layerManager   ,1,1,self.span,self.span,QtCore.Qt.AlignHCenter)
+        self.gridLayout.addItem(    self.spacerItem     ,1,2,self.span,self.span)
         
-        self.gridLayout.addItem(self.spacerItem,2,0,self.span,self.span)
-        self.gridLayout.addWidget(self.hiddenLayers,2,1,self.span,self.span)
-        self.gridLayout.addItem(self.spacerItem,2,2,self.span,self.span)
+        self.gridLayout.addItem(    self.spacerItem     ,2,0,self.span,self.span)
+        self.gridLayout.addWidget(  self.hiddenLayers   ,2,1,self.span,self.span)
+        self.gridLayout.addItem(    self.spacerItem     ,2,2,self.span,self.span)
 
-        self.gridLayout.addWidget(self.graphicsView,3,0,1,-1)
-        self.gridLayout.addWidget(self.plainTextEdit,4,0,2,-1)
+        self.gridLayout.addWidget(  self.graphicsView   ,3,0,1,-1)
+        self.gridLayout.addWidget(  self.plainTextEdit  ,4,0,2,-1)
 
 ################################################################################ 
 #
@@ -227,7 +219,7 @@ class centralWidget(QWidget):
 #-------------------------------------------------------------------------------
     @pyqtSlot(int)
     def on_hiddenLayerCreated(self,val):
-        self.plainTextEdit.insertPlainText("{}\n".format(val))
+        #self.plainTextEdit.insertPlainText("{}\n".format(val))
         hLL=self.hiddenLayersLayout
         w=hLL.itemAt(val-1).widget()
         w.extendLabelPlus.trigger.connect(lambda: self.on_extendLabelHiddenPlusClicked(val))
@@ -261,11 +253,11 @@ class centralWidget(QWidget):
     def on_extendLabelHiddenManagerPlusClicked(self):
         if self.i <10:
             self.i+=1
-            self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
+            #self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
             hLL=self.hiddenLayersLayout
-            hLL.addWidget(hiddenLayer())
+            hLL.addWidget(neuronManagerWidget())
             
-            self.plainTextEdit.insertPlainText("Add -- layer number:{}\n".format(hLL.count()))
+            self.plainTextEdit.insertPlainText("Add -- layer number:{}--i={}\n".format(hLL.count(),self.i))
             self.hiddenLayerCreated.emit(self.i)
             self.drawHiddenLayerNeurone.emit(self.i,1)
     
@@ -273,10 +265,10 @@ class centralWidget(QWidget):
     def on_extendLabelHiddenManagerMinusClicked(self):
         if self.i > 0:
             self.i-=1
-            self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
+            #self.extendLabelHiddenManagerTitle.setText("{} HIDDEN LAYER".format(self.i))
             hLL=self.hiddenLayersLayout
             w=hLL.itemAt(hLL.count()-1).widget().deleteLater()
-            self.plainTextEdit.insertPlainText("Remove -- layer number{}\n".format(self.hiddenLayersLayout.count()))
+            #self.plainTextEdit.insertPlainText("Remove -- layer number{}--i={}\n".format(self.hiddenLayersLayout.count(),self.i))
             self.drawHiddenLayerNeurone.emit(self.i,0)
 
 #------------------------------------------------------------------------------- 
@@ -287,19 +279,27 @@ class centralWidget(QWidget):
     @pyqtSlot(int,int)
     def on_drawHiddenLayerNeurone(self,layer,neurone):
         #self.plainTextEdit.clear()
-        self.plainTextEdit.insertPlainText("layer {},neurone{} --len {}\n".format(layer,neurone,len(self.hm)))
+        self.plainTextEdit.insertPlainText("layer {}, neurone{} --len {}\n".format(layer,neurone,len(self.hm)))
         if len(self.hm)<layer:
             self.hm.append(neurone)
-            self.plainTextEdit.insertPlainText("++append\n")
-        elif neurone==0:
-            del self.hm[layer-1]
+
+        ## when removing (minus clicked)
+        elif not neurone:
+            del self.hm[layer]
         else:
             self.hm[layer-1]=neurone
             self.plainTextEdit.insertPlainText("==rewrite {}\n")
         
         self.plainTextEdit.insertPlainText("len {}\n".format(self.hm))
-#        
-        hl=neuralNetworkWidget(20,120,self.hm)        
+        
+        
+        # focus at end of debug 
+        self.textCursor=self.plainTextEdit.textCursor()
+        self.textCursor.movePosition(QTextCursor.End)
+        self.plainTextEdit.setTextCursor(self.textCursor)
+        
+        hl=drawNeuralNetworkWidget(20,120,self.hm)
+        #draw if 2 layers
         if len(self.hm)>1:
             hl.drawNeurones()
             hl.drawLines()
@@ -313,8 +313,6 @@ class centralWidget(QWidget):
     @pyqtSlot(int)
     def on_test(self,val):
         self.plainTextEdit.insertPlainText("on_test slot -- item num: {}\n".format(val))
-
-
 
     def buttonClicked(self):
 
@@ -335,13 +333,13 @@ class MainWindow(QMainWindow): #, Ui_MainWindow):
 
 def main():
     app = QApplication(sys.argv)
+
     dw=QDesktopWidget()
     x=dw.width()
     y=dw.height()
 
-
     window = MainWindow()
-    window.setFixedSize(x,y)
+    #window.setFixedSize(scr_x,scr_y)
     window.show()
     sys.exit(app.exec_())
 

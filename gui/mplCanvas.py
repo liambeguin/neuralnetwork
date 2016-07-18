@@ -21,17 +21,30 @@ progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
 class MyMplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
+    """
+    Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.).
+    
 
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
+    Parameters:
+    ----------
+    dpi=dot per inchs
+
+    """
+    
+    def __init__(self, parent=None, width=5, height=5, dpi=100,t=100):
+        
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.e=t
+        self.axes = fig.add_subplot(121)# two rows, one column, first plot
+        self.axes.grid(True)
+
+        #axe.set_bg_color=set_facecolor
+        self.axes.set_facecolor('white')
+
         # We want the axes cleared every time plot() is called
-        self.axes.hold(False)
+        #self.axes.hold(False)
 
-        self.compute_initial_figure()
-
-        #
+        #self.compute_initial_figure()
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
@@ -40,17 +53,18 @@ class MyMplCanvas(FigureCanvas):
                                    QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def compute_initial_figure(self):
-        pass
-
 
 class MyDynamicMplCanvas(MyMplCanvas):
     """A canvas that updates itself every second with a new plot."""
 
+
+
+    
     def __init__(self, *args, **kwargs):
         MyMplCanvas.__init__(self, *args, **kwargs)
         self.x
         self.y
+        self.compute_initial_figure()
 #        timer = QtCore.QTimer(self)
 #        timer.timeout.connect(self.update_figure)
 #        timer.start(1000)
@@ -58,14 +72,15 @@ class MyDynamicMplCanvas(MyMplCanvas):
     def compute_initial_figure(self):
         
         
-        self.a=4
-        self.e=100
+        self.a=0
+        #self.e=100
         self.x=np.array([])
         self.y=np.array([])
         self.axes.plot(self.x, self.y, 'r')
-
     def update_figure(self):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
+        #self.axes.axhline(0, color='black', lw=2)
+       
         self.x=np.append(self.x,[self.a])
         #print("a={}",self.a)
         self.a+=1
@@ -75,6 +90,8 @@ class MyDynamicMplCanvas(MyMplCanvas):
         #print(self.x)
         #l = [random.randint(0, 10) for i in range(self.a)]
         #self.y=np.append(self.y,[random.randint(0, 10)])
+        self.axes.set_ylim([0,100])
+        #self.axes.set_ylim([0,100])
         self.y=np.append(self.y,[self.e])
         #print(l)
         self.axes.plot(self.x, self.y, 'r')
