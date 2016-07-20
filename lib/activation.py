@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: cc=80:
 
 
 import numpy as np
@@ -28,14 +29,14 @@ def softplus(z, prime=False):
 # Activation functions
 class ActivationFunction():
 
-    activation_functions = {
+    available_functions = {
             'sigmoid' : sigmoid,
             'tanh'    : tanh,
             'softplus': softplus,
             }
 
     def __init__(self,func='sigmoid'):
-        self.function = ActivationFunction.activation_functions[func]
+        self.function = ActivationFunction.available_functions[func]
         self.type = func
 
     def __call__(self, z):

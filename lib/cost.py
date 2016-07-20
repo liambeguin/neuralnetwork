@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: set cc=80:
 
 import numpy as np
 
@@ -6,7 +7,7 @@ def quadratic(a, y, prime=False):
     if prime:
         return (1.0 / len(a)) * (a - y)
     else:
-        return (np.linalg.norm(y-a)**2) / (2 * len(a))
+        return (np.linalg.norm(a-y)**2) / (2 * len(a))
 
 
 def crossentropy(a, y, prime=False):
@@ -21,13 +22,13 @@ def crossentropy(a, y, prime=False):
 
 class CostFunction():
 
-    cost_functions = {
+    available_functions = {
             'quadratic': quadratic,
             'cross-entropy': crossentropy
             }
 
     def __init__(self, func='quadratic'):
-        self.function = CostFunction.cost_functions[func]
+        self.function = CostFunction.available_functions[func]
         self.type = func
 
     def __call__(self, a, y):

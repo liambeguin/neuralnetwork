@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim: cc=80:
 """
 Regularisation techniques are used to reduce overfitting.
 """
@@ -30,7 +31,7 @@ def l1_reg(w, lambda_, n, prime=False):
 
 class RegularizationFunction():
 
-    regularization_functions = {
+    available_functions = {
             'none': noreg,
             'L1': l1_reg,
             'L2': weightdecay,
@@ -38,7 +39,7 @@ class RegularizationFunction():
             }
 
     def __init__(self, func='none'):
-        self.function = RegularizationFunction.regularization_functions[func]
+        self.function = RegularizationFunction.available_functions[func]
         self.type = func
 
     def __call__(self, w, lambda_, n):
