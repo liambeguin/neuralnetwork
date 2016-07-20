@@ -2,3 +2,7 @@
 out/
 plot/
 *.pyc
+
+test/
+train/
+validation/
