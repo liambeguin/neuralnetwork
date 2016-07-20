@@ -1,8 +1,16 @@
 #!/usr/bin/python
+# vim: set cc=80:
 
 import yaml
 import random
 import datetime
+import logging
+# this is not very pretty but meh..
+logging.basicConfig(format='%(levelname)s: %(message)s')
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+
 
 # Use numpy and matices to speed up the processing
 import numpy as np
@@ -12,6 +20,7 @@ from lib.activation import ActivationFunction
 from lib.cost import CostFunction
 from lib import utils
 
+utils.set_level(3)
 # NOTE: This allows us to always use the same random numbers. used for debug
 np.random.seed(1)
 
@@ -121,7 +130,8 @@ class Network:
 
 
     def train(self, tr_d, epochs, batch_size, \
-            va_d=None, monitoring={'accuracy':True, 'error':True, 'cost':True}):
+            va_d=None, early_stop_n=None, \
+            monitoring={'error':True, 'cost':True}):
         """Train the network using mini-batch stochastic gradient descent.
 
         Mini-batch stochastic gradient descent is based on the fact that
@@ -134,8 +144,8 @@ class Network:
          * `monitoring` is a list of strings."""
 
 
-        tr_acc, tr_err, tr_cost = [], [], []
-        va_acc, va_err, va_cost = [], [], []
+        tr_err, tr_cost = [], []
+        va_err, va_cost = [], []
 
         self.learn_time = datetime.datetime.now()
 
@@ -162,45 +172,50 @@ class Network:
                 #       function so there is no need for it.
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
+                # self.weights = [ (1 - self.eta * (self.lambda_ / len(tr_d))) * w \
+                #         - (self.eta / len(mini_batch)) * nw \
+                #         for w, nw in zip(self.weights, nabla_wC)]
                 self.weights = [ w - self.eta * (nw + \
                     self.regularization.derivative(w, self.lambda_, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
-            print "Epoch {} training done.".format(i)
+            print "Epoch {:2d} training done.".format(i)
 
-            if monitoring['accuracy']:
-                print " * Training   set accuracy   : {}/{}".format( \
-                        self.eval_accuracy(tr_d), len(tr_d))
-                tr_acc.append(float(self.eval_accuracy(tr_d)) / len(tr_d))
-                if va_d:
-                    print " * Validation set accuracy   : {}/{}".format( \
-                            self.eval_accuracy(va_d), len(va_d))
-                    va_acc.append(float(self.eval_accuracy(va_d)) / len(va_d))
+            utils.log_print(2, " * Training   set accuracy   : {}/{}".format( \
+                    self.eval_accuracy(tr_d), len(tr_d)) )
+            utils.log_print(2, " * Validation set accuracy   : {}/{}".format( \
+                    self.eval_accuracy(va_d), len(va_d)) )
 
             if monitoring['error']:
-                print " * Training   set error rate : {:.3%}".format( \
-                        self.eval_error_rate(tr_d))
+                utils.log_print(2, " * Training   set error rate : {:.3%}"\
+                        .format(self.eval_error_rate(tr_d)) )
                 tr_err.append(self.eval_error_rate(tr_d))
                 if va_d:
-                    print " * Validation set error rate : {:.3%}".format( \
-                            self.eval_error_rate(va_d))
-                    va_err.append(self.eval_error_rate(va_d))
+                    error_rate = self.eval_error_rate(va_d)
+                    utils.log_print(2, " * Validation set error rate : {:.3%}"\
+                            .format(error_rate) )
+                    va_err.append(error_rate)
 
             if monitoring['cost']:
-                print " * Training   set cost       : {}".format( \
-                        self.eval_cost(tr_d))
+                utils.log_print(2, " * Training   set cost       : {}"\
+                        .format(self.eval_cost(tr_d)) )
                 tr_cost.append(self.eval_cost(tr_d))
                 if va_d:
-                    print " * Validation set cost       : {}".format( \
-                        self.eval_cost(va_d))
+                    utils.log_print(2, " * Validation set cost       : {}"\
+                            .format(self.eval_cost(va_d)) )
                     va_cost.append(self.eval_cost(va_d))
+
+            # If we do not improve, stop training !
+            if early_stop_n and i > early_stop_n and \
+                    error_rate - np.mean(va_err[-early_stop_n:]) < 0.05:
+                        break
 
             # Print empty line if monitoring for easy reading
             if monitoring:
-                print
+                utils.log_print(2, "")
 
         self.learn_time = datetime.datetime.now() - self.learn_time
-        return tr_acc, tr_err, tr_cost, va_acc, va_err, va_cost
+        return tr_err, tr_cost, va_err, va_cost
 
 
     def backpropagation(self, X, y):
@@ -257,12 +272,21 @@ class Network:
         return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
 
-    # FIXME
     def eval_cost(self, data):
-        # C = C_0 + reg(w)
-        return 0
+        total_cost = 0
+
+        for x, y in data:
+            a = self.feedforward(x)
+            total_cost += self.cost(a, y)
+
+        total_cost += 0.5*(self.lambda_/len(data))*sum(
+                np.linalg.norm(w)**2 for w in self.weights)
+
+        return total_cost
 
 
 
 
-# vim: set cc=80:
+
+
+
