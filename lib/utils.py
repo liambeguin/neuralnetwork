@@ -17,11 +17,18 @@ def extract_datasets(basename='', size=60, out_size=10):
     va_d = _extract(basename + 'validation', size, out_size=out_size)
     te_d = _extract(basename + 'test', size=size, out_size=out_size)
 
-    print "Training samples   (N): {}".format(len(tr_d))
-    print "Validation samples (K): {}".format(len(va_d))
-    print "Testing samples       : {}".format(len(te_d))
-    print "Input shape : {}x{} -> (1, {})".format(size, len(tr_d[0][0])/size, len(tr_d[0][0]))
-    print
+    if 1:
+        print(" *** Training")
+        inspect_dataset(tr_d, size)
+        print
+
+        print(" *** Validation")
+        inspect_dataset(va_d, size)
+        print
+
+        print(" *** Testing")
+        inspect_dataset(te_d, size)
+        print
 
     return tr_d, va_d, te_d
 
@@ -51,15 +58,14 @@ def _extract(dirname='train', size=60, vectorize=False, out_size=10):
 
 
 def inspect_dataset(dataset, size=60):
-    print "-- Dataset inspection --"
-    print "size : {}".format(len(dataset))
-    print "input  shape: {}".format(dataset[0][0].shape)
+    print("size : {}".format(len(dataset)))
+    print("input  shape: {}".format(dataset[0][0].shape) )
     if isinstance(dataset[0][1], np.ndarray):
-        print "output shape: {}".format(dataset[0][1].shape)
+        print("output shape: {}".format(dataset[0][1].shape) )
     else:
-        print "output shape: {}".format(type(dataset[0][1]))
+        print("output shape: {}".format(type(dataset[0][1])) )
 
-    print "input type: {}".format(type(dataset[0][0]))
+    print("input type: {}".format(type(dataset[0][0])) )
 
 
 
@@ -77,33 +83,11 @@ def get_filelist(input_dir, number):
     return fileList
 
 
-def inspect_network(network, full=False):
-    # n -1 because input layer does not count
-    print "Number of layers : ", network.n_layers - 1
-
-    print "-- Input Layer --"
-    print network.struct[0], " Neurons"
-
-    if network.n_layers > 2:
-        for idx, val in enumerate(network.struct[1:-1]):
-            print "-- Hidden Layer %d --" % (idx +1)
-            print val, " Neurons"
-            if full :
-                print "weights:"
-                print network.weights[idx]
-
-    print " -- Output Layer --"
-    print network.struct[-1], " Neurons"
-    if full :
-        print "weights:"
-        print network.weights[-1]
-
-
 LOGLEVEL = 0
 def set_level(lvl):
     LOGLEVEL = lvl
 
 def log_print(lvl, msg):
     if lvl > LOGLEVEL:
-        print "{}".format(msg)
+        print("{}".format(msg))
 

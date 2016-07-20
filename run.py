@@ -12,10 +12,11 @@ dataset = 'MNIST'
 dataset = 'TIDIGITS'
 
 
-print " ** Extracting the {} dataset...".format(dataset)
+print(" ** Extracting the {} dataset...".format(dataset))
 if dataset == 'TIDIGITS':
     import lib.utils as u
-    training_data, validation_data, test_data = u.extract_datasets(size=50, out_size=2)
+    training_data, validation_data, test_data = u.extract_datasets(size=50)
+
     # training_data = training_data[:100]
     # validation_data = validation_data[:10]
     input_size  = len(training_data[0][0])
@@ -81,21 +82,21 @@ elif dataset == 'IRIS':
 else:
     pass
 
-print " ** Initializing Network..."
+print(" ** Initializing Network...")
 net = network.Network(layers,
         activation='sigmoid',
         cost='quadratic',
         regularization='L2',
         learning_rate=etas[0],
         lambda_=lmb)
-print net
+print(net)
 
 
 
 tr_err, tr_cost, va_err, va_cost = [], [], [], []
 for eta in etas:
     net.eta = eta
-    print " ** Starting training [{}]...".format(eta)
+    print(" ** Starting training [{}]...".format(eta))
     tr_err_i, tr_cost_i, va_err_i, va_cost_i = net.train(training_data,
             epochs=epoch,
             batch_size=batch_s,
@@ -110,7 +111,7 @@ for eta in etas:
 
 
 
-print " ** Generating image output..."
+print(" ** Generating image output...")
 # Two subplots, the axes array is 1-d
 f, axarr = plt.subplots(2, sharex=True)
 axarr[0].set_ylabel('Error rate')
@@ -129,4 +130,4 @@ plt.xlabel('Epoch')
 plt.legend(loc="upper right")
 plt.savefig('out/learning.png')
 
-print " ** Done"
+print(" ** Done")

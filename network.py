@@ -184,7 +184,7 @@ class Network:
                     self.regularization.derivative(w, self.lambda_, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
-            print "Epoch {:2d} training done.".format(i)
+            print("Epoch {:2d} training done.".format(i) )
 
             utils.log_print(2, " * Training   set accuracy   : {}/{}".format( \
                     self.eval_accuracy(tr_d), len(tr_d)) )
