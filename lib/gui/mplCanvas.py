@@ -1,7 +1,5 @@
 #!/usr/bin/env python3.4
 
-
-
 from __future__ import unicode_literals
 import sys
 import os
@@ -20,7 +18,7 @@ from PyQt5 import QtWidgets,QtCore
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
-class MyMplCanvas(FigureCanvas):
+class MplCanvas(FigureCanvas):
     """
     Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.).
     
@@ -31,7 +29,7 @@ class MyMplCanvas(FigureCanvas):
 
     """
     
-    def __init__(self, parent=None, width=5, height=5, dpi=100,t=100):
+    def __init__(self, parent=None, width=5, height=5, dpi=80,t=20):
         
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.e=t
@@ -54,14 +52,14 @@ class MyMplCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
 
 
-class MyDynamicMplCanvas(MyMplCanvas):
+class DynamicMplCanvas(MplCanvas):
     """A canvas that updates itself every second with a new plot."""
 
 
 
     
     def __init__(self, *args, **kwargs):
-        MyMplCanvas.__init__(self, *args, **kwargs)
+        MplCanvas.__init__(self, *args, **kwargs)
         self.x
         self.y
         self.compute_initial_figure()
@@ -100,7 +98,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
         self.draw()
 
 
-class MyStaticMplCanvas(MyMplCanvas):
+class StaticMplCanvas(MplCanvas):
     """Simple canvas with a sine plot."""
 
     def compute_initial_figure(self):
