@@ -1,0 +1,614 @@
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:sigmoid
+DEBUG:root:sender name regularization current text:weight-decay
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:quadratic
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 2
+DEBUG:root:hm [1, 2]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 3
+DEBUG:root:hm [1, 3]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 4
+DEBUG:root:hm [1, 4]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 5
+DEBUG:root:hm [1, 5]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 6
+DEBUG:root:hm [1, 6]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 7
+DEBUG:root:hm [1, 7]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 8
+DEBUG:root:hm [1, 8]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 9
+DEBUG:root:hm [1, 9]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 10
+DEBUG:root:hm [1, 10]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 11
+DEBUG:root:hm [1, 11]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 12
+DEBUG:root:hm [1, 12]
+DEBUG:root:Plus ---------------2
+DEBUG:root: drawNeuron layer 2 -- neuron 13
+DEBUG:root:hm [1, 13]
+DEBUG:root:on_hiddenLayerCreated layer =======3
+DEBUG:root: drawNeuron layer 3 -- neuron 1
+DEBUG:root:hm [1, 13, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======4
+DEBUG:root: drawNeuron layer 4 -- neuron 1
+DEBUG:root:hm [1, 13, 1, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======5
+DEBUG:root: drawNeuron layer 5 -- neuron 1
+DEBUG:root:hm [1, 13, 1, 1, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======6
+DEBUG:root: drawNeuron layer 6 -- neuron 1
+DEBUG:root:hm [1, 13, 1, 1, 1, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======7
+DEBUG:root: drawNeuron layer 7 -- neuron 1
+DEBUG:root:hm [1, 13, 1, 1, 1, 1, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======8
+DEBUG:root: drawNeuron layer 8 -- neuron 1
+DEBUG:root:hm [1, 13, 1, 1, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 2
+DEBUG:root:hm [1, 13, 1, 2, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 3
+DEBUG:root:hm [1, 13, 1, 3, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 4
+DEBUG:root:hm [1, 13, 1, 4, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 5
+DEBUG:root:hm [1, 13, 1, 5, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 6
+DEBUG:root:hm [1, 13, 1, 6, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 7
+DEBUG:root:hm [1, 13, 1, 7, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 8
+DEBUG:root:hm [1, 13, 1, 8, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 9
+DEBUG:root:hm [1, 13, 1, 9, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------5
+DEBUG:root: drawNeuron layer 5 -- neuron 10
+DEBUG:root:hm [1, 13, 1, 10, 1, 1, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 2
+DEBUG:root:hm [1, 13, 1, 10, 1, 2, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 3
+DEBUG:root:hm [1, 13, 1, 10, 1, 3, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 4
+DEBUG:root:hm [1, 13, 1, 10, 1, 4, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 5
+DEBUG:root:hm [1, 13, 1, 10, 1, 5, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 6
+DEBUG:root:hm [1, 13, 1, 10, 1, 6, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 7
+DEBUG:root:hm [1, 13, 1, 10, 1, 7, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 8
+DEBUG:root:hm [1, 13, 1, 10, 1, 8, 1, 1]
+DEBUG:root:Plus ---------------7
+DEBUG:root: drawNeuron layer 7 -- neuron 9
+DEBUG:root:hm [1, 13, 1, 10, 1, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 2
+DEBUG:root:hm [1, 13, 1, 10, 2, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 3
+DEBUG:root:hm [1, 13, 1, 10, 3, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 4
+DEBUG:root:hm [1, 13, 1, 10, 4, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 5
+DEBUG:root:hm [1, 13, 1, 10, 5, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 6
+DEBUG:root:hm [1, 13, 1, 10, 6, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 7
+DEBUG:root:hm [1, 13, 1, 10, 7, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 8
+DEBUG:root:hm [1, 13, 1, 10, 8, 9, 1, 1]
+DEBUG:root:Plus ---------------6
+DEBUG:root: drawNeuron layer 6 -- neuron 9
+DEBUG:root:hm [1, 13, 1, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 2
+DEBUG:root:hm [1, 13, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 3
+DEBUG:root:hm [1, 13, 3, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 4
+DEBUG:root:hm [1, 13, 4, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 5
+DEBUG:root:hm [1, 13, 5, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 6
+DEBUG:root:hm [1, 13, 6, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 7
+DEBUG:root:hm [1, 13, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 2
+DEBUG:root:hm [1, 2, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 3
+DEBUG:root:hm [1, 3, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 4
+DEBUG:root:hm [1, 4, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [1, 5, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [1, 6, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [1, 7, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [1, 8, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [1, 9, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [1, 8, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [1, 7, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [1, 6, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [1, 5, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 4
+DEBUG:root:hm [1, 4, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 3
+DEBUG:root:hm [1, 3, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 2
+DEBUG:root:hm [1, 2, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 1
+DEBUG:root:hm [1, 1, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 2
+DEBUG:root:hm [1, 2, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 3
+DEBUG:root:hm [1, 3, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 4
+DEBUG:root:hm [1, 4, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [1, 5, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [1, 6, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [1, 7, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [1, 8, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [1, 9, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 10
+DEBUG:root:hm [1, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 2
+DEBUG:root:hm [2, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 3
+DEBUG:root:hm [3, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 4
+DEBUG:root:hm [4, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 5
+DEBUG:root:hm [5, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 6
+DEBUG:root:hm [6, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 7
+DEBUG:root:hm [7, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 8
+DEBUG:root:hm [8, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 7
+DEBUG:root:hm [7, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 6
+DEBUG:root:hm [6, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 5
+DEBUG:root:hm [5, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 4
+DEBUG:root:hm [4, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 3
+DEBUG:root:hm [3, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 2
+DEBUG:root:hm [2, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1, 10, 7, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 4 -- neuron 6
+DEBUG:root:hm [1, 10, 6, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 4 -- neuron 5
+DEBUG:root:hm [1, 10, 5, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 4 -- neuron 4
+DEBUG:root:hm [1, 10, 4, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 4 -- neuron 3
+DEBUG:root:hm [1, 10, 3, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 4 -- neuron 2
+DEBUG:root:hm [1, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [1, 9, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [1, 8, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [1, 7, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [1, 6, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [1, 5, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [1, 6, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [1, 7, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [1, 8, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [1, 9, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 10
+DEBUG:root:hm [1, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 2
+DEBUG:root:hm [2, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 3
+DEBUG:root:hm [3, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 4
+DEBUG:root:hm [4, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 5
+DEBUG:root:hm [5, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 6
+DEBUG:root:hm [6, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 7
+DEBUG:root:hm [7, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------1
+DEBUG:root: drawNeuron layer 1 -- neuron 8
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [8, 9, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [8, 8, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [8, 7, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [8, 6, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [8, 5, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 4
+DEBUG:root:hm [8, 4, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 3
+DEBUG:root:hm [8, 3, 2, 10, 9, 9, 1, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 2
+DEBUG:root:hm [8, 2, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 3
+DEBUG:root:hm [8, 3, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 4
+DEBUG:root:hm [8, 4, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 5
+DEBUG:root:hm [8, 5, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [8, 6, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [8, 7, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [8, 8, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [8, 9, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------3
+DEBUG:root: drawNeuron layer 3 -- neuron 10
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 1, 1]
+DEBUG:root:Plus ---------------8
+DEBUG:root: drawNeuron layer 8 -- neuron 2
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 2, 1]
+DEBUG:root:Plus ---------------8
+DEBUG:root: drawNeuron layer 8 -- neuron 3
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 3, 1]
+DEBUG:root:Plus ---------------8
+DEBUG:root: drawNeuron layer 8 -- neuron 4
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 4, 1]
+DEBUG:root:Plus ---------------8
+DEBUG:root: drawNeuron layer 8 -- neuron 5
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======9
+DEBUG:root: drawNeuron layer 9 -- neuron 1
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 1, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======10
+DEBUG:root: drawNeuron layer 10 -- neuron 1
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 1, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 2
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 2, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 3
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 3, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 4
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 4, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 5
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 5, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 6
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 6, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 7
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 7, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 8
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 8, 1, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 9
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 1, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 2
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 2, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 3
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 3, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 4
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 4, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 5
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 5, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 6
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 6, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 7
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 7, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 8
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 8, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 9
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 9, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 10
+DEBUG:root:hm [8, 10, 2, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 3
+DEBUG:root:hm [8, 10, 3, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 4
+DEBUG:root:hm [8, 10, 4, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 5
+DEBUG:root:hm [8, 10, 5, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 6
+DEBUG:root:hm [8, 10, 6, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root:Plus ---------------4
+DEBUG:root: drawNeuron layer 4 -- neuron 7
+DEBUG:root:hm [8, 10, 7, 10, 9, 9, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 5 -- neuron 9
+DEBUG:root:hm [8, 10, 7, 9, 9, 9, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 5 -- neuron 8
+DEBUG:root:hm [8, 10, 7, 8, 9, 9, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 5 -- neuron 7
+DEBUG:root:hm [8, 10, 7, 7, 9, 9, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 5 -- neuron 6
+DEBUG:root:hm [8, 10, 7, 6, 9, 9, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 7 -- neuron 8
+DEBUG:root:hm [8, 10, 7, 6, 9, 8, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 7 -- neuron 7
+DEBUG:root:hm [8, 10, 7, 6, 9, 7, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 7 -- neuron 6
+DEBUG:root:hm [8, 10, 7, 6, 9, 6, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 7 -- neuron 5
+DEBUG:root:hm [8, 10, 7, 6, 9, 5, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 7 -- neuron 4
+DEBUG:root:hm [8, 10, 7, 6, 9, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 6 -- neuron 8
+DEBUG:root:hm [8, 10, 7, 6, 8, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 6 -- neuron 7
+DEBUG:root:hm [8, 10, 7, 6, 7, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 6 -- neuron 6
+DEBUG:root:hm [8, 10, 7, 6, 6, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 6 -- neuron 5
+DEBUG:root:hm [8, 10, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 9
+DEBUG:root:hm [8, 9, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 8
+DEBUG:root:hm [8, 8, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 7
+DEBUG:root:hm [8, 7, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 3 -- neuron 6
+DEBUG:root:hm [8, 6, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 1 -- neuron 7
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 9, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 8
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 8, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 7
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 7, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 6
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 5
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 5, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 4
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 4, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 3
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 3, 10, 1]
+DEBUG:root: drawNeuron layer 9 -- neuron 2
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 2, 10, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 3
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 3, 10, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 4
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 4, 10, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 5
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 5, 10, 1]
+DEBUG:root:Plus ---------------9
+DEBUG:root: drawNeuron layer 9 -- neuron 6
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 10, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 11
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 11, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 10
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 10, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 9
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 9, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 8
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 8, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 7
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 7, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 6
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 6, 1]
+DEBUG:root: drawNeuron layer 10 -- neuron 5
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 5, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 6
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 6, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 7
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 7, 1]
+DEBUG:root:Plus ---------------10
+DEBUG:root: drawNeuron layer 10 -- neuron 8
+DEBUG:root:hm [7, 6, 7, 6, 5, 4, 5, 6, 8, 1]
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:sigmoid
+DEBUG:root:sender name regularization current text:L1
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:cross-entropy
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:tanh
+DEBUG:root:sender name regularization current text:none
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:quadratic
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:tanh
+DEBUG:root:sender name regularization current text:L2
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:quadratic
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:sigmoid
+DEBUG:root:sender name regularization current text:weight-decay
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:cross-entropy
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:tanh
+DEBUG:root:sender name regularization current text:none
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:quadratic
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:tanh
+DEBUG:root:sender name regularization current text:L1
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:cross-entropy
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:tanh
+DEBUG:root:sender name regularization current text:L1
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:quadratic
+DEBUG:root:on_hiddenLayerCreated layer =======1
+DEBUG:root: drawNeuron layer 1 -- neuron 1
+DEBUG:root:hm [1]
+DEBUG:root:on_hiddenLayerCreated layer =======2
+DEBUG:root: drawNeuron layer 2 -- neuron 1
+DEBUG:root:hm [1, 1]
+DEBUG:root:sender name learningRate current text:0.00001
+DEBUG:root:sender name activation current text:sigmoid
+DEBUG:root:sender name regularization current text:L2
+DEBUG:root:sender name regularizationRate current text:0
+DEBUG:root:sender name cost current text:cross-entropy

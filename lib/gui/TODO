@@ -1,0 +1,29 @@
+@ALL
+    Multithread:
+        https://docs.python.org/2/library/multiprocessing.html
+
+
+@GRAPH 
+    Matplotlib
+    
+    - creer les boutons pout visualiser les 6 graphs
+    - creer un fichier de config pour les 6 graphs.
+      parser des YAML
+    - add QListWidget, QListWidgetItem,QList for widget selection
+    
+    - x = epoch
+      y=  error
+        precision
+        cout
+    - fix 0 on Y axe
+   
+    Reference:
+        - network.py 
+          self.err ==l 144
+
+
+
+@EXTRA
+    - display matrix 9x9 (confusion matrix)
+
+
