@@ -17,10 +17,10 @@ from lib.network.regularization import RegularizationFunction
 from PyQt5 import QtCore,QtWidgets,QtGui
 from PyQt5.QtGui import QTextCursor,QColor,QPixmap,QPainter,QPainterPath,QRegion
 from PyQt5.QtWidgets import QApplication, QMainWindow ,QWidget, QDesktopWidget, \
-                QGridLayout,QHBoxLayout, \
-                QGraphicsView,QGraphicsScene,QGraphicsRectItem, \
-                QPushButton,QLabel,QPlainTextEdit,QComboBox, \
-                QSpacerItem,QSizePolicy,QGraphicsPixmapItem
+                QGridLayout, QHBoxLayout, QVBoxLayout, \
+                QGraphicsView, QGraphicsScene, QGraphicsRectItem, \
+                QPushButton, QLabel, QPlainTextEdit, QComboBox, \
+                QSpacerItem, QSizePolicy, QGraphicsPixmapItem
 
 from PyQt5.QtCore import Qt,pyqtSignal,pyqtSlot
 
@@ -76,24 +76,17 @@ class centralWidget(QWidget):
                     "border-width: 1px;    "+
                     "border-color: red;  "
                     )
-
         
         self.settingsLayout = QGridLayout(self.settingsWidget)
         
 # 0-----------------------------------------------------------------------------
-        self.reloadLabel = clickableLabel()
-        self.reloadLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/reload.png"))
-        
+        self.reloadLabel = clickableLabel(pixmap="/ressource/icons/reload.png")
         self.settingsLayout.addWidget(self.reloadLabel                  ,0,0,0,1)
 # 1-----------------------------------------------------------------------------
-        self.pauseLabel = clickableLabel()
-        self.pauseLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/pause.png"))
-        
+        self.pauseLabel = clickableLabel(pixmap="/ressource/icons/pause.png")
         self.settingsLayout.addWidget(self.pauseLabel                   ,0,1,0,1)
 # 2-----------------------------------------------------------------------------
-        self.playLabel=clickableLabel()
-        self.playLabel.setPixmap(QtGui.QPixmap(os.getcwd() + "/ressource/icons/play.png"))
-        
+        self.playLabel=clickableLabel(pixmap="/ressource/icons/play.png")
         self.settingsLayout.addWidget(self.playLabel                    ,0,2,0,1)
 # 4-----------------------------------------------------------------------------
         self.iterationsInitValue = 0
@@ -172,7 +165,17 @@ class centralWidget(QWidget):
 
         self.managerLayout = QHBoxLayout(self.manager)
         #Features
-        self.featuresManager = QLabel("Features")        
+        self.featuresManager         = QWidget()
+        self.featuresManagerLayout   = QVBoxLayout(self.featuresManager)
+        self.featuresManagerLabel    = QLabel("Features")
+        self.featuresManagerComboBox = QComboBox()
+        self.featuresManagerList     = ["","40","50","60"]
+
+        self.featuresManagerComboBox.addItems(self.featuresManagerList)
+        self.featuresManagerLayout.addWidget( self.featuresManagerLabel)
+        self.featuresManagerLayout.addWidget( self.featuresManagerComboBox)
+        self.featuresManagerLayout.setSpacing(0)
+        self.featuresManagerLayout.setContentsMargins(0,0,0,0)
         #Number hidden layout
         self.hiddenManager = QWidget()
         #self.hiddenManager.setFixedSize(500,50)
@@ -191,22 +194,28 @@ class centralWidget(QWidget):
         self.hiddenManagerLayout.setSpacing(0)
         self.hiddenManagerLayout.setContentsMargins(0,0,0,0)
 
-
-
-
         self.hiddenManagerLayout.addItem   (self.spacerItem)
         self.hiddenManagerLayout.addWidget (self.hiddenManagerPlus)
         self.hiddenManagerLayout.addWidget (self.hiddenManagerMinus)
         self.hiddenManagerLayout.addWidget (self.hiddenManagerTitle)
         self.hiddenManagerLayout.addItem   (self.spacerItem)
-        
         #Output
-        self.outputManager = QLabel("Output")
-        self.outputManager.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.outputManager         = QWidget()
+        self.outputManagerLayout   = QVBoxLayout(self.outputManager)
+        self.outputManagerLabel    = QLabel("Output")
+        self.outputManagerComboBox = QComboBox()
+        self.outputManagerList     = ["","9"]
+
+        self.outputManagerComboBox.addItems(self.outputManagerList)
+        self.outputManagerLayout.addWidget( self.outputManagerLabel)
+        self.outputManagerLayout.addWidget( self.outputManagerComboBox)
+        self.outputManagerLayout.setSpacing(0)
+        self.outputManagerLayout.setContentsMargins(0,0,0,0)
+        #self.outputManager.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         #Setup layer manager layout
         self.managerLayout.addWidget(self.featuresManager)
         self.managerLayout.addWidget(self.hiddenManager)
-        self.managerLayout.addWidget(self.outputManager)
+        self.managerLayout.addWidget(self.outputManager,Qt.AlignRight)
 
 ################################################################################ 
 #
