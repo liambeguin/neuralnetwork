@@ -26,6 +26,11 @@ np.random.seed(1)
 
 
 class Network:
+    options = {}
+    options['cost'] = CostFunction.available_functions.keys()
+    options['activation'] = ActivationFunction.available_functions.keys()
+    options['regularization'] = RegularizationFunction.available_functions.keys()
+
     def __init__(self, struct, \
             activation='sigmoid', cost='quadratic', regularization='none', \
             learning_rate=3.0, momentum=0.5, lambda_=0.1):
