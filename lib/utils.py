@@ -1,39 +1,43 @@
 #!/usr/bin/python
+# vim: cc=80:
 
 import os, fnmatch
-
 import numpy as np
 
 import preprocessing as prep
 
-def vectorize_output(n, size=(9, 1)):
-    v =  np.zeros(size)
+
+
+def vectorize_output(n, shape=(9, 1)):
+    v =  np.zeros(shape)
     v[n] = 1.0
     return v
 
 
-def extract_datasets(basename='', size=60, out_size=10):
-    tr_d = _extract(basename + 'train', size=size, vectorize=True, out_size=out_size)
-    va_d = _extract(basename + 'validation', size, out_size=out_size)
-    te_d = _extract(basename + 'test', size=size, out_size=out_size)
 
-    if 1:
+def extract_datasets(basename='', size=60, out_size=10, verbose=False):
+    tr_d = _extract(basename + 'train',      size=size, out_size=out_size)
+    va_d = _extract(basename + 'validation', size=size, out_size=out_size)
+    te_d = _extract(basename + 'test',       size=size, out_size=out_size)
+
+    if verbose:
         print(" *** Training")
-        inspect_dataset(tr_d, size)
+        inspect_dataset(tr_d, size=size)
         print
 
         print(" *** Validation")
-        inspect_dataset(va_d, size)
+        inspect_dataset(va_d, size=size)
         print
 
         print(" *** Testing")
-        inspect_dataset(te_d, size)
+        inspect_dataset(te_d, size=size)
         print
 
     return tr_d, va_d, te_d
 
 
-def _extract(dirname='train', size=60, vectorize=False, out_size=10):
+
+def _extract(dirname='train', size=60, out_size=9):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
@@ -42,30 +46,27 @@ def _extract(dirname='train', size=60, vectorize=False, out_size=10):
             x = prep.Preprocessing(file_, size)
             x.start_point_detection(threshold=0.5, n=10)
             x.cut_first_max(n=20)
-            x.only_static_data()
             x.normalize()
             x.fit()
+            x.get_subset('static')
             # make a column of the whole array
             input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
 
-            if vectorize:
-                dataset.append( (input_, vectorize_output(num-1)) )
-            else:
-                dataset.append( (input_, num) )
+            dataset.append( (input_, vectorize_output(num-1, shape=(out_size, 1))) )
 
     return dataset
 
 
 
 def inspect_dataset(dataset, size=60):
-    print("size : {}".format(len(dataset)))
-    print("input  shape: {}".format(dataset[0][0].shape) )
+    print("    * size : {}".format(len(dataset)))
+    print("    * input  shape: {} -> {}x{}".format(dataset[0][0].shape, dataset[0][0].shape[0]/size, size) )
     if isinstance(dataset[0][1], np.ndarray):
-        print("output shape: {}".format(dataset[0][1].shape) )
+        print("    * output shape: {}".format(dataset[0][1].shape) )
     else:
-        print("output shape: {}".format(type(dataset[0][1])) )
+        print("    * output shape: {}".format(type(dataset[0][1])) )
 
-    print("input type: {}".format(type(dataset[0][0])) )
+    print("    * input type: {}".format(type(dataset[0][0])) )
 
 
 
@@ -81,6 +82,7 @@ def get_filelist(input_dir, number):
                 fileList.append(os.path.join(dName, fileName))
 
     return fileList
+
 
 
 LOGLEVEL = 0

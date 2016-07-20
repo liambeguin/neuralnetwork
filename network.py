@@ -262,18 +262,15 @@ class Network:
     def eval_accuracy(self, data):
         count = 0
         for (x, y) in data:
-            # If y is a vector get the index of it's max
+            # Since y is a vector get the index of it's max
             # this assumes a one-hot vector !!
-            if isinstance(y, (np.ndarray, list)):
-                y = np.argmax(y)
-
-            if np.argmax(self.feedforward(x)) == y:
+            if np.argmax(self.feedforward(x)) == np.argmax(y):
                 count += 1
 
         return count
 
 
-    def eval_error_rate(self, data, vectorize=False):
+    def eval_error_rate(self, data):
         return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
 
