@@ -12,24 +12,31 @@ def vectorize_output(n, size=(9, 1)):
     return v
 
 
-def extract_datasets(basename='', size=60):
-    tr_d = _extract(basename + 'train', size=size, vectorize=True)
-    # va_d = _extract(basename + 'validation', size)
-    te_d = _extract(basename + 'test', size=size)
+def extract_datasets(basename='', size=60, out_size=10):
+    tr_d = _extract(basename + 'train', size=size, vectorize=True, out_size=out_size)
+    va_d = _extract(basename + 'validation', size, out_size=out_size)
+    te_d = _extract(basename + 'test', size=size, out_size=out_size)
 
-    return tr_d, te_d
+    print "Training samples   (N): {}".format(len(tr_d))
+    print "Validation samples (K): {}".format(len(va_d))
+    print "Testing samples       : {}".format(len(te_d))
+    print "Input shape : {}x{} -> (1, {})".format(size, len(tr_d[0][0])/size, len(tr_d[0][0]))
+    print
+
+    return tr_d, va_d, te_d
 
 
-def _extract(dirname='train', size=60, vectorize=False):
+def _extract(dirname='train', size=60, vectorize=False, out_size=10):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
-    for num in xrange(1, 10):
+    for num in xrange(1, out_size+1):
         for file_ in get_filelist(dirname, num):
             x = prep.Preprocessing(file_, size)
             x.start_point_detection(threshold=0.5, n=10)
             x.cut_first_max(n=20)
             x.only_static_data()
+            x.normalize()
             x.fit()
             # make a column of the whole array
             input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
@@ -92,5 +99,11 @@ def inspect_network(network, full=False):
         print network.weights[-1]
 
 
+LOGLEVEL = 0
+def set_level(lvl):
+    LOGLEVEL = lvl
 
+def log_print(lvl, msg):
+    if lvl > LOGLEVEL:
+        print "{}".format(msg)
 
