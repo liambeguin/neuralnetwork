@@ -98,6 +98,11 @@ class Preprocessing:
     def only_static_data(self):
         self.data = np.delete(self.data, np.s_[0:COL_STATIC_E], 1)
 
+    def normalize(self):
+       min_ = np.min(self.data, axis=0)
+       max_ = np.max(self.data, axis=0)
+       self.data = (self.data - min_) / (max_ - min_)
+
 
     def fit(self):
         """"Make sure data is the right length."""
