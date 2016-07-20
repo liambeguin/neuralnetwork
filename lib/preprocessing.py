@@ -91,12 +91,16 @@ class Preprocessing:
         self.__check_size(prefix=self.moving_average_fit.__name__)
 
 
-    def cutout_dynamics(self):
-        self.data = np.delete(self.data, np.s_[COL_STATIC_E+1:COL_DYNAMIC_E], 1)
+    def get_subset(self, what):
+        if what == 'static':
+            _s = np.s_[COL_STATIC_E - 1:]
+        elif what == 'static+ES':
+            _s = np.s_[COL_STATIC_E:]
+        else:
+            raise("Unknown subset type")
 
+        self.data = np.delete(self.data, _s, 1)
 
-    def only_static_data(self):
-        self.data = np.delete(self.data, np.s_[0:COL_STATIC_E], 1)
 
     def normalize(self):
        min_ = np.min(self.data, axis=0)
