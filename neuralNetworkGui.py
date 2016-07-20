@@ -9,10 +9,7 @@ from lib.gui.neuronManager import neuronManagerWidget
 from lib.gui.extendedQLabel import clickableLabel
 from lib.gui.mplCanvas import DynamicMplCanvas
 from lib.gui.mplCanvas import StaticMplCanvas
-
-from lib.network.cost import CostFunction
-from lib.network.activation import ActivationFunction
-from lib.network.regularization import RegularizationFunction
+from network import Network
 
 from PyQt5 import QtCore,QtWidgets,QtGui
 from PyQt5.QtGui import QTextCursor,QColor,QPixmap,QPainter,QPainterPath,QRegion
@@ -110,9 +107,7 @@ class centralWidget(QWidget):
         activationLabel=QLabel("Activation")
         activationStrList=[]
         
-        for key in ActivationFunction.activation_functions:
-            activationStrList.append(str(key))
-        self.activationComboBox.addItems(activationStrList)
+        self.activationComboBox.addItems(Network.options["activation"])
         self.settingsLayout.addWidget(activationLabel                   ,0,6)
         self.settingsLayout.addWidget(self.activationComboBox           ,1,6)
 # 7-----------------------------------------------------------------------------
@@ -120,9 +115,8 @@ class centralWidget(QWidget):
         regularizationLabel         = QLabel("Regularization")
         regularizationStrList       = []
         
-        for key in RegularizationFunction.regularization_functions:
-            regularizationStrList.append(str(key))
-        self.regularizationComboBox.addItems(regularizationStrList)
+
+        self.regularizationComboBox.addItems(Network.options["regularization"])
         
         self.settingsLayout.addWidget(regularizationLabel               ,0,7)
         self.settingsLayout.addWidget(self.regularizationComboBox       ,1,7)
@@ -140,9 +134,7 @@ class centralWidget(QWidget):
         costLabel         = QLabel("Cost function")
         costStrList       = []
         
-        for key in CostFunction.cost_functions:
-            costStrList.append(str(key))
-        self.costComboBox.addItems(costStrList)
+        self.costComboBox.addItems(Network.options["cost"])
 
         self.settingsLayout.addWidget(costLabel                         ,0,9)
         self.settingsLayout.addWidget(self.costComboBox                 ,1,9)
