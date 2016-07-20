@@ -125,47 +125,7 @@ class Preprocessing:
         if not os.path.exists(os.path.dirname(out)):
             os.makedirs(os.path.dirname(out))
 
-<<<<<<< HEAD:preprocessing.py
-        f = open(out, 'w')
-        for line in self.data:
-            for i in line:
-                f.write(str(i) + ' ')
-            f.write('\n')
-        f.close()
-
-
-
-
-def get_filelist(input_dir, number):
-    """ Returns a list of files  for a given number."""
-
-    pattern = str(number) + '*'
-    fileList = []
-
-    for dName, sdName, fList in os.walk(input_dir):
-        for fileName in fList:
-            if fnmatch.fnmatch(fileName, pattern):
-                fileList.append(os.path.join(dName, fileName))
-
-    return fileList
-
-
-
-
-def main():
-    for num in range(1, 10):
-        for i in get_filelist('train', num):
-            data = Preprocessing(i, 60)
-
-#           data.moving_average_fit(0.1, 2.0, COL_DYNAMIC_E,3)
-            data.start_point_detection(threshold=0.5, n=10)
-#            data.cut_first_max(n=20)
-            data.cut_first_max(n=20)
-            data.fit()
-            data.save('out')
-=======
         np.savetxt(out, self.data, delimiter=' ')
->>>>>>> 6ab72a0f60965a50ef3d07299fcf038d3037d70c:lib/preprocessing.py
 
 
 
