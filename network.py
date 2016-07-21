@@ -196,9 +196,6 @@ class Network:
                 #       function so there is no need for it.
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
-                # self.weights = [ (1 - self.eta * (self.lambda_ / len(tr_d))) * w \
-                #         - (self.eta / len(mini_batch)) * nw \
-                #         for w, nw in zip(self.weights, nabla_wC)]
                 self.weights = [ w - self.eta * (nw + \
                     self.regularization.derivative(w, self.lambda_, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
