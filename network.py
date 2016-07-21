@@ -259,6 +259,16 @@ class Network:
         return (nabla_bC, nabla_wC)
 
 
+    def get_confusion(self, data):
+        dim, _ = data[0][1].shape
+        mat = np.zeros(shape=(dim,dim))
+        for (x, y) in data:
+            a = np.argmax(self.feedforward(x))
+            y = np.argmax(y)
+            mat[y][a] += 1.0
+
+        return mat
+
     def eval_accuracy(self, data):
         count = 0
         for (x, y) in data:
