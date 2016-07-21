@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # vim: set cc=80:
 
-import yaml
+import os
+import yaml, tarfile
 import random
 import datetime
 import logging
@@ -87,7 +88,7 @@ class Network:
         return self.feedforward(X)
 
 
-    def save(self, filename):
+    def save(self, filename, compress=False):
         """Save the current state of the Network to a YAML file.
         YAML format is convenient since it has no dependency on python and can
         be edited by hand."""
@@ -99,22 +100,40 @@ class Network:
                 "weights"    : [ w.tolist() for w in self.weights ],
                 "biases"     : [ b.tolist() for b in self.biases  ],
                 }
-        with open(filename, 'wb') as f:
-            yaml.dump(data, f)
+
+        if compress or filename.endswith('.gz'):
+            with tarfile.open(filename, 'w:gz') as tar:
+                tmp = filename.split('.gz')[0]
+                with open(tmp, 'wb') as f:
+                    f.write('# vim: set ft=yaml:\n')
+                    yaml.dump(data, f)
+                    tar.add(tmp)
+                    os.remove(tmp)
+        else:
+            with open(filename, 'wb') as f:
+                yaml.dump(data, f)
 
 
-    def load(self, filename):
+    def _load_file(self, f):
+        data = yaml.load(f)
+        self.struct     = data['struct']
+        self.activation = ActivationFunction(func=data['activation'])
+        self.cost       = CostFunction(func=data['cost'])
+        self.eta        = data['eta']
+
+        self.biases  = [ np.array(b) for b in data['biases']  ]
+        self.weights = [ np.array(w) for w in data['weights'] ]
+
+
+    def load(self, filename, compress=False):
         """Load a Network configuration from a YAML file."""
-        with open(filename, 'rb') as f:
-            data = yaml.load(f)
-
-            self.struct = data['struct']
-            self.activation = ActivationFunction(func=data['activation'])
-            self.cost = CostFunction(func=data['cost'])
-            self.eta = data['eta']
-
-            self.biases  = [ np.array(b) for b in data['biases']  ]
-            self.weights = [ np.array(w) for w in data['weights'] ]
+        if compress or filename.endswith('.gz'):
+            with tarfile.open(filename, 'r:gz') as tar:
+                f = tar.extractfile(filename.split('.gz')[0])
+                self._load_file(f)
+        else:
+            with open(filename, 'rb') as f:
+                    self._load_file(f)
 
 
     def feedforward(self, X):
