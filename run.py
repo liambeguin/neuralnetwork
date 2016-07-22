@@ -2,6 +2,7 @@
 # vim: cc=80:
 
 import os
+import numpy as np
 import network
 from lib import utils
 
@@ -17,26 +18,28 @@ output_size = len(training_data[0][1])
 
 print(" ** Initializing Network...")
 net = network.Network(
-        (input_size, 50, output_size),
+        (input_size, 150, output_size),
         activation     = 'sigmoid',
         cost           = 'cross-entropy',
         regularization = 'L2',
-        learning_rate  = 0.6,
+        learning_rate  = 0.5,
         lambda_        = 0.01
         )
 if os.path.exists('autoload.save.gz'):
     print(" *** Found autoload, loading config...")
     net.load('autoload.save.gz')
+    if net.struct[0] != input_size:
+        raise Exception("Autoload conf file does not match your dataset!")
 
 print(net)
 
 print(" ** Starting training...")
 tr_err, tr_cost, va_err, va_cost = net.train(
         training_data,
-        epochs       = 20,
+        epochs       = 100,
         batch_size   = 10,
         va_d         = validation_data,
-        early_stop_n = None,
+        early_stop_n = 10,
         monitoring   = {'error':True, 'cost':True}
         )
 
@@ -55,9 +58,17 @@ print " ** Accuracy on test dataset : {}/{} -> {:.3%}".format(
         )
 
 print
-print " ** Confusion on test dataset.."
+print(" ** Confusion on test dataset..")
 confusion = net.get_confusion(test_data)
 print confusion
+print
+
+
+print(" ** evaluate single input...")
+f = 'test/woman/nh/5b.txt'
+(feat, lab) = utils.extract_sample(f, size=50)
+print("    * prediction  : {}".format(np.argmax(net(feat))+1))
+print("    * actual value: {}".format(np.argmax(lab)+1))
 print
 
 
