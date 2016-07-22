@@ -1,16 +1,11 @@
-
-learn:
+all:
 	./run.py
 
-plot: prep
-	gnuplot -c ./scripts/plot comp $N
-
 prep:
-	./lib/preprocessing.py
+	tar xzf tidigits.tar.gz
 
 clean:
 	rm -rf out/ plot/
-
 
 plot_simple: prep
 	gnuplot -c ./scripts/plot simple $N
