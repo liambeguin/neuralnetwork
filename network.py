@@ -332,13 +332,9 @@ class Network:
 
     def eval_cost(self, data):
         """Evaluate cost on a given dataset. """
-        total_cost = 0
-
-        for x, y in data:
-            a = self.feedforward(x)
-            total_cost += self.cost(a, y)
-
-        # Add regularization term
+        # Compute C0, the cost function alone
+        total_cost = np.sum([ self.cost(self.feedforward(x), y) for (x, y) in data ])
+        # Add \Omega(h), the regularization term
         total_cost += np.sum([ self.regularization(w) for w in self.weights ])
 
         return total_cost
