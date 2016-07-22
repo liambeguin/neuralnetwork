@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # vim: cc=80:
 
-import os, fnmatch
+import os, fnmatch, re
 import numpy as np
 
 import preprocessing as prep
@@ -15,10 +15,10 @@ def vectorize_output(n, shape=(9, 1)):
 
 
 
-def extract_datasets(basename='', size=60, out_size=9, verbose=False):
-    tr_d = _extract(basename + 'train',      size=size, out_size=out_size)
-    va_d = _extract(basename + 'validation', size=size, out_size=out_size)
-    te_d = _extract(basename + 'test',       size=size, out_size=out_size)
+def extract_datasets(basename='', size=60, sex=False, verbose=False):
+    tr_d = _extract(basename + 'train',      size=size, sex=sex)
+    va_d = _extract(basename + 'validation', size=size, sex=sex)
+    te_d = _extract(basename + 'test',       size=size, sex=sex)
 
     if verbose:
         print(" *** Training")
@@ -37,24 +37,41 @@ def extract_datasets(basename='', size=60, out_size=9, verbose=False):
 
 
 
-def _extract(dirname='train', size=60, out_size=9):
+def _extract(dirname='train', size=60, sex=False, out_size=9):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
     for num in xrange(1, out_size+1):
         for file_ in get_filelist(dirname, num):
-            x = prep.Preprocessing(file_, size)
-            x.start_point_detection(threshold=0.5, n=10)
-            x.cut_first_max(n=20)
-            x.normalize()
-            x.fit()
-            x.get_subset('static')
-            # make a column of the whole array
-            input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
-
-            dataset.append( (input_, vectorize_output(num-1, shape=(out_size, 1))) )
+            sample = extract_sample(file_, size=size, sex=sex)
+            dataset.append(sample)
 
     return dataset
+
+
+
+def extract_sample(file_, size=60, sex=False, out_size=9):
+    # Preprocess file ...
+    x = prep.Preprocessing(file_, size)
+    x.start_point_detection(threshold=0.5, n=10)
+    x.cut_first_max(n=20)
+    x.normalize()
+    x.fit()
+    x.get_subset('static')
+
+    num = int(re.search(r'(?=.*)[0-9](?=.*)', file_).group(0))
+
+    # make a column of the whole array
+    features = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
+
+    if sex: out_size+=1
+    labels   = vectorize_output(num-1, shape=(out_size, 1))
+
+    if sex:
+        if re.search(r'.*woman.*', file_):
+            labels[-1] = 1.0
+
+    return (features, labels)
 
 
 
