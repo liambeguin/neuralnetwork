@@ -54,13 +54,14 @@ class Network:
             raise Exception("cross-entropy can only be used with a sigmoid activation")
 
         self.n_layers = len(struct)
-        self.struct = struct
-        self.regularization = RegularizationFunction(func=regularization)
+        self.struct   = struct
+
+        self.lambda_ = lambda_
+        self.eta     = learning_rate
+
+        self.regularization = RegularizationFunction(func=regularization, lambda_=lambda_)
         self.activation     = ActivationFunction(func=activation)
         self.cost           = CostFunction(func=cost)
-        self.eta     = learning_rate
-        self.alpha   = momentum
-        self.lambda_ = lambda_
 
         self.a = [ np.random.randn(layer,1) for layer in struct ]
         self.z = [ np.random.randn(layer,1) for layer in struct ]
@@ -198,7 +199,7 @@ class Network:
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
                 self.weights = [ w - self.eta * (nw + \
-                    self.regularization.derivative(w, self.lambda_, len(tr_d))) \
+                    self.regularization.derivative(w, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
             print("Epoch {:2d} training done.".format(i) )
@@ -308,8 +309,8 @@ class Network:
             a = self.feedforward(x)
             total_cost += self.cost(a, y)
 
-        total_cost += 0.5*(self.lambda_/len(data))*sum(
-                np.linalg.norm(w)**2 for w in self.weights)
+        # Add regularization term
+        total_cost += self.regularization(self.weights, len(data))
 
         return total_cost
 
