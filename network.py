@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # vim: set cc=80:
 
-import yaml
+import os
+import yaml, tarfile
 import random
 import datetime
 import logging
@@ -99,22 +100,41 @@ class Network:
                 "weights"    : [ w.tolist() for w in self.weights ],
                 "biases"     : [ b.tolist() for b in self.biases  ],
                 }
-        with open(filename, 'wb') as f:
-            yaml.dump(data, f)
+
+        if filename.endswith('.gz'):
+            with tarfile.open(filename, 'w:gz') as tar:
+                tmp = filename.split('.gz')[0]
+                with open(tmp, 'wb') as f:
+                    f.write('# vim: set ft=yaml:\n')
+                    yaml.dump(data, f)
+                    tar.add(tmp)
+                    os.remove(tmp)
+        else:
+            with open(filename, 'wb') as f:
+                yaml.dump(data, f)
+
+
+    def _load_file(self, f):
+        data = yaml.load(f)
+        self.struct     = data['struct']
+        self.activation = ActivationFunction(func=data['activation'])
+        self.cost       = CostFunction(func=data['cost'])
+        self.eta        = data['eta']
+
+        self.biases  = [ np.array(b) for b in data['biases']  ]
+        self.weights = [ np.array(w) for w in data['weights'] ]
 
 
     def load(self, filename):
         """Load a Network configuration from a YAML file."""
-        with open(filename, 'rb') as f:
-            data = yaml.load(f)
-
-            self.struct = data['struct']
-            self.activation = ActivationFunction(func=data['activation'])
-            self.cost = CostFunction(func=data['cost'])
-            self.eta = data['eta']
-
-            self.biases  = [ np.array(b) for b in data['biases']  ]
-            self.weights = [ np.array(w) for w in data['weights'] ]
+        if filename.endswith('.gz'):
+            with tarfile.open(filename, 'r:gz') as tar:
+                # NOTE: this only uses the first file of the archive!
+                f = tar.extractfile(tar.getmembers()[0])
+                self._load_file(f)
+        else:
+            with open(filename, 'rb') as f:
+                    self._load_file(f)
 
 
     def feedforward(self, X):
@@ -177,9 +197,6 @@ class Network:
                 #       function so there is no need for it.
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
-                # self.weights = [ (1 - self.eta * (self.lambda_ / len(tr_d))) * w \
-                #         - (self.eta / len(mini_batch)) * nw \
-                #         for w, nw in zip(self.weights, nabla_wC)]
                 self.weights = [ w - self.eta * (nw + \
                     self.regularization.derivative(w, self.lambda_, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
@@ -259,21 +276,28 @@ class Network:
         return (nabla_bC, nabla_wC)
 
 
+    def get_confusion(self, data):
+        dim, _ = data[0][1].shape
+        mat = np.zeros(shape=(dim,dim))
+        for (x, y) in data:
+            a = np.argmax(self.feedforward(x))
+            y = np.argmax(y)
+            mat[y][a] += 1.0
+
+        return mat
+
     def eval_accuracy(self, data):
         count = 0
         for (x, y) in data:
-            # If y is a vector get the index of it's max
+            # Since y is a vector get the index of it's max
             # this assumes a one-hot vector !!
-            if isinstance(y, (np.ndarray, list)):
-                y = np.argmax(y)
-
-            if np.argmax(self.feedforward(x)) == y:
+            if np.argmax(self.feedforward(x)) == np.argmax(y):
                 count += 1
 
         return count
 
 
-    def eval_error_rate(self, data, vectorize=False):
+    def eval_error_rate(self, data):
         return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
 

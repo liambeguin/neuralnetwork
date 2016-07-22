@@ -1,39 +1,43 @@
-#!/usr/bin/python3.4
+#!/usr/bin/python
+# vim: cc=80:
 
 import os, fnmatch
-
 import numpy as np
 
 import preprocessing as prep
 
-def vectorize_output(n, size=(9, 1)):
-    v =  np.zeros(size)
+
+
+def vectorize_output(n, shape=(9, 1)):
+    v =  np.zeros(shape)
     v[n] = 1.0
     return v
 
 
-def extract_datasets(basename='', size=60, out_size=10):
-    tr_d = _extract(basename + 'train', size=size, vectorize=True, out_size=out_size)
-    va_d = _extract(basename + 'validation', size, out_size=out_size)
-    te_d = _extract(basename + 'test', size=size, out_size=out_size)
 
-    if 1:
+def extract_datasets(basename='', size=60, out_size=9, verbose=False):
+    tr_d = _extract(basename + 'train',      size=size, out_size=out_size)
+    va_d = _extract(basename + 'validation', size=size, out_size=out_size)
+    te_d = _extract(basename + 'test',       size=size, out_size=out_size)
+
+    if verbose:
         print(" *** Training")
-        inspect_dataset(tr_d, size)
+        inspect_dataset(tr_d, size=size)
         print
 
         print(" *** Validation")
-        inspect_dataset(va_d, size)
+        inspect_dataset(va_d, size=size)
         print
 
         print(" *** Testing")
-        inspect_dataset(te_d, size)
+        inspect_dataset(te_d, size=size)
         print
 
     return tr_d, va_d, te_d
 
 
-def _extract(dirname='train', size=60, vectorize=False, out_size=10):
+
+def _extract(dirname='train', size=60, out_size=9):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
@@ -42,30 +46,27 @@ def _extract(dirname='train', size=60, vectorize=False, out_size=10):
             x = prep.Preprocessing(file_, size)
             x.start_point_detection(threshold=0.5, n=10)
             x.cut_first_max(n=20)
-            x.only_static_data()
             x.normalize()
             x.fit()
+            x.get_subset('static')
             # make a column of the whole array
             input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
 
-            if vectorize:
-                dataset.append( (input_, vectorize_output(num-1)) )
-            else:
-                dataset.append( (input_, num) )
+            dataset.append( (input_, vectorize_output(num-1, shape=(out_size, 1))) )
 
     return dataset
 
 
 
 def inspect_dataset(dataset, size=60):
-    print("size : {}".format(len(dataset)))
-    print("input  shape: {}".format(dataset[0][0].shape) )
+    print("    * size : {}".format(len(dataset)))
+    print("    * input  shape: {} -> {}x{}".format(dataset[0][0].shape, dataset[0][0].shape[0]/size, size) )
     if isinstance(dataset[0][1], np.ndarray):
-        print("output shape: {}".format(dataset[0][1].shape) )
+        print("    * output shape: {}".format(dataset[0][1].shape) )
     else:
-        print("output shape: {}".format(type(dataset[0][1])) )
+        print("    * output shape: {}".format(type(dataset[0][1])) )
 
-    print("input type: {}".format(type(dataset[0][0])) )
+    print("    * input type: {}".format(type(dataset[0][0])) )
 
 
 
@@ -81,6 +82,135 @@ def get_filelist(input_dir, number):
                 fileList.append(os.path.join(dName, fileName))
 
     return fileList
+
+
+
+def make_cmap(colors, position=None, bit=False):
+    '''
+    make_cmap takes a list of tuples which contain RGB values. The RGB
+    values may either be in 8-bit [0 to 255] (in which bit must be set to
+    True when called) or arithmetic [0 to 1] (default). make_cmap returns
+    a cmap with equally spaced colors.
+    Arrange your tuples so that the first color is the lowest value for the
+    colorbar and the last is the highest.
+    position contains values from 0 to 1 to dictate the location of each color.
+    '''
+    import matplotlib as mpl
+    import numpy as np
+    bit_rgb = np.linspace(0,1,256)
+    if position == None:
+        position = np.linspace(0,1,len(colors))
+    else:
+        if len(position) != len(colors):
+            sys.exit("position length must be the same as colors")
+        elif position[0] != 0 or position[-1] != 1:
+            sys.exit("position must start with 0 and end with 1")
+    if bit:
+        for i in range(len(colors)):
+            colors[i] = (bit_rgb[colors[i][0]],
+                    bit_rgb[colors[i][1]],
+                    bit_rgb[colors[i][2]])
+    cdict = {'red':[], 'green':[], 'blue':[]}
+    for pos, color in zip(position, colors):
+        cdict['red'].append((pos, color[0], color[0]))
+        cdict['green'].append((pos, color[1], color[1]))
+        cdict['blue'].append((pos, color[2], color[2]))
+
+    cmap = mpl.colors.LinearSegmentedColormap('my_colormap',cdict,256)
+    return cmap
+
+
+
+def plot_training_summary(basename, tr_err, tr_cost,
+        va_err=None, va_cost=None, te_err=None, te_cost=None):
+    """
+    basename is a suffix for the name of the output file
+    tr_err, tr_cost vectors returned by Network.train
+    va_err, va_cost vectors returned by Network.train
+    te_err, te_cost single value evaluated after training on test set
+    """
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    # import matplotlib.gridspec as gridspec
+
+
+    # fig = plt.figure(figsize=(10,20), dpi=700)
+    f, axarr = plt.subplots(2, sharex=True)
+    axarr[0].set_ylabel('Error rate')
+    axarr[0].grid(True)
+    # axarr[0].set_ylim(ymin = -0.1)
+
+    axarr[0].plot(tr_err, label='training')
+    if va_err:
+        axarr[0].plot(va_err, label='validation')
+    if te_err:
+        axarr[0].plot([te_err]*len(tr_err), label='test')
+
+
+    axarr[1].set_ylabel('cost')
+    axarr[1].grid(True)
+    axarr[1].plot(tr_cost, label='training')
+    if va_cost:
+        axarr[1].plot(va_cost, label='validation')
+    if te_cost:
+        axarr[1].plot([te_cost]*len(tr_cost), label='test')
+
+
+
+    axarr[0].set_title('TIDIGITS training summary')
+    plt.xlabel('Epoch')
+    plt.legend(loc='best')
+    plt.tight_layout()
+
+    out = os.path.join('out', 'plots', basename, 'training.png')
+    if not os.path.exists(os.path.dirname(out)):
+        os.makedirs(os.path.dirname(out))
+
+    plt.savefig(out)
+    plt.clf()
+
+def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
+    # http://matplotlib.org/examples/images_contours_and_fields/interpolation_methods.html
+    # http://matplotlib.org/examples/color/colormaps_reference.html
+    # cmap = gray Greys gnuplot gist_stern
+    # blur (+) to (-) : bicubic, quadrix, hamming, None, none
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    if style == 'simple':
+        inter = 'none'
+        cm    = 'Grays'
+    else:
+        inter = 'bicubic'
+        colors = [(1,1,1), (0.4,0.2,0.0), (0,0.3,0.4)]
+        ### Create an array or list of positions from 0 to 1.
+        position = [0, 0.05, 1]
+        cm = make_cmap(colors, position=position)
+
+    if interpolation:
+        inter = interpolation
+
+    conf = plt.imshow(matrix, interpolation=inter, cmap=cm, aspect='auto')
+
+    plt.ylabel('Actual value $(y)$')
+    plt.xlabel('Prediction $(\hat{y})$')
+    plt.colorbar(conf)
+
+    plt.tight_layout(pad=2)
+    plt.title('Confusion Matrix')
+
+
+    out = os.path.join('out', 'plots', basename, 'confusion.png')
+    if not os.path.exists(os.path.dirname(out)):
+        os.makedirs(os.path.dirname(out))
+
+    plt.savefig(out)
+    plt.clf()
+
 
 
 LOGLEVEL = 0
