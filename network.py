@@ -103,12 +103,16 @@ class Network:
         If the filename has a '.gz' extension, it will be compressed
         automatically"""
         data = {
-                "struct"     : self.struct,
-                "activation" : self.activation.type,
-                "cost"       : self.cost.type,
-                "eta"        : self.eta,
-                "weights"    : [ w.tolist() for w in self.weights ],
-                "biases"     : [ b.tolist() for b in self.biases  ],
+                "struct"         : self.struct,
+                "eta"            : self.eta,
+                "lambda"         : self.lambda_,
+
+                "cost"           : self.cost.type,
+                "activation"     : self.activation.type,
+                "regularization" : self.regularization.type,
+
+                "weights"        : [ w.tolist() for w in self.weights ],
+                "biases"         : [ b.tolist() for b in self.biases  ],
                 }
 
         if filename.endswith('.gz'):
@@ -126,10 +130,16 @@ class Network:
 
     def _load_file(self, f):
         data = yaml.load(f)
-        self.struct     = data['struct']
-        self.activation = ActivationFunction(func=data['activation'])
-        self.cost       = CostFunction(func=data['cost'])
-        self.eta        = data['eta']
+
+        self.struct         = data['struct']
+        self.eta            = data['eta']
+        self.lambda_        = data['lambda']
+
+        self.cost           = CostFunction(func=data['cost'])
+        self.activation     = ActivationFunction(func=data['activation'])
+        self.regularization = RegularizationFunction(
+                func=data['regularization'],
+                lambda_=self.lambda_)
 
         self.biases  = [ np.array(b) for b in data['biases']  ]
         self.weights = [ np.array(w) for w in data['weights'] ]
