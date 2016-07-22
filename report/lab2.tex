@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgf}
+\usetikzlibrary{arrows,automata}
+\usepackage[left=2cm, right=2cm]{geometry}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{multirow}
+
+\date{}
+\begin{document}
+
+\def \ETScourse {ELE778-01 - Intelligence artificielle: réseaux neuroniques
+et systèmes experts}
+\def \ETStitle {Laboratoire 2}
+\def \ETSprof  {Cynthia \textsc{Moussa}}
+\def \ETSauthA {Liam \textsc{Beguin}\\\emph{BEGL02129304}}
+\def \ETSauthB {Louis \textsc{Laporte}\\\emph{LAPL14128903}}
+\input{titlepage.tex}
+
+\section{Introduction}
+Après avoir fait une étape de pré-traitement lors du laboratoire 2.1, nous
+allons maintenant implémenter un reseau de neurones a retro-propagation du
+gradient d’erreur dans le but de classifier, le plus précisément possible,
+le dataset TiDigits (english spoken digits from 1 to 9). 
+
+Pour implémenter ce reseau de neurones, nous utiliserons Python. 
+Voici une liste d'avantages versus inconvenients qui ont motive notre choix:
+\item avantages:
+	\subitem rapidite de developpement
+	\subitem lang interprete, pas de compilation
+	\subitem modules de calcul matriciel performants
+	\subitem language accessible
+\item{inconvenients}
+	\subitem lang interprete donc moins rapide \\
+
+Dans un premier temps, nous entrainerons le reseau sur un set de donnees puis
+nous evaluerons sa capacite a generaliser sur de nouvelles donnees non utilisees
+lors de l'entrainement. 
+
+\section{Implementation du r\'eseau de neurones}
+\subsection{Architecture globale}
+Etant donne que le reseau doit etre tres flexible quant au nombre de couches
+et au nombre de neurones, nous utiliserons un tuple pour instancier
+notre reseau. Chaque element de la liste represente une couche du reseau
+(la couche d'entree etant compt\'ee) et sa valeur determine le nombre de neurones
+present sur la couche.
+
+\subsection{Extraction des donn\'ees}
+% preprocessing, chx du 40, 50 ,60
+
+\subsection{Initialisation du res\'eau}
+% weight init check commit log
+
+\subsection{Fonctions d'activation}
+% sigmoid  -> probability dist 
+% tanh     -> soft threshold (linear arround 0 hard threshold far)
+% softplus -> linear above 0
+% add plots
+
+
+
+\subsection{Fonctions de cout}
+% cross-entropy -> prevent neuron saturation
+
+\subsection{Eviter le sur-apprentisage}
+% plus ya de neurons plus on peut overfit -> polynome a plus de dimensions 
+\subsubsection{Early stopping}
+% add this image https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Overfitting_svg.svg/1024px-Overfitting_svg.svg.png?1469206069861
+\subsubsection{Validation crois\'ee}
+% leave one out, K folds, implique de 'bouger' des trucs dans les datasets
+% merge train et VC -> larger traiing set
+\subsubsection{Fonctions de r\'egularisation}
+% penalise le poids large check :
+% http://neuralnetworksanddeeplearning.com/chap3.html#overfitting_and_regularization
+
+\subsection{Entrainement}
+% batch gradient descent
+% stochastic gradient descent
+% minibatch GD check network.py
+
+\subsection{Ajustement des hyper-param\`etres}
+% http://neuralnetworksanddeeplearning.com/chap3.html#how_to_choose_a_neural_network's_hyper-parameters
+
+\subsection{Inspection du res\'eau}
+
+\section{Interface graphique}
+
+
+
+\section{Conclusions}
+% ajouter autres pistes d'amelioration
+% conclure sur performance globale du systeme
+% classification homme/femme
+
+\end{document}
+% vim: cc=80 :
