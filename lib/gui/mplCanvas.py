@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/python
 
 from __future__ import unicode_literals
 import sys
@@ -14,9 +14,11 @@ from matplotlib.figure import Figure
 
 
 from PyQt5 import QtWidgets,QtCore
+from PyQt5.QtCore import Qt,pyqtSignal,pyqtSlot,QThread
 
-progname = os.path.basename(sys.argv[0])
-progversion = "0.1"
+import logging
+LOG_FILENAME = 'example.log'
+logging.basicConfig( filename=LOG_FILENAME, level=logging.DEBUG )
 
 class MplCanvas(FigureCanvas):
     """
@@ -29,10 +31,10 @@ class MplCanvas(FigureCanvas):
 
     """
     
-    def __init__(self, parent=None, width=5, height=5, dpi=80,t=20):
+    def __init__(self, parent=None, width=100, height=10, dpi=100):
+        
         
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.e=t
         self.axes = fig.add_subplot(121)# two rows, one column, first plot
         self.axes.grid(True)
 
@@ -49,7 +51,7 @@ class MplCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self,
                                    QtWidgets.QSizePolicy.Expanding,
                                    QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+#        FigureCanvas.updateGeometry(self)
 
 
 class DynamicMplCanvas(MplCanvas):
@@ -62,40 +64,34 @@ class DynamicMplCanvas(MplCanvas):
         MplCanvas.__init__(self, *args, **kwargs)
         self.x
         self.y
+        self.axes.set_ylim([0,100])
+        self.axes.set_xlim([0,100])
         self.compute_initial_figure()
 #        timer = QtCore.QTimer(self)
 #        timer.timeout.connect(self.update_figure)
 #        timer.start(1000)
 
+
     def compute_initial_figure(self):
-        
-        
-        self.a=0
-        #self.e=100
         self.x=np.array([])
         self.y=np.array([])
         self.axes.plot(self.x, self.y, 'r')
-    def update_figure(self):
+    
+    
+    @pyqtSlot(list)
+    def update_figure(self,l):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
         #self.axes.axhline(0, color='black', lw=2)
-       
-        self.x=np.append(self.x,[self.a])
-        #print("a={}",self.a)
-        self.a+=1
-        if self.e>0:
-            self.e-=1
+        sz=len(self.x)
+        for i in range(len(l)):
+            self.x=np.append(self.x,[sz+i])
+            self.y=np.append(self.y,[l[i]])
 
-        #print(self.x)
-        #l = [random.randint(0, 10) for i in range(self.a)]
-        #self.y=np.append(self.y,[random.randint(0, 10)])
-        self.axes.set_ylim([0,100])
-        #self.axes.set_ylim([0,100])
-        self.y=np.append(self.y,[self.e])
-        #print(l)
         self.axes.plot(self.x, self.y, 'r')
         self.axes.set_ylabel("Error %")
         self.axes.set_xlabel("Epoch")
         self.draw()
+
 
 
 class StaticMplCanvas(MplCanvas):

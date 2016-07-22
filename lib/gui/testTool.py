@@ -1,10 +1,11 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/python
 from __future__ import unicode_literals
 import sys
 import os
 import random
 import matplotlib
 # Make sure that we are using QT5
+
 from mplCanvas import DynamicMplCanvas
 from mplCanvas import StaticMplCanvas
 from PyQt5 import QtCore,QtWidgets,QtSvg,QtGui

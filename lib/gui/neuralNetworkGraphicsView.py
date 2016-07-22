@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/python
 from PyQt5 import QtCore,QtWidgets,QtSvg,QtGui
 
 from PyQt5.QtGui import QTextCursor,QColor,QBrush,QPen

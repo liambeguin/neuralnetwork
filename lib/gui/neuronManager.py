@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.4
+#!/usr/bin/python
 
 from __future__ import unicode_literals
 
