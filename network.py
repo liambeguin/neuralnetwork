@@ -88,7 +88,7 @@ class Network:
         return self.feedforward(X)
 
 
-    def save(self, filename, compress=False):
+    def save(self, filename):
         """Save the current state of the Network to a YAML file.
         YAML format is convenient since it has no dependency on python and can
         be edited by hand."""
@@ -101,7 +101,7 @@ class Network:
                 "biases"     : [ b.tolist() for b in self.biases  ],
                 }
 
-        if compress or filename.endswith('.gz'):
+        if filename.endswith('.gz'):
             with tarfile.open(filename, 'w:gz') as tar:
                 tmp = filename.split('.gz')[0]
                 with open(tmp, 'wb') as f:
@@ -125,11 +125,12 @@ class Network:
         self.weights = [ np.array(w) for w in data['weights'] ]
 
 
-    def load(self, filename, compress=False):
+    def load(self, filename):
         """Load a Network configuration from a YAML file."""
-        if compress or filename.endswith('.gz'):
+        if filename.endswith('.gz'):
             with tarfile.open(filename, 'r:gz') as tar:
-                f = tar.extractfile(filename.split('.gz')[0])
+                # NOTE: this only uses the first file of the archive!
+                f = tar.extractfile(tar.getmembers()[0])
                 self._load_file(f)
         else:
             with open(filename, 'rb') as f:
