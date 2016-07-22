@@ -32,10 +32,10 @@ def l1_reg(w, lambda_, n, prime=False):
 class RegularizationFunction():
 
     available_functions = {
-            'none': noreg,
             'L1': l1_reg,
-            'L2': weightdecay,
+            'none': noreg,
             'weight-decay': weightdecay,
+            'L2': weightdecay,
             }
 
     def __init__(self, func='none'):

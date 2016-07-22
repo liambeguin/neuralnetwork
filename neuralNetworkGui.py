@@ -18,13 +18,17 @@ from lib.gui.mplCanvas import StaticMplCanvas
 
 import network
 
+from lib import utils
+
 from PyQt5 import QtCore, QtWidgets,QtGui
 from PyQt5.QtGui import QTextCursor, QColor,QPixmap,QPainter,QPainterPath,QRegion
 from PyQt5.QtWidgets import QApplication,  QMainWindow ,QWidget, QDesktopWidget, \
                 QGridLayout,  QHBoxLayout, QVBoxLayout, \
                 QGraphicsView,  QGraphicsScene, QGraphicsRectItem, \
-                QPushButton,  QLabel, QPlainTextEdit, QComboBox, \
-                QSpacerItem,  QSizePolicy, QGraphicsPixmapItem
+                QPushButton,  QLabel, QPlainTextEdit, QComboBox, QMessageBox, \
+                QSpacerItem,  QSizePolicy, QGraphicsPixmapItem, \
+                QMenu,QFileDialog,QAction, \
+                qApp
 
 from PyQt5.QtCore import QObject,QThread, Qt,pyqtSignal,pyqtSlot
 
@@ -45,20 +49,18 @@ class centralWidget( QWidget ):
     +--------------------------------------+--------------------------------------+
     """
 
-    layerCreated    = pyqtSignal( int )
-    drawNeuron      = pyqtSignal( int, int )
-    textChanged     = pyqtSignal()
+    layerCreated     = pyqtSignal( int )
+    drawNeuron       = pyqtSignal( int, int )
+    textChanged      = pyqtSignal()
+    updateParameters = pyqtSignal( dict )
 
     def __init__( self ):
         super( centralWidget,  self ).__init__()
         scr         = QDesktopWidget()
         self.w      = scr.width()
         self.h      = scr.height()
-        self.debug  = 1
+        self.debug  = 0
         self.initUi()
-
-        #self.dc = MyDynamicMplCanvas( self.widget,  width=5, height=4, dpi=100 )
-        #self._Layout.addWidget( self.dc, 0,0 )
 
     def initUi( self ):
 
@@ -77,6 +79,9 @@ class centralWidget( QWidget ):
                     "border-width: 1px;    "+
                     "border-color: red;  "
                      )
+        else:
+            self.settingsWidget.setStyleSheet( 
+                    "background-color:white")
         
         self.settingsLayout = QGridLayout( self.settingsWidget )
         
@@ -91,16 +96,16 @@ class centralWidget( QWidget ):
         self.settingsLayout.addWidget( self.playLabel                    , 0,2,0,1 )
 # 4-----------------------------------------------------------------------------
         self.iterationsInitValue = 0
-        self.iterationsComboBox  = QLabel( "{}".format(self.iterationsInitValue ))
+        self.iterations          = QLabel( "{}".format(self.iterationsInitValue ))
         iterationsLabel          = QLabel( "Iterations" )
         
         self.settingsLayout.addWidget( iterationsLabel                   , 0,4 )
-        self.settingsLayout.addWidget( self.iterationsComboBox           , 1,4 )
+        self.settingsLayout.addWidget( self.iterations                   , 1,4 )
 # 5-----------------------------------------------------------------------------
         self.learningRateComboBox = QComboBox()
         learningRateLabel         = QLabel( "Leanrning rate" )
-        learningRateStrList       = ["0.00001", "0.0001","0.001","0.003",\
-                                "0.01", "0.03","0.1","0.3","1","3","10"]
+        learningRateStrList       = ["0.3","0.00001", "0.0001","0.001","0.003",\
+                                "0.01", "0.03","0.1","1","3","10"]
         
         self.learningRateComboBox.addItems( learningRateStrList )
         
@@ -127,7 +132,7 @@ class centralWidget( QWidget ):
 # 8-----------------------------------------------------------------------------
         self.regularizationRateComboBox = QComboBox()
         regularizationRateLabel         = QLabel( "Regularization rate" )
-        regularizationRateStrList       = ["0", "0.001","0.003","0.01",
+        regularizationRateStrList       = ["0.01","0", "0.001","0.003",
                                         "0.03", "0.1","0.3","1","3","10"]
         self.regularizationRateComboBox.addItems( regularizationRateStrList )
         
@@ -158,12 +163,15 @@ class centralWidget( QWidget ):
                     "border-width: 1px;    "+
                     "border-color: red;  "
                      )
+        else:
+            self.manager.setStyleSheet( 
+                    "background-color:grey")
 
         self.managerLayout = QHBoxLayout( self.manager )
         #Features
         self.featuresManager         = QWidget()
         self.featuresManagerLabel    = QLabel( "Features" )
-        self.featuresManagerList     = ["", "40","50","60"] 
+        self.featuresManagerList     = ["40","50","60"] 
         6
         self.featuresManagerComboBox = QComboBox()
         self.featuresManagerComboBox.addItems( self.featuresManagerList )
@@ -319,7 +327,6 @@ class centralWidget( QWidget ):
         self.regularizationComboBox.setObjectName     ( 'regularization'      )
         self.regularizationRateComboBox.setObjectName ( 'regularizationRate'  )
         self.costComboBox.setObjectName               ( 'cost'                )
-        logging.debug( "=============================================" )
         self.parameters = {
                 'learningRate'      :'', 
                 'activation'        :'', 
@@ -358,8 +365,6 @@ class centralWidget( QWidget ):
         self.regularizationRateComboBox.currentIndexChanged.emit( 0 )
         self.costComboBox.currentIndexChanged.emit              ( 0 )              
         
-        #thread1.start()
-
 
 
 #------------------------------------------------------------------------------- 
@@ -373,17 +378,21 @@ class centralWidget( QWidget ):
         s = self.sender()
         if type( s ) is QComboBox:
             self.parameters[str( s.objectName())]=s.currentText()
-#            logging.debug( 
-#                    "parameters {}: {}"
-#                    .format( s.objectName(), self.parameters[str(s.objectName())])
-#                     )
+            self.updateParameters.emit(self.parameters)
+            logging.debug( 
+                    "parameters {}: {}"
+                    .format( s.objectName(), self.parameters[str(s.objectName())])
+                     )
 
         else:
             logging.debug( 
                     "Error not a comboBox:{}"
                     .format( s.objectName())
-                     )
-
+                    )
+    @pyqtSlot( int )                 
+    def on_updateIterations(self,i):
+        self.iterations.setText("{}".format(i))
+    
     @pyqtSlot( int )
     def on_layerCreated( self, layer ):
         """
@@ -392,11 +401,10 @@ class centralWidget( QWidget ):
         - layer>2 --> hidden layers in layersLayout     ( pos=1 )
                   --> widgets are in hiddenLayersLayout ( pos=layer-3 )
         """
-        #self.plainTextEdit.insertPlainText( "{}\n".format(val ))
-        logging.debug( 
-                "on_hiddenLayerCreated layer ======={}"
-                .format( layer )
-                 )
+        #logging.debug( 
+        #        "on_hiddenLayerCreated layer ======={}"
+        #        .format( layer )
+        #         )
         #Features select
         if( layer==1 ):
             hLL = self.layersLayout
@@ -420,10 +428,10 @@ class centralWidget( QWidget ):
         - layer>2 --> hidden layers in layersLayout     ( pos=1 )
                   --> widgets are in hiddenLayersLayout ( pos=layer-3 )
         """
-        logging.debug( 
-                "Plus ---------------{}"
-                .format( layer )
-                 )
+        #logging.debug( 
+        #        "Plus layer{}"
+        #        .format( layer )
+        #         )
         if( layer == 1 ):
             hLL = self.layersLayout
             w   = hLL.itemAt( layer-1 ).widget()
@@ -487,9 +495,7 @@ class centralWidget( QWidget ):
     
     @pyqtSlot()
     def on_managerMinusClicked( self ):
-        """
-        Cannot delete features and output layers
-        """
+        """delete hidden layers """
         if self.countl > 2:
             self.countl -= 1
             self.hiddenManagerTitle.setText( "{} HIDDEN LAYER".format(self.countl-2 ))
@@ -513,11 +519,11 @@ class centralWidget( QWidget ):
             " drawNeuron layer {} -- neuron {}"
             .format( layer,  neuron  )
          )
-#add new layer
+        #add new layer
         if len( self.hm  ) < layer:  
             self.hm.append( neuron  )
         else:
-        ## when removing ( manager minus clicked )
+        # when removing ( manager minus clicked )
             if not neuron:
                 del self.hm[ layer ]
             #input is first    
@@ -530,14 +536,13 @@ class centralWidget( QWidget ):
             else:
                 self.hm[layer-2] = neuron
         
-#        logging.debug( "hm {}".format(self.hm ) )
-        
         # focus at end of debug 
-        self.textCursor = self.plainTextEdit.textCursor()
-        self.textCursor.movePosition( QTextCursor.End )
-        self.plainTextEdit.setTextCursor( self.textCursor )
+        #self.textCursor = self.plainTextEdit.textCursor()
+        #self.textCursor.movePosition( QTextCursor.End )
+        #self.plainTextEdit.setTextCursor( self.textCursor )
         
         hl=drawNeuralNetworkWidget( 20, 120,self.hm )
+        
         #draw if 2 layers
         if len( self.hm )>1:
             hl.drawNeurones()
@@ -558,67 +563,159 @@ class centralWidget( QWidget ):
         QtCore.QCoreApplication.instance().quit()
 
 
-class backend( QObject  ):
-    testSignal = pyqtSignal( list )
-    finished  = pyqtSignal()
+
+class backend( QObject ):
+
+    updateCanvas     = pyqtSignal( list )
+    updateIterations = pyqtSignal( int )
+    finished         = pyqtSignal()
+
+
     def __init__( self,  parent = None ):
         QObject.__init__( self,  parent )
+        self.parameters = {
+                'learningRate'      :'', 
+                'activation'        :'', 
+                'regularization'    :'', 
+                'regularizationRate':'', 
+                'cost'              :''
+                }
+        self.size   = 50
+        self.layers = 150 
 
- #       logging.debug("backend thread{}".format(str(self.thread().currentThreadId())))
+
+
     @pyqtSlot()
     def run( self ):
-        logging.debug("running")
-        i = 0
-        while i < 3:
-            self.testSignal.emit( [1, 2,3,4,5,6,7,8,9,20] )
-            time.sleep( 1 )
-            i += 1
+        
+        logging.debug("backend param == {}".format(self.parameters))
+        logging.debug("size = {}".format(self.size))
+        training_data, validation_data, test_data = utils.extract_datasets(size=self.size)
+
+        input_size  = len(training_data[0][0])
+        output_size = len(training_data[0][1])
+
+        net = network.Network(
+                (input_size, self.layers, output_size),
+                activation     = self.parameters['activation'],
+                cost           = self.parameters['cost'],
+                regularization = self.parameters['regularization'],
+                learning_rate  = float(self.parameters['learningRate']),
+                lambda_        = float(self.parameters['regularizationRate'])
+                )
+
+        if os.path.exists('autoload.save.gz'):
+        #    print(" *** Found autoload, loading config...")
+            net.load('autoload.save.gz')
+
+#        print(net)
+        net.qnet.trainingErrorValueChange = self.updateCanvas
+        net.qnet.epochValueChange         = self.updateIterations
+
+
+        tr_err, tr_cost, va_err, va_cost = net.train(
+                training_data,
+                epochs       = 20,
+                batch_size   = 10,
+                va_d         = validation_data,
+                early_stop_n = None,
+                monitoring   = {'error':True, 'cost':True}
+                )
+
         self.finished.emit()
 
 
 class MainWindow( QMainWindow ): #,  Ui_MainWindow):
+    loadfile = pyqtSignal(str)
+    
     def __init__( self ):
         super( MainWindow, self ).__init__()
         self.initUi()
         # Set up the user interface from Designer.
     def initUi( self ):
-        self.central=centralWidget()
-        self.setCentralWidget( self.central )
 
-        #b.testSignal.disconnect( self.dynamicCanvas.update_figure )
+        bar = self.menuBar()
+        self.f = bar.addMenu("&File")
+        
+        self.loadAction = QAction( '&Load', self) 
+        self.loadAction.setShortcut('Ctrl+L')
+        self.loadAction.triggered.connect(self.load_file)
 
+        self.saveAction = QAction( '&Save', self) 
+        self.saveAction.setShortcut('Ctrl+S')
+        
+        self.saveAction.triggered.connect(self.save_file)
+
+        self.exitAction = QAction( '&Exit', self)               
+        self.exitAction.setShortcut('Ctrl+Q')
+        self.exitAction.setStatusTip('Exit application')
+        self.exitAction.triggered.connect(qApp.quit)
+
+        self.f.addAction(self.exitAction)
+        self.f.addAction(self.loadAction)
+        self.f.addAction(self.saveAction)
+    
+        self.msg = QMessageBox()
+        self.msg.setObjectName("message")
+
+        self.filename=''
+
+    @pyqtSlot(str)
+    def get_save_filename(self,filename):
+        self.filename = filname
+
+    @pyqtSlot()
+    def save_file(self):
+        self.msg.setIcon(QMessageBox.Information)
+        filename = "aaa"
+        self.msg.setInformativeText("Save file{}".format(filename))
+        self.msg.setWindowTitle("Save")
+        self.msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        retval = self.msg.exec_()
+        if retval == QMessageBox.Ok:
+            logging.debug("retval {}".format(retval))
+
+                
+    @pyqtSlot()
+    def load_file(self):
+        filename =  QFileDialog.getOpenFileName(self, 'Open file', 
+            os.path.dirname(os.path.abspath(__file__)))
+        logging.debug("filename {}".format(str(filename)))
+
+
+
+    
 
 
 def main():
     app = QApplication( sys.argv )
 
-    dw=QDesktopWidget()
-    x=dw.width()
-    y=dw.height()
+    dw = QDesktopWidget()
+    x  = dw.width()
+    y  = dw.height()
     
+    thread = QThread()
+    #thread2=QThread()
 
-
-    thread=QThread()
-    logging.debug("new thread {}".format(str(thread.currentThreadId())))
-    logging.debug("app {}".format(str(app.thread().currentThreadId())))
-
-    window = QMainWindow()
+    window  = MainWindow()
     central = centralWidget()
     window.setCentralWidget(central)
-    logging.debug("main window {}".format(str(window.thread().currentThreadId())))
-    logging.debug("central {}".format(str(central.thread().currentThreadId())))
     window.show()
 
-    logging.debug("new thread {}".format(str(thread.currentThreadId())))
-    logging.debug("app {}".format(str(app.thread().currentThreadId())))
 
-
-
-    b = backend()
-    b.testSignal.connect( central.dynamicCanvas.update_figure )
+    b            = backend()
+    b.parameters = central.parameters
+    b.size       = int(central.featuresManagerComboBox.currentText())
     
+    central.drawNeuron.emit(1,int(b.size))
+    central.drawNeuron.emit(2,150)
+    central.drawNeuron.emit(3,9)
+
+
+    b.updateCanvas.connect( central.dynamicCanvas.update_figure )
+    b.updateIterations.connect( central.on_updateIterations )
     b.moveToThread(thread)
-    
+
     b.finished.connect(thread.quit)
     thread.started.connect(b.run)
     central.playLabel.trigger.connect(thread.start)

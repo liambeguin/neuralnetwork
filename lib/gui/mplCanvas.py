@@ -35,7 +35,7 @@ class MplCanvas(FigureCanvas):
         
         
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(121)# two rows, one column, first plot
+        self.axes = fig.add_subplot(111)# two rows, one column, first plot
         self.axes.grid(True)
 
         #axe.set_bg_color=set_facecolor
@@ -65,7 +65,7 @@ class DynamicMplCanvas(MplCanvas):
         self.x
         self.y
         self.axes.set_ylim([0,100])
-        self.axes.set_xlim([0,100])
+        #self.axes.set_xlim([0,100])
         self.compute_initial_figure()
 #        timer = QtCore.QTimer(self)
 #        timer.timeout.connect(self.update_figure)
@@ -85,7 +85,7 @@ class DynamicMplCanvas(MplCanvas):
         sz=len(self.x)
         for i in range(len(l)):
             self.x=np.append(self.x,[sz+i])
-            self.y=np.append(self.y,[l[i]])
+            self.y=np.append(self.y,[l[i]*100])
 
         self.axes.plot(self.x, self.y, 'r')
         self.axes.set_ylabel("Error %")

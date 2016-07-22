@@ -30,9 +30,9 @@ def softplus(z, prime=False):
 class ActivationFunction():
 
     available_functions = {
-            'sigmoid' : sigmoid,
             'tanh'    : tanh,
             'softplus': softplus,
+            'sigmoid' : sigmoid,
             }
 
     def __init__(self,func='sigmoid'):

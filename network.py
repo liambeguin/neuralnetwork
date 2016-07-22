@@ -21,9 +21,23 @@ from lib.activation import ActivationFunction
 from lib.cost import CostFunction
 from lib import utils
 
+from PyQt5 import QtCore, QtWidgets,QtGui
+from PyQt5.QtCore import QObject,QThread, Qt,pyqtSignal,pyqtSlot
 utils.set_level(3)
 # NOTE: This allows us to always use the same random numbers. used for debug
 np.random.seed(1)
+
+
+
+
+class qNetwork(QObject):
+    validationErrorValueChange = pyqtSignal(list)
+    trainingErrorValueChange   = pyqtSignal(list)
+    validationCostValueChange  = pyqtSignal(list)
+    trainingCostValueChange    = pyqtSignal(list)
+    epochValueChange           = pyqtSignal(int)
+    def __init__( self,  parent = None ):
+        QObject.__init__( self,  parent )
 
 
 class Network:
@@ -69,6 +83,8 @@ class Network:
         self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
                         for x, y in zip(struct[:-1], struct[1:]) ]
 
+
+        self.qnet = qNetwork()
 
     def __repr__(self):
         """Returns a representation of the Network."""
@@ -176,6 +192,7 @@ class Network:
 
         for i in xrange(epochs):
             # Select a random mini batch in the training dataset
+            self.qnet.epochValueChange.emit(i)
             random.shuffle(tr_d)
 
             # NOTE: `zip(*[iter(tr_d)]*batch_size)` is used to cut
@@ -212,20 +229,24 @@ class Network:
                 utils.log_print(2, " * Training   set error rate : {:.3%}"\
                         .format(self.eval_error_rate(tr_d)) )
                 tr_err.append(self.eval_error_rate(tr_d))
+                self.qnet.trainingErrorValueChange.emit([tr_err[-1]])
                 if va_d:
                     error_rate = self.eval_error_rate(va_d)
                     utils.log_print(2, " * Validation set error rate : {:.3%}"\
                             .format(error_rate) )
                     va_err.append(error_rate)
+                    self.qnet.validationErrorValueChange.emit([va_err[-1]])
 
             if monitoring['cost']:
                 utils.log_print(2, " * Training   set cost       : {}"\
                         .format(self.eval_cost(tr_d)) )
                 tr_cost.append(self.eval_cost(tr_d))
+                self.qnet.trainingCostValueChange.emit([tr_cost[-1]])
                 if va_d:
                     utils.log_print(2, " * Validation set cost       : {}"\
                             .format(self.eval_cost(va_d)) )
                     va_cost.append(self.eval_cost(va_d))
+                    self.qnet.validationCostValueChange.emit([va_cost[-1]])
 
             # If we do not improve, stop training !
             if early_stop_n and i > early_stop_n and \
