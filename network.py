@@ -199,7 +199,7 @@ class Network:
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
                 self.weights = [ w - self.eta * (nw + \
-                    self.regularization.derivative(w, len(tr_d))) \
+                    self.regularization.derivative(w) ) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
             print("Epoch {:2d} training done.".format(i) )
@@ -310,7 +310,7 @@ class Network:
             total_cost += self.cost(a, y)
 
         # Add regularization term
-        total_cost += self.regularization(self.weights, len(data))
+        total_cost += np.sum([ self.regularization(w) for w in self.weights ])
 
         return total_cost
 
