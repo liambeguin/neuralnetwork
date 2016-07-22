@@ -34,10 +34,9 @@ class Network:
 
     def __init__(self, struct, \
             activation='sigmoid', cost='quadratic', regularization='none', \
-            learning_rate=3.0, momentum=0.5, lambda_=0.1):
-        """Generate the network's architecture based on a list.
-
-        ex: [2, 3, 1]
+            learning_rate=3.0, lambda_=0.1):
+        """Generate a neural network based on a tuple of integers.
+        ex: (2, 3, 1)
         this will generate a 2 layer network with 2 input, 3 neurons on the
         hidden layer and one output.
 
@@ -45,13 +44,21 @@ class Network:
         inputs of the network
 
         notation:
-        we'll use w^l_{jk} to denote the weight of the connection from the k^th
-        neuron in the (l-1)^th layer to the j^th neuron in the l^th layer
-         * `lambda_` is the regularization parameter.
+        we'll use w^(l)_{jk} to denote the weight of the connection from
+        the k^{th} neuron in the (l-1)^{th} layer to the j^{th} neuron in
+        the l^{th} layer.
+
+        parameters:
+         * activation     : type of activation function,
+         * cost           : type of cost function,
+         * regularization : type of regularization function,
+         * learning_rate  : \eta, learning rate parameter,
+         * lambda_        : \lambda, regularization parameter.
         """
 
         if cost == 'cross-entropy' and activation != 'sigmoid':
-            raise Exception("cross-entropy can only be used with a sigmoid activation")
+            raise Exception("cross-entropy can only be used with" +
+            " a sigmoid activation")
 
         self.n_layers = len(struct)
         self.struct   = struct
@@ -91,8 +98,10 @@ class Network:
 
     def save(self, filename):
         """Save the current state of the Network to a YAML file.
-        YAML format is convenient since it has no dependency on python and can
-        be edited by hand."""
+        YAML format is convenient since it has no dependency on
+        python and can be edited by hand.
+        If the filename has a '.gz' extension, it will be compressed
+        automatically"""
         data = {
                 "struct"     : self.struct,
                 "activation" : self.activation.type,
@@ -160,14 +169,25 @@ class Network:
             monitoring={'error':True, 'cost':True}):
         """Train the network using mini-batch stochastic gradient descent.
 
-        Mini-batch stochastic gradient descent is based on the fact that
-        provided `batch_size` is large enough, the average value of nabla_wC
-        and nabla_bC over the mini-batch is roughly equal to the average over
-        all the training input. Note that if `batch_size=1` this performs a
-        regular stochastic gradient descent.
-         * `epochs` is the number of epochs which should be done.
-         * `tr_d` and `va_d` are lists of (Input, Output) tuples
-         * `monitoring` is a list of strings."""
+        As opposed to batch gradient descent, stochastic gradient descent
+        uses a single sample of the training set (selected at random!) to
+        compute the gradient. Since the expected value of a single random
+        pick is close to the actual value, this allows us to speed up the
+        whole process while not loosing in precision.
+        The mini-batch version allows us to seedup a little more by taking
+        advantage of large martix calculation modules available with python.
+        Instead of computing the gradient N times on a single sample, we
+        compute it (N/batch_size) times on a matrix of N samples.
+        Note that if batch_size=1, this performs a regular SGD.
+
+        Parameters:
+         * tr_d         : Training set to be used,
+         * epochs       : Maximum number of epochs,
+         * batch_size   : Size of the mini-batch
+         * va_d         : Validation set,
+         * early_stop_n : number of epochs to consider for early stopping,
+         * monitoring   : dict of what to monitor.
+        """
 
 
         tr_err, tr_cost = [], []
@@ -188,7 +208,8 @@ class Network:
 
                 for x, y in mini_batch:
                     # Sum all the derivatives over the mini-batch
-                    nabla_bC_i, nabla_wC_i = self.backpropagation(x, y)
+                    self.feedforward(x)
+                    nabla_bC_i, nabla_wC_i = self.backpropagation(y)
                     nabla_bC = np.add(nabla_bC, nabla_bC_i)
                     nabla_wC = np.add(nabla_wC, nabla_wC_i)
 
@@ -241,23 +262,27 @@ class Network:
         return tr_err, tr_cost, va_err, va_cost
 
 
-    def backpropagation(self, X, y):
-        """This returns a tuple of matrices of derivatives of the cost function
+    def backpropagation(self, y):
+        """Backpropagate the errors through the Network.
+
+        This returns a tuple of matrices of derivatives of the cost function
         with respect to biases and weights.
-        Here, nabla_wC is used to refer to dCdW, the derivative of the cost
+        Here, nabla_wC is used to refer to dC/dW, the derivative of the cost
         function with respect to the weights (same for nabla_bC).
 
-        https://en.wikipedia.org/wiki/Matrix_calculus
+        ref: https://en.wikipedia.org/wiki/Matrix_calculus
+
+        Parameters:
+         * y : vector of labels
         """
         # Create copies of the weights and biases and init to 0.
         nabla_bC = np.multiply(np.array(self.biases,  copy=True), 0)
         nabla_wC = np.multiply(np.array(self.weights, copy=True), 0)
 
-        self.feedforward(X)
-
         # Before the for loop, delta = delta_L, the error on the last layer
         # NOTE: array[-1] refers to the last element.
         if self.cost.type == 'cross-entropy':
+            # Since (for now?) this only works with sigmoid, remove act'
             delta = self.cost.derivative(self.a[-1], y)
         else:
             delta = self.cost.derivative(self.a[-1], y) * \
@@ -278,6 +303,7 @@ class Network:
 
 
     def get_confusion(self, data):
+        """Generate a confusion matrix on a given dataset. """
         dim, _ = data[0][1].shape
         mat = np.zeros(shape=(dim,dim))
         for (x, y) in data:
@@ -288,6 +314,7 @@ class Network:
         return mat
 
     def eval_accuracy(self, data):
+        """Evaluate accuracy on a given dataset. """
         count = 0
         for (x, y) in data:
             # Since y is a vector get the index of it's max
@@ -299,10 +326,12 @@ class Network:
 
 
     def eval_error_rate(self, data):
+        """Evaluate error rate on a given dataset. """
         return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
 
     def eval_cost(self, data):
+        """Evaluate cost on a given dataset. """
         total_cost = 0
 
         for x, y in data:
