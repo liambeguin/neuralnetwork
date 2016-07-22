@@ -140,7 +140,7 @@ def plot_training_summary(basename, tr_err, tr_cost,
     f, axarr = plt.subplots(2, sharex=True)
     axarr[0].set_ylabel('Error rate')
     axarr[0].grid(True)
-    # axarr[0].set_ylim(ymin = -0.1)
+    axarr[0].set_ylim(ymin=-0.1)
 
     axarr[0].plot(tr_err, label='training')
     if va_err:
@@ -172,11 +172,6 @@ def plot_training_summary(basename, tr_err, tr_cost,
     plt.clf()
 
 def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
-    # http://matplotlib.org/examples/images_contours_and_fields/interpolation_methods.html
-    # http://matplotlib.org/examples/color/colormaps_reference.html
-    # cmap = gray Greys gnuplot gist_stern
-    # blur (+) to (-) : bicubic, quadrix, hamming, None, none
-
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -201,8 +196,10 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     plt.colorbar(conf)
 
     plt.tight_layout(pad=2)
+    plt.xticks(xrange(0, len(matrix[0])))
+    plt.yticks(xrange(0, len(matrix[1])))
+    plt.grid(True)
     plt.title('Confusion Matrix')
-
 
     out = os.path.join('out', 'plots', basename, 'confusion.png')
     if not os.path.exists(os.path.dirname(out)):
