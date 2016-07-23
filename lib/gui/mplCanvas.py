@@ -31,18 +31,18 @@ class MplCanvas(FigureCanvas):
 
     """
     
-    def __init__(self, parent=None, width=100, height=10, dpi=100):
+    def __init__(self, parent=None, width=100, height=10, dpi=50,pos=111,color='b'):
         
         
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)# two rows, one column, first plot
+        self.axes = fig.add_subplot(pos)# two rows, one column, first plot
         self.axes.grid(True)
 
         #axe.set_bg_color=set_facecolor
         self.axes.set_facecolor('white')
 
         # We want the axes cleared every time plot() is called
-        #self.axes.hold(False)
+        #self.axes.hold(True)
 
         #self.compute_initial_figure()
         FigureCanvas.__init__(self, fig)
@@ -64,7 +64,7 @@ class DynamicMplCanvas(MplCanvas):
         MplCanvas.__init__(self, *args, **kwargs)
         self.x
         self.y
-        self.axes.set_ylim([0,100])
+        #self.axes.set_ylim([0,100])
         #self.axes.set_xlim([0,100])
         self.compute_initial_figure()
 #        timer = QtCore.QTimer(self)
@@ -75,7 +75,7 @@ class DynamicMplCanvas(MplCanvas):
     def compute_initial_figure(self):
         self.x=np.array([])
         self.y=np.array([])
-        self.axes.plot(self.x, self.y, 'r')
+        self.axes.plot(self.x, self.y)
     
     
     @pyqtSlot(list)
@@ -87,7 +87,8 @@ class DynamicMplCanvas(MplCanvas):
             self.x=np.append(self.x,[sz+i])
             self.y=np.append(self.y,[l[i]*100])
 
-        self.axes.plot(self.x, self.y, 'r')
+        self.axes.plot(self.x, self.y,self.color)
+        #self.axes.plot(self.x, [1]*len(self.x),'b')
         self.axes.set_ylabel("Error %")
         self.axes.set_xlabel("Epoch")
         self.draw()

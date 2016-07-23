@@ -27,7 +27,8 @@ from PyQt5.QtWidgets import QApplication,  QMainWindow ,QWidget, QDesktopWidget,
                 QGraphicsView,  QGraphicsScene, QGraphicsRectItem, \
                 QPushButton,  QLabel, QPlainTextEdit, QComboBox, QMessageBox, \
                 QSpacerItem,  QSizePolicy, QGraphicsPixmapItem, \
-                QMenu,QFileDialog,QAction, \
+                QMenu,QFileDialog,QAction,QLineEdit, \
+                QTabWidget,\
                 qApp
 
 from PyQt5.QtCore import QObject,QThread, Qt,pyqtSignal,pyqtSlot
@@ -79,9 +80,9 @@ class centralWidget( QWidget ):
                     "border-width: 1px;    "+
                     "border-color: red;  "
                      )
-        else:
-            self.settingsWidget.setStyleSheet( 
-                    "background-color:white")
+        #else:
+        #    self.settingsWidget.setStyleSheet( 
+        #            "background-color:white")
         
         self.settingsLayout = QGridLayout( self.settingsWidget )
         
@@ -102,15 +103,13 @@ class centralWidget( QWidget ):
         self.settingsLayout.addWidget( iterationsLabel                   , 0,4 )
         self.settingsLayout.addWidget( self.iterations                   , 1,4 )
 # 5-----------------------------------------------------------------------------
-        self.learningRateComboBox = QComboBox()
+        self.learningRateLineEdit = QLineEdit()
         learningRateLabel         = QLabel( "Leanrning rate" )
-        learningRateStrList       = ["0.3","0.00001", "0.0001","0.001","0.003",\
-                                "0.01", "0.03","0.1","1","3","10"]
         
-        self.learningRateComboBox.addItems( learningRateStrList )
+        self.learningRateLineEdit.setFixedWidth(100)
         
         self.settingsLayout.addWidget( learningRateLabel                 , 0,5 )
-        self.settingsLayout.addWidget( self.learningRateComboBox         , 1,5 )
+        self.settingsLayout.addWidget( self.learningRateLineEdit         , 1,5 )
 # 6-----------------------------------------------------------------------------
         self.activationComboBox=QComboBox()
         activationLabel=QLabel( "Activation" )
@@ -130,14 +129,12 @@ class centralWidget( QWidget ):
         self.settingsLayout.addWidget( regularizationLabel               , 0,7 )
         self.settingsLayout.addWidget( self.regularizationComboBox       , 1,7 )
 # 8-----------------------------------------------------------------------------
-        self.regularizationRateComboBox = QComboBox()
+        self.regularizationRateLineEdit = QLineEdit()
         regularizationRateLabel         = QLabel( "Regularization rate" )
-        regularizationRateStrList       = ["0.01","0", "0.001","0.003",
-                                        "0.03", "0.1","0.3","1","3","10"]
-        self.regularizationRateComboBox.addItems( regularizationRateStrList )
+        self.regularizationRateLineEdit.setFixedWidth(100)
         
         self.settingsLayout.addWidget( regularizationRateLabel           , 0,8 )
-        self.settingsLayout.addWidget( self.regularizationRateComboBox   , 1,8 )
+        self.settingsLayout.addWidget( self.regularizationRateLineEdit   , 1,8 )
 # 9-----------------------------------------------------------------------------
         self.costComboBox = QComboBox()
         costLabel         = QLabel( "Cost function" )
@@ -163,9 +160,9 @@ class centralWidget( QWidget ):
                     "border-width: 1px;    "+
                     "border-color: red;  "
                      )
-        else:
-            self.manager.setStyleSheet( 
-                    "background-color:grey")
+        #else:
+        #    self.manager.setStyleSheet( 
+        #            "background-color:grey")
 
         self.managerLayout = QHBoxLayout( self.manager )
         #Features
@@ -209,7 +206,7 @@ class centralWidget( QWidget ):
         self.outputManagerLayout   = QVBoxLayout( self.outputManager )
         self.outputManagerLabel    = QLabel( "Output" )
         self.outputManagerComboBox = QComboBox()
-        self.outputManagerList     = ["", "1","2","3","4","5","6","7","8","9" ]
+        self.outputManagerList     = [ "9" ]
 
         self.outputManagerComboBox.addItems( self.outputManagerList )
         self.outputManagerLayout.addWidget( self.outputManagerLabel )
@@ -266,15 +263,31 @@ class centralWidget( QWidget ):
 #       NeuralNetwork Widget 3, 0
 #
 ################################################################################ 
+        
+        self.tr_err       = DynamicMplCanvas(pos=111)
+        self.tr_cost      = DynamicMplCanvas(pos=111)
+        self.va_err       = DynamicMplCanvas(pos=111)
+        self.va_cost      = DynamicMplCanvas(pos=111)
+        self.canvas       = QWidget()
+        self.canvasLayout = QGridLayout(self.canvas)
+        self.canvasLayout.addWidget(self.tr_err ,0,0)
+        self.canvasLayout.addWidget(self.tr_cost,0,1)
+        self.canvasLayout.addWidget(self.va_err ,1,0)
+        self.canvasLayout.addWidget(self.va_cost,1,1)
+
+
+
         self.graphicsView = QGraphicsView()
         #hidden manager: list layer's neurons
         self.hm = []
+        self.tabWidget = QTabWidget()
+        self.tabWidget.insertTab(0,self.graphicsView,"Network")
+        self.tabWidget.insertTab(1,self.canvas,"Graphics")
 ################################################################################ 
 #
 #        Matplotlib canvas 3, 1
 #
 ################################################################################
-        self.dynamicCanvas = DynamicMplCanvas()
         
 ################################################################################ 
 #
@@ -304,14 +317,15 @@ class centralWidget( QWidget ):
             self.layers.setFixedWidth           ( (self.w * 2 )//3)
             self.graphicsView.setFixedWidth     ( (self.w * 2 )//3)
             self.settingsWidget.setFixedWidth   ( (self.w * 2 )//3)
-            self.dynamicCanvas.setFixedWidth    ( ( ( self.w * 1 ) // 3 ) -50 )
+            self.dynamicCanvas.setFixedWidth    ( (self.w * 2 )//3)
         
         self.span=1
         self.gridLayout.addWidget(  self.settingsWidget , 0,0,self.span,self.span,Qt.AlignLeft )
         self.gridLayout.addWidget(  self.manager        , 1,0,self.span,self.span,Qt.AlignLeft )
         self.gridLayout.addWidget(  self.layers         , 2,0,self.span,self.span,Qt.AlignLeft )
-        self.gridLayout.addWidget(  self.graphicsView   , 3,0,Qt.AlignLeft                     )
-        self.gridLayout.addWidget(  self.dynamicCanvas  , 3,1                                  )
+        self.gridLayout.addWidget(  self.tabWidget      , 3,0,self.span,self.span,Qt.AlignLeft )
+        #self.gridLayout.addWidget(  self.graphicsView   , 3,0,Qt.AlignLeft                     )
+        #self.gridLayout.addWidget(  self.dynamicCanvas  , 3,1                                  )
 #        self.gridLayout.addWidget(  self.plainTextEdit  , 4,0,2,-1 )
 ################################################################################ 
 #
@@ -322,10 +336,10 @@ class centralWidget( QWidget ):
         self.inpLayer.setObjectName                   ( 'inp'     )
         self.outpLayer.setObjectName                  ( 'outp'    )
 #QComboBox        
-        self.learningRateComboBox.setObjectName       ( 'learningRate'        )
+        self.learningRateLineEdit.setObjectName       ( 'learningRate'        )
         self.activationComboBox.setObjectName         ( 'activation'          )
         self.regularizationComboBox.setObjectName     ( 'regularization'      )
-        self.regularizationRateComboBox.setObjectName ( 'regularizationRate'  )
+        self.regularizationRateLineEdit.setObjectName ( 'regularizationRate'  )
         self.costComboBox.setObjectName               ( 'cost'                )
         self.parameters = {
                 'learningRate'      :'', 
@@ -345,11 +359,12 @@ class centralWidget( QWidget ):
         self.layerCreated.connect                                   ( self.on_layerCreated        )
         self.drawNeuron.connect                                     ( self.on_drawNeuron          )
 #QComboxBox
-        self.learningRateComboBox.currentIndexChanged.connect       ( self.on_currentIndexChanged )
         self.activationComboBox.currentIndexChanged.connect         ( self.on_currentIndexChanged )
         self.regularizationComboBox.currentIndexChanged.connect     ( self.on_currentIndexChanged )
-        self.regularizationRateComboBox.currentIndexChanged.connect ( self.on_currentIndexChanged )
         self.costComboBox.currentIndexChanged.connect               ( self.on_currentIndexChanged )
+#QLineEdit
+        self.learningRateLineEdit.textChanged.connect               ( self.on_textChanged )
+        self.regularizationRateLineEdit.textChanged.connect         ( self.on_textChanged )
 ################################################################################ 
 #
 #       Init by emitting signal
@@ -359,12 +374,12 @@ class centralWidget( QWidget ):
         self.hiddenManagerPlus.trigger.emit()
         self.hiddenManagerPlus.trigger.emit()
 
-        self.learningRateComboBox.currentIndexChanged.emit      ( 0 )
         self.activationComboBox.currentIndexChanged.emit        ( 0 )        
         self.regularizationComboBox.currentIndexChanged.emit    ( 0 )    
-        self.regularizationRateComboBox.currentIndexChanged.emit( 0 )
         self.costComboBox.currentIndexChanged.emit              ( 0 )              
         
+        self.learningRateLineEdit.setText( "0.5" )
+        self.regularizationRateLineEdit.setText( "0.01" )
 
 
 #------------------------------------------------------------------------------- 
@@ -373,6 +388,23 @@ class centralWidget( QWidget ):
 #
 #-------------------------------------------------------------------------------
 
+    @pyqtSlot(str)
+    def on_textChanged( self, text ):
+        s = self.sender()
+        if type( s ) is QLineEdit:
+
+            self.parameters[str( s.objectName())]=text
+            self.updateParameters.emit(self.parameters)
+            logging.debug( 
+                    "parameters {}: {} text{}"
+                    .format( s.objectName(), self.parameters[str(s.objectName())],text)
+                     )
+
+        else:
+            logging.debug( 
+                    "Error not a lineEdit:{}"
+                    .format( s.objectName())
+                    )
     @pyqtSlot()
     def on_currentIndexChanged( self ):
         s = self.sender()
@@ -566,7 +598,10 @@ class centralWidget( QWidget ):
 
 class backend( QObject ):
 
-    updateCanvas     = pyqtSignal( list )
+    updateVa_err     = pyqtSignal( list )
+    updateVa_cost    = pyqtSignal( list )
+    updateTr_err     = pyqtSignal( list )
+    updateTr_cost    = pyqtSignal( list )
     updateIterations = pyqtSignal( int )
     finished         = pyqtSignal()
 
@@ -594,23 +629,32 @@ class backend( QObject ):
 
         input_size  = len(training_data[0][0])
         output_size = len(training_data[0][1])
+        #try:
+        #except Exception as e:
+        #    pass
+        #    #msg =QMesssageBox()
+        #    #msg.setInformativeText("{}".format(e))
+        #    #msg.exec_()
+        #    #msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
 
         net = network.Network(
-                (input_size, self.layers, output_size),
+                (input_size, 150, output_size),
                 activation     = self.parameters['activation'],
                 cost           = self.parameters['cost'],
                 regularization = self.parameters['regularization'],
                 learning_rate  = float(self.parameters['learningRate']),
                 lambda_        = float(self.parameters['regularizationRate'])
                 )
-
         if os.path.exists('autoload.save.gz'):
         #    print(" *** Found autoload, loading config...")
             net.load('autoload.save.gz')
 
 #        print(net)
-        net.qnet.trainingErrorValueChange = self.updateCanvas
-        net.qnet.epochValueChange         = self.updateIterations
+        net.qnet.validationErrorValueChange = self.updateVa_err
+        net.qnet.validationCostValueChange  = self.updateVa_cost
+        net.qnet.trainingCostValueChange    = self.updateTr_cost
+        net.qnet.trainingErrorValueChange   = self.updateTr_err
+        net.qnet.epochValueChange           = self.updateIterations
 
 
         tr_err, tr_cost, va_err, va_cost = net.train(
@@ -711,8 +755,11 @@ def main():
     central.drawNeuron.emit(2,150)
     central.drawNeuron.emit(3,9)
 
+    b.updateTr_err.connect(  central.tr_err.update_figure)
+    b.updateVa_err.connect(  central.va_err.update_figure)
+    b.updateTr_cost.connect( central.tr_cost.update_figure)
+    b.updateVa_cost.connect( central.va_cost.update_figure)
 
-    b.updateCanvas.connect( central.dynamicCanvas.update_figure )
     b.updateIterations.connect( central.on_updateIterations )
     b.moveToThread(thread)
 
