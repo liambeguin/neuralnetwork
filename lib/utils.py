@@ -64,14 +64,28 @@ def extract_sample(file_, size=60, sex=False, out_size=9):
     # make a column of the whole array
     features = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
 
-    if sex: out_size+=1
-    labels   = vectorize_output(num-1, shape=(out_size, 1))
-
     if sex:
         if re.search(r'.*woman.*', file_):
-            labels[-1] = 1.0
+            labels = vectorize_output( num - 1 + out_size, shape=(out_size*2, 1))
+        else:
+            labels = vectorize_output(num-1, shape=(out_size*2, 1))
+    else:
+        labels = vectorize_output(num-1, shape=(out_size, 1))
 
     return (features, labels)
+
+
+
+def unpack_prediction(yhat):
+    p = np.argmax(yhat)+1
+    if len(yhat) != 9:
+    # classifying M/W
+        if p > 8:
+            return "woman - {}".format(p-9)
+        else:
+            return "man   - {}".format(p)
+    else:
+        return str(p)
 
 
 
@@ -212,9 +226,21 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     plt.xlabel('Prediction $(\hat{y})$')
     plt.colorbar(conf)
 
+    # If classifying M/W
+    labels = []
+    if len(matrix[0]) > 9:
+        for l in xrange(1, len(matrix[0])+1):
+            if l <= 9:
+                l = '{:2}M'.format(l)
+            else:
+                l = '{:2}W'.format(l-9)
+            labels.append(l)
+    else:
+        labels = range(1, len(matrix[0])+1)
+
     plt.tight_layout(pad=2)
-    plt.xticks(xrange(0, len(matrix[0])))
-    plt.yticks(xrange(0, len(matrix[1])))
+    plt.xticks(xrange(0, len(matrix[0])), labels)
+    plt.yticks(xrange(0, len(matrix[1])), labels)
     plt.grid(True)
     plt.title('Confusion Matrix')
 
