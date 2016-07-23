@@ -207,14 +207,27 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
+    # plt.xkcd()
+
     if style == 'simple':
         inter = 'none'
         cm    = 'Grays'
     else:
         inter = 'bicubic'
-        colors = [(1,1,1), (0.4,0.2,0.0), (0,0.3,0.4)]
-        ### Create an array or list of positions from 0 to 1.
-        position = [0, 0.05, 1]
+        # NOTE: this is a list containing color, position
+        color_data = [
+                [ (1.0, 1.0, 1.0), 0.00],
+                [ (0.5, 0.5, 0.5), 0.05],
+                [ (0.4, 0.2, 0.0), 0.20],
+                [ (0.4, 0.2, 0.0), 0.60],
+                [ (0.0, 0.3, 0.4), 0.80],
+                [ (0.0 ,0.4, 0.3), 1.00]]
+
+        colors, position = [], []
+        for elt in color_data:
+            colors.append(elt[0])
+            position.append(elt[1])
+
         cm = make_cmap(colors, position=position)
 
     if interpolation:
