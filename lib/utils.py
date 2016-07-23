@@ -264,13 +264,3 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     plt.savefig(out)
     plt.clf()
 
-
-
-LOGLEVEL = 0
-def set_level(lvl):
-    LOGLEVEL = lvl
-
-def log_print(lvl, msg):
-    if lvl > LOGLEVEL:
-        print("{}".format(msg))
-
