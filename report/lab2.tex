@@ -22,6 +22,15 @@ et systèmes experts}
 \def \ETSauthB {Louis \textsc{Laporte}\\\emph{LAPL14128903}}
 \input{titlepage.tex}
 
+
+\section{Notations et symboles}
+\begin{tabular}{p{1.75cm}p{10cm}}
+$\sigma()$ & Fonction d'activation generique \\
+\end{tabular}
+\newpage
+
+
+
 \section{Introduction}
 Après avoir fait une étape de pré-traitement lors du laboratoire 2.1, nous
 allons maintenant implémenter un reseau de neurones a retro-propagation du
@@ -29,7 +38,8 @@ gradient d’erreur dans le but de classifier, le plus précisément possible,
 le dataset TiDigits (english spoken digits from 1 to 9).
 
 Pour implémenter ce reseau de neurones, nous utiliserons Python.
-Voici une liste d'avantages versus inconvenients qui ont motive notre choix:
+Voici une liste d'avantages versus inconvenients qui ont motive notre choix
+pour ce language :
 \begin{itemize*}
 \item avantages:
 	\subitem rapidite de developpement
@@ -46,15 +56,87 @@ lors de l'entrainement.
 
 \section{Implementation du r\'eseau de neurones}
 \subsection{Architecture globale}
-Etant donne que le reseau doit etre tres flexible quant au nombre de couches
-et au nombre de neurones, nous utiliserons un tuple pour instancier
-notre reseau. Chaque element de la liste represente une couche du reseau
-(la couche d'entree etant compt\'ee) et sa valeur determine le nombre de neurones
+Comme dit en introduction, Nous allons implementer un reseau de neurones a
+retro-propagation du gradient d'erreur. Ici, nous enoncerons les notations et
+equations 'generiques' utilisees au sein du reseau.
+
+l'ensemble des calculs sont effectues sous forme matricielle afin de simplifier
+et generaliser les equations mais aussi de mieux tirer avantage des ressources
+des ordinateurs utilises.
+
+\paragraph{Feedforward:} cette etape propage l'entree a travers l'ensemble du
+reseau et enregistre toutes les variables intermediaires.
+\begin{equation}
+	\begin{aligned}
+		{\bf z}_x^{(l)} &=  {\bf w}^{(l)} \cdot {\bf a}_x^{(l-1)} + {\bf b}^{(l)}\\
+		{\bf a}_x^{(l)} &=  \sigma({\bf z}_x^{(l)})\\
+	\end{aligned}
+\end{equation}
+Pour avoir la prediction finale du reseau ${\bf \hat{y}}$, il faut repeter l'etape
+ci-dessus pour chaque couche. Pour la derniere couche, on obtient:
+\begin{equation}
+	\begin{aligned}
+		{\bf z}_x^{(L)} &=  {\bf w}^{(L)} \cdot {\bf a}_x^{(L-1)} + {\bf b}^{(L)}\\
+		{\bf \hat{y}}_x &=  \sigma({\bf z}_x^{(L)})\\
+	\end{aligned}
+\end{equation}
+
+\paragraph{La fonction de cout}est la fonction utilisee lors du processus
+d'entrainement pour evaluer l'erreur entre la prediction du reseau
+${\bf \hat{y}}$ et la sortie attendue ${\bf y}$. Les differents fonctions
+disponibles seront detaillees dans une prochaine section.
+Pour la suite, nous l'appelerons de fa\c con generique: $C({\bf w}, {\bf b})$.
+
+\paragraph{retro-propagation:} Cette \'etape calcule l'impacte de chaque poids
+(et seuil) sur l'erreur finale. Pour obtenir l'erreur $\delta_j^l$ due au neurone
+$j$ de la couche $l$, il faut propager l'erreur de la sortie vers l'entree
+avec les equations suivantes:
+
+\begin{equation}
+	\begin{aligned}
+		{\boldsymbol \delta}^L &= \frac{\partial C}{\partial {\bf z}^L} =
+		\frac{\partial C}{\partial {\bf a}^L} \circ \frac{\partial {\bf a}^L}{\partial {\bf z}^L} \\
+		&= \frac{\partial C}{\partial {\bf a}^L} \circ \sigma'({\bf z}^L)
+		= \frac{\partial C}{\partial {\bf \hat y}} \circ \sigma'({\bf z}^L)\\
+		&= C'({\bf w}, {\bf b}) \circ \sigma'({\bf z}^L)\\
+	\end{aligned}
+\end{equation}
+
+De la m\^eme mani\`ere, on definit une notation recursive:
+\begin{equation}
+	\begin{aligned}
+		{\boldsymbol \delta}^l &= \frac{\partial C}{\partial {\bf z}^l} =
+		\frac{\partial C}{\partial {\bf z}^{(l+1)}} \circ
+		\frac{\partial {\bf z}^{(l+1)}}{\partial {\bf z}^l} \\
+		&= \boldsymbol \delta^{(l+1)} \circ \frac{\partial {\bf z}^{(l+1)}}{\partial {\bf z}^l} \\
+	\end{aligned}
+\end{equation}
+
+Or,
+\begin{equation}
+	\begin{aligned}
+		\frac{\partial {\bf z}^{(l+1)}}{\partial {\bf z}^l} &= \\
+	\end{aligned}
+\end{equation}
+
+Etant donne que le r\'eseau doit \^etre tr\`es flexible quant au nombre de
+couches et au nombre de neurones, nous utiliserons un tuple pour instancier
+notre r\'eseau.
+Chaque \'el\'ement de la liste repr\'esente une couche du r\'eseau
+(incluant la couche d'entr\'ee) et sa valeur d\'etermine le nombre de neurones
 present sur la couche.
 
+D'autre part, on nous demande aussi que le reseau soit capable d'utiliser
+differentes fonctions d'activation. Base sur cette contrainte, nous avons
+choisi d'aussi donner a l'utilisateur la possibilite de choisir entre differentes
+fonctions de cout et differentes fonctions de regularization.
+
 \subsection{Extraction des donn\'ees}
+% TODO
 % preprocessing, chx du 40, 50 ,60
 % normalisation du dataset
+% classification homme / femme
+
 
 \subsection{Initialisation du res\'eau}
 Lorsque le reseau est instanci\'e, les parametres tels que $\eta$ et $\lambda$
@@ -132,6 +214,10 @@ self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
 
 \subsection{Fonctions de cout}
 % cross-entropy -> prevent neuron saturation
+Comme ennonce precedemment, nous offrons aussi \`a l'utilisateur la possibilite
+de choisir parmis differentes fonctions de couts, la fonctions que le reseau
+cherche a minimiser en ajustant les poids et seuils des connections.
+\paragraph{quadratic}
 
 \subsection{Eviter le sur-apprentisage}
 % plus ya de neurons plus on peut overfit -> polynome a plus de dimensions
