@@ -14,7 +14,7 @@ def crossentropy(a, y, prime=False):
     if prime:
         return (1.0 / len(a)) * (a - y)
     else:
-        return (1.0 / len(a)) * np.sum(y*np.log(a) + (1-y)*np.log(1-a))
+        return (-1.0 / len(a)) * np.sum(y*np.log(a) + (1-y)*np.log(1-a))
 
 # TODO: Add log-likelihood to be used with softmax output layer
 # This outputs a probability distribution

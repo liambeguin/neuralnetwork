@@ -64,14 +64,28 @@ def extract_sample(file_, size=60, sex=False, out_size=9):
     # make a column of the whole array
     features = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
 
-    if sex: out_size+=1
-    labels   = vectorize_output(num-1, shape=(out_size, 1))
-
     if sex:
         if re.search(r'.*woman.*', file_):
-            labels[-1] = 1.0
+            labels = vectorize_output( num - 1 + out_size, shape=(out_size*2, 1))
+        else:
+            labels = vectorize_output(num-1, shape=(out_size*2, 1))
+    else:
+        labels = vectorize_output(num-1, shape=(out_size, 1))
 
     return (features, labels)
+
+
+
+def unpack_prediction(yhat):
+    p = np.argmax(yhat)+1
+    if len(yhat) != 9:
+    # classifying M/W
+        if p > 8:
+            return "woman - {}".format(p-9)
+        else:
+            return "man   - {}".format(p)
+    else:
+        return str(p)
 
 
 
@@ -193,14 +207,27 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
+    # plt.xkcd()
+
     if style == 'simple':
         inter = 'none'
         cm    = 'Grays'
     else:
         inter = 'bicubic'
-        colors = [(1,1,1), (0.4,0.2,0.0), (0,0.3,0.4)]
-        ### Create an array or list of positions from 0 to 1.
-        position = [0, 0.05, 1]
+        # NOTE: this is a list containing color, position
+        color_data = [
+                [ (1.0, 1.0, 1.0), 0.00],
+                [ (0.5, 0.5, 0.5), 0.05],
+                [ (0.4, 0.2, 0.0), 0.20],
+                [ (0.4, 0.2, 0.0), 0.60],
+                [ (0.0, 0.3, 0.4), 0.80],
+                [ (0.0 ,0.4, 0.3), 1.00]]
+
+        colors, position = [], []
+        for elt in color_data:
+            colors.append(elt[0])
+            position.append(elt[1])
+
         cm = make_cmap(colors, position=position)
 
     if interpolation:
@@ -212,9 +239,21 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     plt.xlabel('Prediction $(\hat{y})$')
     plt.colorbar(conf)
 
+    # If classifying M/W
+    labels = []
+    if len(matrix[0]) > 9:
+        for l in xrange(1, len(matrix[0])+1):
+            if l <= 9:
+                l = '{:2}M'.format(l)
+            else:
+                l = '{:2}W'.format(l-9)
+            labels.append(l)
+    else:
+        labels = range(1, len(matrix[0])+1)
+
     plt.tight_layout(pad=2)
-    plt.xticks(xrange(0, len(matrix[0])))
-    plt.yticks(xrange(0, len(matrix[1])))
+    plt.xticks(xrange(0, len(matrix[0])), labels)
+    plt.yticks(xrange(0, len(matrix[1])), labels)
     plt.grid(True)
     plt.title('Confusion Matrix')
 
@@ -224,14 +263,4 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
 
     plt.savefig(out)
     plt.clf()
-
-
-
-LOGLEVEL = 0
-def set_level(lvl):
-    LOGLEVEL = lvl
-
-def log_print(lvl, msg):
-    if lvl > LOGLEVEL:
-        print("{}".format(msg))
 

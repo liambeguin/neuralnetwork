@@ -21,9 +21,8 @@ from lib.activation import ActivationFunction
 from lib.cost import CostFunction
 from lib import utils
 
-utils.set_level(3)
 # NOTE: This allows us to always use the same random numbers. used for debug
-np.random.seed(1)
+# np.random.seed(1)
 
 
 class Network:
@@ -34,7 +33,8 @@ class Network:
 
     def __init__(self, struct, \
             activation='sigmoid', cost='quadratic', regularization='none', \
-            learning_rate=3.0, lambda_=0.1):
+            learning_rate=3.0, lambda_=0.1,
+            verbose=3):
         """Generate a neural network based on a tuple of integers.
         ex: (2, 3, 1)
         this will generate a 2 layer network with 2 input, 3 neurons on the
@@ -54,6 +54,7 @@ class Network:
          * regularization : type of regularization function,
          * learning_rate  : \eta, learning rate parameter,
          * lambda_        : \lambda, regularization parameter.
+         * verbose        : Verbose level.
         """
 
         if cost == 'cross-entropy' and activation != 'sigmoid':
@@ -62,6 +63,7 @@ class Network:
 
         self.n_layers = len(struct)
         self.struct   = struct
+        self.verbose  = verbose
 
         self.lambda_ = lambda_
         self.eta     = learning_rate
@@ -95,6 +97,12 @@ class Network:
         """Propagate input data through the network."""
         return self.feedforward(X)
 
+    def verbose_level(self, level):
+        self.verbose = level
+
+    def log(self, lvl, msg):
+        if lvl < self.verbose:
+            print(msg)
 
     def save(self, filename):
         """Save the current state of the Network to a YAML file.
@@ -199,7 +207,6 @@ class Network:
          * monitoring   : dict of what to monitor.
         """
 
-
         tr_err, tr_cost = [], []
         va_err, va_cost = [], []
 
@@ -233,41 +240,41 @@ class Network:
                     self.regularization.derivative(w) ) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
-            print("Epoch {:2d} training done.".format(i) )
+            self.log(1, "Epoch {:2d} training done.".format(i) )
 
-            utils.log_print(2, " * Training   set accuracy   : {}/{}".format( \
+            self.log(2, " * Training   set accuracy   : {}/{}".format( \
                     self.eval_accuracy(tr_d), len(tr_d)) )
-            utils.log_print(2, " * Validation set accuracy   : {}/{}".format( \
+            self.log(2, " * Validation set accuracy   : {}/{}".format( \
                     self.eval_accuracy(va_d), len(va_d)) )
 
             if monitoring['error']:
-                utils.log_print(2, " * Training   set error rate : {:.3%}"\
+                self.log(2, " * Training   set error rate : {:.3%}"\
                         .format(self.eval_error_rate(tr_d)) )
                 tr_err.append(self.eval_error_rate(tr_d))
                 if va_d:
                     error_rate = self.eval_error_rate(va_d)
-                    utils.log_print(2, " * Validation set error rate : {:.3%}"\
+                    self.log(2, " * Validation set error rate : {:.3%}"\
                             .format(error_rate) )
                     va_err.append(error_rate)
 
             if monitoring['cost']:
-                utils.log_print(2, " * Training   set cost       : {}"\
+                self.log(2, " * Training   set cost       : {}"\
                         .format(self.eval_cost(tr_d)) )
                 tr_cost.append(self.eval_cost(tr_d))
                 if va_d:
-                    utils.log_print(2, " * Validation set cost       : {}"\
+                    self.log(2, " * Validation set cost       : {}"\
                             .format(self.eval_cost(va_d)) )
                     va_cost.append(self.eval_cost(va_d))
 
             # If we do not improve, stop training !
-            if self.eval_error_rate(va_d) < 0.001 or \
+            if self.eval_error_rate(va_d) < 0.01 or \
                     early_stop_n and i > early_stop_n and \
                     error_rate - np.mean(va_err[-early_stop_n:]) < 0.05:
                         break
 
             # Print empty line if monitoring for easy reading
             if monitoring:
-                utils.log_print(2, "")
+                self.log(2, "")
 
         self.learn_time = datetime.datetime.now() - self.learn_time
         return tr_err, tr_cost, va_err, va_cost
