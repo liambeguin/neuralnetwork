@@ -1,0 +1,92 @@
+% Author : liambeguin
+%
+% Usage :
+%
+% \documentclass[11pt]{article}
+% \input{ets_page.tex}
+% \EtsPageCourse{ELE778-01}
+%	{Intelligence artificielle: r\'eseaux neuroniques et syst\`emes experts}
+% \EtsPageTitle{Laboratoire 2}
+% \EtsPageProf{Cynthia}{Moussa}
+% \EtsPageAuthA{Liam}{Beguin}{BEGL02129304}
+% \EtsPageAuthB{Louis}{Laporte}{LAPL14128903}
+% \EtsPageAuthC{}{}{}
+%
+% \begin{document}
+% \MakeEtsPage
+% \end{document}
+
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usepackage{pgf}
+\usetikzlibrary{arrows,automata}
+\usepackage[left=2cm, right=2cm]{geometry}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{listings}
+
+\newcommand{\EtsPageCourse}[2]{\renewcommand{\EtsPageCourse}{
+	\textsc{\textbf{\Huge #1 - #2}}
+}}
+\newcommand{\EtsPageTitle} [1]{\renewcommand{\EtsPageTitle}{
+	\textsc{\Large #1 }
+}}
+\newcommand{\EtsPageProf}  [2]{\renewcommand{\EtsPageProf}{
+			\textsc{\Large Pr\'esent\'e \`a : \\
+			#1 \textsc{#2}}
+}}
+\newcommand{\EtsPageAuthA} [3]{\renewcommand{\EtsPageAuthA}{
+	\large #1 \textsc{#2} \\\emph{#3}
+}}
+\newcommand{\EtsPageAuthB} [3]{\renewcommand{\EtsPageAuthB}{
+	\large #1 \textsc{#2} \\\emph{#3}
+}}
+\newcommand{\EtsPageAuthC} [3]{\renewcommand{\EtsPageAuthC}{
+	\large #1 \textsc{#2} \\\emph{#3}
+}}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\newcommand{\EtsPageGenerate}{
+	\begin{titlepage}
+		\begin{center}
+			\vspace{5cm}
+			\EtsPageCourse
+			\vspace{2cm}
+
+			\EtsPageTitle
+			\vspace{2.5cm}
+
+			\EtsPageProf
+			\vspace{1.5cm}
+
+			% Bottom of the page
+			\vfill
+			% Authors
+			\begin{minipage}{0.4\textwidth}
+				\begin{flushleft}
+					\EtsPageAuthA
+				\end{flushleft}
+			\end{minipage}
+			\begin{minipage}{0.4\textwidth}
+				\begin{flushright}
+					\EtsPageAuthB
+				\end{flushright}
+			\end{minipage}
+			\begin{minipage}{0.4\textwidth}
+				\begin{center}
+					\EtsPageAuthC
+				\end{center}
+			\end{minipage}
+
+			\vspace{2cm}
+			\HRule \\[0.4cm]
+			{ \huge \bfseries \'Ecole de technologie superieure \\[0.4cm] }
+			\HRule \\[1.5cm]
+			\vspace{1.5cm}
+
+			%date
+			{\large \today}
+		\end{center}
+	\end{titlepage}
+}
