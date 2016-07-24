@@ -267,7 +267,7 @@ class Network:
                     va_cost.append(self.eval_cost(va_d))
 
             # If we do not improve, stop training !
-            if self.eval_error_rate(va_d) < 0.001 or \
+            if self.eval_error_rate(va_d) < 0.01 or \
                     early_stop_n and i > early_stop_n and \
                     error_rate - np.mean(va_err[-early_stop_n:]) < 0.05:
                         break
