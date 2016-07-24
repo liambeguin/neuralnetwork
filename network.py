@@ -84,7 +84,10 @@ class Network:
         """Returns a representation of the Network."""
         ret  = "Neural Network      : {}\n".format(self.struct)
         ret += "Activation function : {}\n".format(self.activation.type)
-        ret += "Cost function       : {}\n\n".format(self.cost.type)
+        ret += "Cost function       : {}\n".format(self.cost.type)
+        ret += "Regularization func : {}\n".format(self.regularization.type)
+        ret += "learning rate       : {}\n".format(self.eta)
+        ret += "Regularization rate : {}\n\n".format(self.lambda_)
         if max(self.struct) <= 35:
             for idx, val in enumerate(self.struct):
                 ret += 'L{:>0{n}} {:^{num}}\n'.format(str(idx), \
@@ -133,6 +136,7 @@ class Network:
                     os.remove(tmp)
         else:
             with open(filename, 'wb') as f:
+                f.write('# vim: set ft=yaml:\n')
                 yaml.dump(data, f)
 
 
@@ -224,7 +228,7 @@ class Network:
                 nabla_wC = np.multiply(np.array(self.weights, copy=True), 0)
 
                 for x, y in mini_batch:
-                    # Sum all the derivatives over the mini-batch
+                    # Sum all the gradients over the mini-batch
                     self.feedforward(x)
                     nabla_bC_i, nabla_wC_i = self.backpropagation(y)
                     nabla_bC = np.add(nabla_bC, nabla_bC_i)
@@ -280,6 +284,9 @@ class Network:
         return tr_err, tr_cost, va_err, va_cost
 
 
+    # TODO: transform this so that it works with a matrix and not just a vector
+    #       this would be a little more efficient since it takes advantage full
+    #       advantage of numpy.
     def backpropagation(self, y):
         """Backpropagate the errors through the Network.
 
