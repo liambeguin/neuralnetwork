@@ -197,8 +197,9 @@ class centralWidget( QWidget ):
         self.featuresManagerLayout              = QGridLayout(self.featuresManager)
         self.featuresManagerLayout.addWidget( self.featuresManagerLabel             , 0, 0 )
         self.featuresManagerLayout.addWidget( self.featuresManagerComboBox          , 1, 0 )
-        self.featuresManagerLayout.addWidget( self.featuresManagerLabelNeuronFactor , 0, 1 )
-        self.featuresManagerLayout.addWidget( self.featuresManagerLineEdit          , 1, 1 )
+        self.featuresManagerLayout.addItem  ( self.spacerItem                       , 1, 1 )
+        self.featuresManagerLayout.addWidget( self.featuresManagerLabelNeuronFactor , 0, 2 )
+        self.featuresManagerLayout.addWidget( self.featuresManagerLineEdit          , 1, 2 )
         self.featuresManagerLayout.setSpacing( 0 )
         self.featuresManagerLayout.setContentsMargins( 0, 0, 0, 0 )
         #Number hidden layout
@@ -225,16 +226,16 @@ class centralWidget( QWidget ):
         self.hiddenManagerLayout.addWidget ( self.hiddenManagerTitle )
         self.hiddenManagerLayout.addItem   ( self.spacerItem )
         #Output
-        self.outputManager         = QWidget()
-        self.outputManagerLayout   = QGridLayout( self.outputManager )
-        self.outputManagerLabel    = QLabel( "Output" )
-        self.outputManagerValue    = 9
-        self.outputManagerLabel    = QLabel("{}".format(self.outputManagerValue))
-        self.sexCheckBox           = QCheckBox("man/woman")
+        self.outputManager           = QWidget()
+        self.outputManagerLayout     = QGridLayout( self.outputManager )
+        self.outputManagerLabel      = QLabel( "Output" )
+        self.outputManagerValue      = 9
+        self.outputManagerLabelValue = QLabel("{}".format(self.outputManagerValue))
+        self.sexCheckBox             = QCheckBox("man/woman")
         
         self.outputManagerLayout.addWidget( self.sexCheckBox       , 0, 0 )
         self.outputManagerLayout.addWidget( self.outputManagerLabel, 0, 1 )
-        self.outputManagerLayout.addWidget( self.outputManagerLabel, 1, 1 )
+        self.outputManagerLayout.addWidget( self.outputManagerLabelValue, 1, 1 )
         self.outputManagerLayout.setSpacing( 0 )
         self.outputManagerLayout.setContentsMargins( 0, 0, 0, 0 )
         #self.outputManager.setAlignment( QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter )
@@ -460,7 +461,7 @@ class centralWidget( QWidget ):
         self.parameters[n]=state
         if not state:
             self.outputManagerValue = 9
-            self.outputManagerLabel.setText("{}".format(self.outputManagerValue ))
+            self.outputManagerLabelValue.setText("{}".format(self.outputManagerValue ))
             self.drawNeuron.emit( 2, 9 )
             hLL = self.layersLayout
             w   = hLL.itemAt( 2 ).widget()
@@ -468,7 +469,7 @@ class centralWidget( QWidget ):
             w.extendLabelTitle.setText( "{} Neurones".format(self.outputManagerValue ))
         else:
             self.outputManagerValue = 18
-            self.outputManagerLabel.setText("{}".format(self.outputManagerValue  ))
+            self.outputManagerLabelValue.setText("{}".format(self.outputManagerValue  ))
             self.drawNeuron.emit( 2, 18 )
             #Remove later
             hLL = self.layersLayout
@@ -707,7 +708,7 @@ class centralWidget( QWidget ):
                 self.hm[len( self.hm ) - 1 ] = neuron
             # hidden layers
             else:
-                self.hm[layer-2] = neuron*self.neuronFactor        
+                self.hm[layer-2] = neuron     
                 self.parameters['layers']=self.hm[1:-1]
         
         logging.debug( 
