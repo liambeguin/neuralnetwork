@@ -31,10 +31,8 @@ np.random.seed(1)
 
 
 class qNetwork(QObject):
-    validationErrorValueChange = pyqtSignal(list)
-    trainingErrorValueChange   = pyqtSignal(list)
-    validationCostValueChange  = pyqtSignal(list)
-    trainingCostValueChange    = pyqtSignal(list)
+    errValueChange = pyqtSignal(list)
+    costValueChange    = pyqtSignal(list)
     epochValueChange           = pyqtSignal(int)
     def __init__( self,  parent = None ):
         QObject.__init__( self,  parent )
@@ -81,7 +79,7 @@ class Network:
 
         self.biases  = [ np.random.randn(y, 1) for y in struct[1:] ]
         self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
-                        for x, y in zip(struct[:-1], struct[1:]) ]
+                for x, y in zip(struct[:-1], struct[1:]) ]
 
 
         self.qnet = qNetwork()
@@ -96,7 +94,7 @@ class Network:
                 ret += 'L{:>0{n}} {:^{num}}\n'.format(str(idx), \
                         '* '*val, n=len(str(len(self.struct))), \
                         num=2*max(self.struct))
-        return ret
+                return ret
 
 
     def __call__(self, X):
@@ -150,7 +148,7 @@ class Network:
                 self._load_file(f)
         else:
             with open(filename, 'rb') as f:
-                    self._load_file(f)
+                self._load_file(f)
 
 
     def feedforward(self, X):
@@ -215,7 +213,7 @@ class Network:
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
                 self.weights = [ w - self.eta * (nw + \
-                    self.regularization.derivative(w, self.lambda_, len(tr_d))) \
+                        self.regularization.derivative(w, self.lambda_, len(tr_d))) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
             print("Epoch {:2d} training done.".format(i) )
@@ -229,33 +227,39 @@ class Network:
                 utils.log_print(2, " * Training   set error rate : {:.3%}"\
                         .format(self.eval_error_rate(tr_d)) )
                 tr_err.append(self.eval_error_rate(tr_d))
-                self.qnet.trainingErrorValueChange.emit([tr_err[-1]])
                 if va_d:
                     error_rate = self.eval_error_rate(va_d)
                     utils.log_print(2, " * Validation set error rate : {:.3%}"\
                             .format(error_rate) )
                     va_err.append(error_rate)
-                    self.qnet.validationErrorValueChange.emit([va_err[-1]])
 
             if monitoring['cost']:
                 utils.log_print(2, " * Training   set cost       : {}"\
                         .format(self.eval_cost(tr_d)) )
                 tr_cost.append(self.eval_cost(tr_d))
-                self.qnet.trainingCostValueChange.emit([tr_cost[-1]])
                 if va_d:
                     utils.log_print(2, " * Validation set cost       : {}"\
                             .format(self.eval_cost(va_d)) )
                     va_cost.append(self.eval_cost(va_d))
-                    self.qnet.validationCostValueChange.emit([va_cost[-1]])
 
             # If we do not improve, stop training !
             if early_stop_n and i > early_stop_n and \
                     error_rate - np.mean(va_err[-early_stop_n:]) < 0.05:
-                        break
+                break
 
             # Print empty line if monitoring for easy reading
             if monitoring:
                 utils.log_print(2, "")
+
+            if monitoring['error'] and not va_d:
+                self.qnet.errValueChange.emit([tr_err[-1]])
+            elif monitoring['error'] and va_d:
+                self.qnet.errValueChange.emit([tr_err[-1],va_err[-1]])
+            
+            if monitoring['cost'] and not va_d:
+                self.qnet.costValueChange.emit([tr_cost[-1]])
+            elif monitoring['cost'] and va_d:
+                self.qnet.costValueChange.emit([tr_cost[-1],va_cost[-1]])
 
         self.learn_time = datetime.datetime.now() - self.learn_time
         return tr_err, tr_cost, va_err, va_cost

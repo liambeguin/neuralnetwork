@@ -30,16 +30,18 @@ class neuronManagerWidget(QWidget):
         self.i=1
 
         self.extendLabelPlus=clickableLabel(
-                pixmap="/ressource/icons/pluss.png"
+                pixmap="/ressource/icons/add.png"
             #    color="grey"
             )
-        self.extendLabelPlus.scaleRegion(8,2,34,34,QRegion.Ellipse)
+        self.extendLabelPlus.setFixedSize(40,40)
+
+       # self.extendLabelPlus.scaleRegion(8,2,34,34,QRegion.Ellipse)
         
         self.extendLabelMinus=clickableLabel(
-                pixmap="/ressource/icons/minuss.png"
+                pixmap="/ressource/icons/remove.png"
            #     color="yellow"
                 )
-        self.extendLabelMinus.scaleRegion(8,2,34,34,QRegion.Ellipse)
+        #self.extendLabelMinus.scaleRegion(8,2,34,34,QRegion.Ellipse)
         
 
         self.extendLabelTitle=QLabel("{} Neurons".format(self.i))

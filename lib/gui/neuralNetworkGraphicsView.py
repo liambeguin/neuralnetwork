@@ -47,7 +47,7 @@ class drawNeuralNetworkWidget():
         for l in range(len(self.l)):
             for n in range(self.l[l]):
 #                self.plainTextEdit.insertPlainText ("l:{} n:{}\n".format(l,n))
-                self.scene.addRect(QRectF((l)*self.di ,(n)*self.di , self.nd, self.nd))
+                self.scene.addEllipse(QRectF((l)*self.di ,(n)*self.di , self.nd, self.nd))
     
     def drawLines(self):
         for c in range(len(self.l)): #nb layer
