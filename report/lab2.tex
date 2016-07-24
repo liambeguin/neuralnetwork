@@ -1,42 +1,54 @@
 \documentclass[11pt]{article}
+\input{ets_page.tex}
 
-\usepackage[french]{babel}
-\usepackage[utf8]{inputenc}
-\usepackage{tikz}
-\usepackage{pgf}
-\usetikzlibrary{arrows,automata}
-\usepackage[left=2cm, right=2cm]{geometry}
-\usepackage{amsmath,amsfonts,amssymb}
-\usepackage{listings}
 \usepackage{graphicx}
 \usepackage{multirow}
-\usepackage{hyperref} % Required for links
+\usepackage[
+	pdftitle   ={ELE778 rapport de laboratoire 2.2},
+	pdfsubject ={Detail de l'implementation d'un reseau de Neurones a
+		retro-propagation du gradient d'erreur},
+	pdfauthor  ={Liam BEGUIN - Louis LAPORTE},
+	pdfkeywords={Neural network, mini-batch SGD, TiDigits classification},
+	citecolor  ={red},
+	filecolor  ={},
+	urlcolor   =blue,
+]{hyperref} % Required for links
 \usepackage{enumitem}
-\date{}
+
+
+
+\EtsPageCourse{ELE778-01}
+	{Intelligence artificielle: r\'eseaux neuroniques et syst\`emes experts}
+\EtsPageTitle{Laboratoire 2}
+\EtsPageProf{Cynthia}{Moussa}
+\EtsPageAuthA{Liam}{Beguin}{BEGL02129304}
+\EtsPageAuthB{Louis}{Laporte}{LAPL14128903}
+\EtsPageAuthC{}{}{}
+
 \begin{document}
-
-\def \ETScourse {ELE778-01 - Intelligence artificielle: réseaux neuroniques
-et systèmes experts}
-\def \ETStitle {Laboratoire 2}
-\def \ETSprof  {Cynthia \textsc{Moussa}}
-\def \ETSauthA {Liam \textsc{Beguin}\\\emph{BEGL02129304}}
-\def \ETSauthB {Louis \textsc{Laporte}\\\emph{LAPL14128903}}
-\input{titlepage.tex}
-
+\EtsPageGenerate
+\tableofcontents
+% \newpage
 
 \section{Notations et symboles}
 \begin{tabular}{p{1.75cm}p{10cm}}
+	${\bf x}$ & Entr\'ee du r\'eseau, \\
+	${\bf y_x}$ & Sortie attendue du r\'eseau pour l'entr\'ee {\bf x}, \\
+	${\bf \hat y_x}$ & Pr\'ediction du r\'eseau pour l'entr\'ee {\bf x}, \\
 	${\bf a} \circ {\bf b}$ & Produit matriciel de
-	\href{https://en.wikipedia.org/wiki/Hadamard_product_(matrices)}{Hadamard}. \\
-
-	$\sigma(z)$ & Fonction d'activation generique \\
-	$\sigma'(z)$ & Deriv\'ee de la fonction d'activation \\
-	$C(w, b)$ & Fonction de cout g\'en\'erique \\
+		\href{https://en.wikipedia.org/wiki/Hadamard_product_(matrices)}
+		{Hadamard}, \\
+	$\epsilon_{\bf x}$ & taux d'erreur lorsque le reseau evalue l'entree ${\bf x}$, \\
+	$\sigma(z)$ & Fonction d'activation generique, \\
+	$\sigma'(z)$ & Deriv\'ee de la fonction d'activation, \\
+	$C(w, b)$ & Fonction de cout g\'en\'erique, \\
+	${\bf C}'(w, b)$ & D\'eriv\'ee de la fonction de cout g\'en\'erique par
+		rapport a ${\bf \hat y}$, \\
 	$\nabla_bC$ & \href{https://en.wikipedia.org/wiki/Matrix_calculus}
-	{D\'eriv\'ees de $C$} par rapport aux seuils de la couche $(l)$. \\
-	$\nabla_wC$ & D\'eriv\'ees de $C$ par rapport aux poids de la couche $(l)$. \\
-	$d^{(l)}$ & Nombre d'elements sur la couche $(l)$. \\
-	${\bf w}^{(l)}(T)$ & Ensemble des poids de la couche $(l)$ \`a l'\'epoque $T$. \\
+		{D\'eriv\'ees de $C$} par rapport aux seuils de la couche $(l)$, \\
+	$\nabla_wC$ & D\'eriv\'ees de $C$ par rapport aux poids de la couche $(l)$, \\
+	$d^{(l)}$ & Nombre d'elements sur la couche $(l)$, \\
+	${\bf w}^{(l)}(T)$ & Ensemble des poids de la couche $(l)$ \`a l'\'epoque $T$, \\
 \end{tabular}
 \newpage
 
@@ -67,13 +79,19 @@ lors de l'entrainement.
 
 \section{Implementation du r\'eseau de neurones}
 \subsection{Architecture globale}
-Comme dit en introduction, Nous allons implementer un reseau de neurones a
-retro-propagation du gradient d'erreur. Ici, nous enoncerons les notations et
-equations 'generiques' utilisees au sein du reseau.
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.5]{img/neuron.png}
+	\caption{Repr\'esentation symbolique d'un neurone.}
+\end{figure} \\
 
-l'ensemble des calculs sont effectues sous forme matricielle afin de simplifier
-et generaliser les equations mais aussi de mieux tirer avantage des ressources
-des ordinateurs utilises.
+Comme dit en introduction, Nous allons impl\'ementer un r\'eseau de neurones a
+r\'etro-propagation du gradient d'erreur. Ici, nous \'enoncerons les notations et
+\'equations g\'en\'eriques utilis\'ees au sein du r\'eseau.
+
+La majorit\'e des calculs sont effectues sous forme matricielle afin de simplifier
+et g\'en\'eraliser les \'equations mais aussi de mieux tirer avantage des ressources
+de calcul disponibles.
 
 Etant donne que le r\'eseau doit \^etre tr\`es flexible quant au nombre de
 couches et au nombre de neurones, nous utiliserons un tuple (une liste
@@ -81,11 +99,13 @@ invariante) pour instancier le r\'eseau.
 Chaque \'el\'ement de la liste repr\'esente une couche du r\'eseau
 (incluant la couche d'entr\'ee) et sa valeur d\'etermine le nombre de neurones
 present sur la couche.
+Pour la couche de sortie, nous utiliserons un vecteur de
+type \emph{one-hot} ou un seul element est actif \`a la fois.
 
 D'autre part, on nous demande aussi que le reseau soit capable d'utiliser
 differentes fonctions d'activation. Base sur cette contrainte, nous avons
-choisi d'aussi donner a l'utilisateur la possibilite de choisir entre differentes
-fonctions de cout et differentes fonctions de regularization.
+choisi d'aussi donner a l'utilisateur la possibilite de choisir entre
+differentes fonctions de cout et differentes fonctions de regularization.
 
 \paragraph{Notations: }Soit, $w_{jk}^{(l)}$ le poid connectant le neurone $k$
 de la couche $(l-1)$ au neurone $j$ de la couche $(l)$, o\`u :
@@ -385,19 +405,91 @@ NOTE: \href{http://work.caltech.edu/slides/slides12.pdf}{La r\'egularisation
 \emph{Tikhonov}} est une forme generalis\'ee de ces approches et permet une
 plus grande flexibilit\'e.
 
-
-% penalise le poids large check :
-% http://neuralnetworksanddeeplearning.com/chap3.html#overfitting_and_regularization
-
 \subsection{Entrainement}
-% batch gradient descent
-% stochastic gradient descent
-% minibatch GD check network.py
+L'entrainement du reseau est un processus gourmand en calculs et demandant
+beaucoup de ressources. Il est donc important de bien l'optimiser. Dans ce but,
+nous sommes pass\'es par plusieurs methodes avant d'arriver a la plus optimale.
+
+\paragraph{batch gradient descent} consiste a calculer le gradient en une seule
+iteration sur l'ensemble des echantillons d'entrainement avant de pouvoir
+actualiser les poids. Etant donn\'e que l'entrainement necessite un grand
+nombre d'echantillons pour donner des resultats satisfaisant, cette approche
+impose des calculs sur des matrices de {\bf grande} dimensions.
+
+\paragraph{stochastic gradient descent : } contrairement \`a la methode
+precedente, le gradient est ici calcule sur un seul echantillon selectionn\'e
+aleatoirement (d'o\`u son nom). Ceci permet de reduire considerablement le
+cout des calculs et est prouv\'e de converger vers la meme valeur que le
+\emph{batch gradient descent} en montrant que l'esperance mathematique des deux
+versions du gradient sont egales.
+
+\paragraph{Mini-batch stochastic gradient descent} est la m\'ethode impl\'ement\'ee
+dans le r\'eseau. Cette version est une g\'en\'eralisation des deux approches
+pr\'ec\'edentes. Au lieu de selectionner un seul \'el\'ement al\'eatoirement,
+le set d'entrainement est divis\'e en sous ensembles de taille $N$. Il est
+interessant de noter que si $N=1$, on obtient un \emph{stochastic gradient descent}
+standard et si $N$ est egal a la taille du set d'entrainement, on obtient un
+\emph{batch gradient descent}.
+
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {division du set ${\bf x}$ en sous-ensembles de taille $N$},
+language = python,
+basicstyle=\small} \\
+\begin{lstlisting}
+In [1]: x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+In [2]: N = 2
+In [3]: print zip(*[iter(x)]*N)
+[(1, 2), (3, 4), (5, 6), (7, 8)]
+\end{lstlisting}
+
+Par manque de temps, la backpropagation implement\'ee permet simplement de
+calculer le gradient sur un echantillon unique (un vecteur) et non une matrice
+des $N$ echantillons. Il faut donc sommer les gradients sur tous les elements de
+la mini-batch: $\nabla_bC = \sum_{i}^{N}{{\nabla_bC}_i}$ (idem pour $\nabla_wC$).
+
+Une implementation matricielle permettrait d'am\'eliorer les performances en
+exploitant pleinement les capacit\'es de \emph{numpy} (le module de calcul utilis\'e).
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {sommation $N$ des gradients},
+language = python,
+basicstyle=\small} \\
+\begin{lstlisting}
+for x, y in mini_batch:
+	# Sum all the gradients over the mini-batch
+	self.feedforward(x)
+	nabla_bC_i, nabla_wC_i = self.backpropagation(y)
+	nabla_bC = np.add(nabla_bC, nabla_bC_i)
+	nabla_wC = np.add(nabla_wC, nabla_wC_i)
+\end{lstlisting}
+
 
 \subsection{Ajustement des hyper-param\`etres}
 % http://neuralnetworksanddeeplearning.com/chap3.html#how_to_choose_a_neural_network's_hyper-parameters
 
 \subsection{Inspection du res\'eau}
+Parmis les contraintes obligatoires, il nous est aussi demand\'e de pouvoir
+inspecter les couches cach\'ees du r\'eseau. Pour ce faire, nous tirons parti du
+fait que {\em Python} est un language interpr\'et\'e et qu'il fournit \`a
+l'utilisateur une interface int\'eractive(voir annexe \ref{inspect}).
+
+En combinaison avec la possibilit\'e de savegarder l'\'etat des
+objects {\em Network} sous la forme de fichiers (compress\'es ou non), nous
+pouvons ais\'ement analyser chaque couche (voir annexe \ref{saveload}).
+
+D'autre part, la conception du r\'eseau permetterai, avec peu d'effort, de coupler
+plusieurs objects {\em Network} en un {\em super} reseau.
+Ceci pourrai \^etre fait en impl\'ementant les methodes {\em \_\_add\_\_()}
+et {\em \_\_getslice\_\_()} pour respectivement concat\'ener et couper des objects
+{\em Network}.
+
+N'ayant pas eu besoin de ces op\'erations, ces m\'ethodes n'ont
+cependant pas \'et\'e impl\'ement\'ees.
 
 \section{Interface graphique}
 
@@ -405,11 +497,167 @@ plus grande flexibilit\'e.
 
 \section{Discussions}
 \subsection{Problemes rencontr\'es}
-\subsection{Methodes de r\'esolution}
-\subsection{conclusion et possibilites d'amelioration}
+Lors de l'entrainement du reseau, nous avons d'abord ete confronte a de tres
+mauvaises performances. Nous avons initialement pense que notre pr\'e-traitement
+etait inefficace voir destructeur. En analysant les performances plus en detail,
+nous nous sommes apercu que le reseau etait moins performant que si nous lui
+faisions faire des predictions aleatoires
+$\epsilon_{\bf x} \ge \left (1 - \frac{1}{9} = 88.9\% \right)$.
+Ce qui est impossible et sugg\`ere que notre \'evaluation du cout \'etait fausse.
+
+En effet, nous avions commis une erreur dans la generation de nos vecteurs de
+sortie. Lorsque la prediction etait comparee a la sortie attendue, celle-ci etait
+decalee de 1 (en raison des indices commencant a 0 et non a 1):
+\begin{equation}
+	\left (
+	{\bf \hat y}_3 =
+	\begin{bmatrix}
+		0 \\
+		0 \\
+		{\color{red} 1 }\\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+	\end{bmatrix}
+	\right )
+	\ne
+	\left (
+	{\bf y}_3 =
+	\begin{bmatrix}
+		0 \\
+		0 \\
+		0 \\
+		{\color{red} 1 }\\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+		0 \\
+	\end{bmatrix}
+	\right )
+\end{equation}
+
+\subsection{conclusion et pistes d'am\'elioration}
+utiliser une forme matricielle pour le backpropagation
+
+option pour utiliser une fonction d'activation different sur la couche de sortie
+
+automatiser l'ajustement des hyper-parameters
 % ajouter autres pistes d'amelioration
 % conclure sur performance globale du systeme
 % classification homme/femme
+
+\appendix
+\newpage
+\section{sauvegarde/chargement d'une configuration}
+\label{saveload}
+\lstset{tabsize = 4,
+frame=lines,
+numbers=none,
+captionpos=b,
+caption = {Sauvegarde et chargement interactif d'une configuration},
+language = python,
+basicstyle=\small} \\
+\begin{lstlisting}
+In [1]: import network as n
+In [2]: my_net = n.Network([3, 4, 2], activation='sigmoid',
+                   cost='cross-entropy', learning_rate=0.5)
+In [3]: print my_net
+Neural Network      : [3, 4, 2]
+Activation function : sigmoid
+Cost function       : cross-entropy
+Regularization func : none
+learning rate       : 0.5
+Regularization rate : 0.1
+
+L0  * * *
+L1 * * * *
+L2   * *
+In [4]: my_net.save('foo.save')
+In [5]: my_net = n.Network([8, 4, 4, 2], activation='tanh',
+   ...:                   cost='quadratic', learning_rate=0.02,
+   ...:				      regularization='L2', lambda_ = 0.001)
+In [6]: print my_net
+Neural Network      : [8, 4, 4, 2]
+Activation function : tanh
+Cost function       : quadratic
+Regularization func : L2
+learning rate       : 0.02
+Regularization rate : 0.001
+
+L0 * * * * * * * *
+L1     * * * *
+L2     * * * *
+L3       * *
+In [7]: my_net.load('foo.save')
+In [8]: print my_net
+Neural Network      : [3, 4, 2]
+Activation function : sigmoid
+Cost function       : cross-entropy
+Regularization func : none
+learning rate       : 0.5
+Regularization rate : 0.1
+
+L0  * * *
+L1 * * * *
+L2   * *
+\end{lstlisting}
+
+\newpage
+\section{Inspection du r\'eseau}
+\label{inspect}
+\lstset{tabsize = 4,
+frame=lines,
+numbers=none,
+captionpos=b,
+caption = {Exemple d'inspection interactive d'un r\'eseau de neurones},
+language = python,
+basicstyle=\small} \\
+\begin{lstlisting}
+In [1]: import network as n
+In [2]: my_net = n.Network((1, 2))
+In [3]: my_net.load('foo.save')                
+In [4]: print my_net.struct 
+[3, 4, 2]                    
+
+In [15]: print my_net.weights[0]                                                           
+[[ 0.12737432  0.97734051 -0.56505148]                                                     
+ [ 0.9090921   0.19178132 -0.15200818]                                                     
+ [-0.07138651 -0.59903432 -0.78958921]                                                     
+ [-0.55362229  0.51319807  0.2935551 ]]                                                    
+                                                                                           
+In [16]: print my_net.weights[1]                                                           
+[[-0.69519106  0.15539354 -0.46978019 -0.88703575]                                         
+ [-0.44994898 -0.57113777 -0.3736959  -0.00245537]]                                        
+                                                                                           
+In [17]: cat foo.save                                                                      
+# vim: set ft=yaml:                                                                        
+activation: sigmoid                                                                        
+biases:                                                                                    
+- - [-0.920441751728251]                                                                   
+  - [-0.36244765002601287]                                                                 
+  - [-0.2926753984327689]                                                                  
+  - [-0.12034180777419923]                                                                 
+- - [1.1212748305651405]                                                                   
+  - [-0.565286303186786]                                                                   
+cost: cross-entropy                                                                        
+eta: 0.5                                                                                   
+lambda: 0.1                                                                                
+regularization: none                                                                       
+struct: [3, 4, 2]                                                                          
+weights:                                                                                   
+- - [0.12737431801447707, 0.9773405101355827, -0.5650514778232817]                         
+  - [0.90909209744093, 0.19178132268834805, -0.1520081800115934]                           
+  - [-0.07138650509286246, -0.5990343151487274, -0.7895892103519402]                       
+  - [-0.5536222909987745, 0.5131980654305697, 0.29355509901743354]                         
+- - [-0.6951910582048451, 0.1553935350379862, -0.4697801922017521, 
+		-0.8870357534796379]    
+  - [-0.44994897980803156, -0.5711377657299319, -0.3736959026341852,
+		-0.002455368584577519]
+\end{lstlisting}
 
 \end{document}
 % vim: cc=80 :
