@@ -828,6 +828,7 @@ class backend( QObject ):
         self.layers = 150 
         self.net    = None
         self.training_data, self.validation_data, self.test_data = [],[],[]
+        self.p = []
     
 
     @pyqtSlot()
@@ -851,14 +852,17 @@ class backend( QObject ):
                     self.parameters['layers']=[]
                     self.parameters['layers'].append(self.input_size)
                     self.parameters['layers'].append(self.output_size)
+                    self.p = self.parameters['layers']
                 else:
-                    self.parameters['layers'].insert(0,self.input_size)
-                    self.parameters['layers'].append(self.output_size)
+                    self.p = []
+                    self.p = self.parameters['layers']
+                    self.p.insert(0,self.input_size)
+                    self.p.append(self.output_size)
                 
                 
                 print("layers {}".format(self.parameters['layers']))
                 self.net = network.Network(
-                self.parameters['layers'],
+                self.p,
                 activation     = self.parameters['activation'],
                 cost           = self.parameters['cost'],
                 regularization = self.parameters['regularization'],
