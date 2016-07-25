@@ -463,19 +463,19 @@ class centralWidget( QWidget ):
             self.outputManagerValue = 9
             self.outputManagerLabelValue.setText("{}".format(self.outputManagerValue ))
             self.drawNeuron.emit( 2, 9 )
-            hLL = self.layersLayout
-            w   = hLL.itemAt( 2 ).widget()
-            w.setEnabled(False)
-            w.extendLabelTitle.setText( "{} Neurones".format(self.outputManagerValue ))
+            #hLL = self.layersLayout
+            #w   = hLL.itemAt( 2 ).widget()
+            #w.setEnabled(False)
+            #w.extendLabelTitle.setText( "{} Neurones".format(self.outputManagerValue ))
         else:
             self.outputManagerValue = 18
             self.outputManagerLabelValue.setText("{}".format(self.outputManagerValue  ))
             self.drawNeuron.emit( 2, 18 )
             #Remove later
-            hLL = self.layersLayout
-            w   = hLL.itemAt( 2 ).widget()
-            w.setEnabled(False)
-            w.extendLabelTitle.setText( "{} Neurones".format(self.outputManagerValue ))
+            #hLL = self.layersLayout
+            #w   = hLL.itemAt( 2 ).widget()
+            #w.setEnabled(False)
+            #w.extendLabelTitle.setText( "{} Neurones".format(self.outputManagerValue ))
 
     @pyqtSlot()
     def on_labelClicked(self):
@@ -584,10 +584,6 @@ class centralWidget( QWidget ):
         - layer>2 --> hidden layers in layersLayout     ( pos=1 )
                   --> widgets are in hiddenLayersLayout ( pos=layer-3 )
         """
-        #logging.debug( 
-        #        "Plus layer{}"
-        #        .format( layer )
-        #         )
         if( layer == 1 ):
             hLL = self.layersLayout
             w   = hLL.itemAt( layer-1 ).widget()
@@ -715,10 +711,6 @@ class centralWidget( QWidget ):
             " hm {} "
             .format( self.hm  )
          )
-        # focus at end of debug 
-        #self.textCursor = self.plainTextEdit.textCursor()
-        #self.textCursor.movePosition( QTextCursor.End )
-        #self.plainTextEdit.setTextCursor( self.textCursor )
 
         hl=drawNeuralNetworkWidget( 20,( (self.w *2  )//3)//len(self.hm),self.hm )
         
@@ -834,7 +826,7 @@ class backend( QObject ):
     @pyqtSlot()
     def run( self):
         """ run network """ 
-        print("backend param == {}".format(self.parameters))
+        #print("backend param == {}".format(self.parameters))
         
         try: 
             if self.parameters['button'] == "load":
@@ -848,16 +840,10 @@ class backend( QObject ):
             
             elif self.parameters['button'] == "play":
              #instance 
-                if None in self.parameters['layers']:
-                    self.parameters['layers']=[]
-                    self.parameters['layers'].append(self.input_size)
-                    self.parameters['layers'].append(self.output_size)
-                    self.p = self.parameters['layers']
-                else:
-                    self.p = []
-                    self.p = self.parameters['layers']
-                    self.p.insert(0,self.input_size)
-                    self.p.append(self.output_size)
+                self.p = None
+                self.p = self.parameters['layers']
+                self.p.insert(0,self.input_size)
+                self.p.append(self.output_size)
                 
                 
                 print("layers {}".format(self.parameters['layers']))
@@ -869,14 +855,7 @@ class backend( QObject ):
                 learning_rate  = float(self.parameters['learningRate']),
                 lambda_        = float(self.parameters['regularizationRate'])
                 )
-               # print(self.net)
-                print("in {} out {} lR {} lambda_ {} ".format(self.input_size,
-                    self.output_size,
-                    float(self.parameters['learningRate']),
-                    float(self.parameters['regularizationRate']),
-                    ))
                 if os.path.exists('autoload.save.gz'):
-                #    print(" *** Found autoload, loading config...")
                     self.net.load('autoload.save.gz')
                 
                 print("play finished")
@@ -884,6 +863,7 @@ class backend( QObject ):
             
             elif self.parameters['button'] == "train":
 
+                print("layers {}".format(self.parameters['layers']))
                 self.net.qnet.costValueChange  = self.updateCost
                 self.net.qnet.errValueChange   = self.updateErr
                 self.net.qnet.epochValueChange = self.updateIterations
@@ -896,7 +876,7 @@ class backend( QObject ):
                         early_stop_n = 20,
                         monitoring   = {'error':True, 'cost':True}
                         )
-                print("tain finished")
+                print("train finished")
                 self.finished.emit()
                 
 
