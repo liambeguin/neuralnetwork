@@ -2,7 +2,7 @@
 \input{ets_page.tex}
 
 \usepackage{graphicx}
-%\usepackage{multirow}
+\usepackage{multirow}
 \usepackage[
 	pdftitle   ={ELE778 rapport de laboratoire 2.2},
 	pdfsubject ={Detail de l'implementation d'un r\'eseau de Neurones a
@@ -242,7 +242,7 @@ quantifier l'erreur due a chaque neurone, nous pouvons mettre a jour les poids
 	apr\`es le traitement}
 \end{figure}
 
-Pour extraire les informations de la base de donn\'ee TiDigits, nous avons
+Pour extraire les informations de la base de donn\'ee {\em TiDigits}, nous avons
 utilis\'e le code que nous avions d\'evelopp\'e pour la premi\`ere partie du laboratoire.
 Nous nous sommes bas\'es sur les similarit\'es entre la prononciation d'un
 m\^eme chiffre par plusieurs individus. Pour cela, nous avons filtr\'e
@@ -264,8 +264,10 @@ entr\'ee pour le r\'eseau. En effet, dans le cas o\`u les longueurs ne sont pas
 identiques, il est impossible d'alimenter le r\'eseau en raison des diff\'erences
 de dimensions sur les produits matriciels.
 D'autre part, dans le but d'am\'eliorer la vitesse de convergence de
-l'apprentissage et de limiter la complexit\'e du mod\`ele, nous avons choisi de ne
-garder que les donn\'ees statiques et de les normaliser (selon chaque colonne).
+l'apprentissage et de limiter la complexit\'e du mod\`ele, nous avons choisi de
+ne garder que les donn\'ees statiques et de les normaliser, selon chaque colonne.
+La figure \ref{fig:w_prep} donne un aper{\cc}u de l'impacte du pr\'e-traitement
+sur les performances du r\'eseau.
 
 La fonction d'extraction des donn\'ees {\em extract\_datasets()}
 est con\c{c}ue pour prendre 2 param\`etres: le nombre de features d\'esir\'e
@@ -359,7 +361,7 @@ self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
 \subsection{Fonctions d'activation}
 % http://tflearn.org/activations/
 \paragraph{La fonction sigmoid} est la fonctions de r\'ef\'erence dans les r\'eseaux de
-neurones et elle est definie de la mani\`ere suivante: \\
+neurones et est definie de la mani\`ere suivante: \\
 \begin{equation}
 	\begin{aligned}
 		\sigma(x)  &= \frac{1}{1+e^{-x}} \\
