@@ -238,8 +238,35 @@ quantifier l'erreur due a chaque neurone, nous pouvons mettre a jour les poids
 % normalisation du dataset
 % classification homme / femme
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=.3]{img/preprocessing.png}
+	\caption{Representation des energies statiques et dynamiques avant et
+	apres le traitement}
+\end{figure}
 
-\subsection{Initialisation du res\'eau}
+
+Nous nous sommes bas\'es sur la similarit\'e entre la prononciation d'un
+m\^eme chiffre par plusieurs individus, nous avons donc filtr\'e les \'en\'ergies
+statiques et dynamiques afin de pouvoir observer des diff\'erences entre chaque chiffre.
+
+
+Le filtagre consiste \`a utiliser un seuil sur l'\'en\'ergie statique et
+guarder les N valeurs apr\`es et 10 valeurs avant pour obtenir les \'e\'ergies
+dynamiques selon les diff\'erentes attaques lors de la prononciation pour chaque
+individu.
+
+Comme les fichiers n'ont pas les m\^emes tailles nous avons du rajouter des
+z\'eros \`a la fin des courbes afin qu'elles puissent \^etre identique en
+terme de taille. De plus dans le cas o\`u les longueurs ne seraient pas
+identique, il serait impossiblle d'entraineer notre r\'eseau avec un nombre
+de neurone \`a taille variable en entr\'ee.
+L'extraction des donn\'ees a \'et\'e fait pour obtenir 40, 50 ou 60 lignes
+d'\'echantillons par fichier.
+
+
+
+\subsection{Initialisation du r\'eseau}
 Lorsque le reseau est instanci\'e, les parametres tels que $\eta$ et $\lambda$
 sont copi\'es dans l'object
 \emph{Network} et les matrices de poids et de seuils (\emph{weights} et
@@ -295,6 +322,112 @@ self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
 % tanh     -> soft threshold (linear arround 0 hard threshold far)
 % softplus -> linear above 0
 % add plots
+\paragraph{La fonction sigmoid} est definie de la maniere suivante: \\
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.5]{img/act_sigmoid.png}
+	\caption{Representation de la fonction sigmoid (blue) et de sa derivee (vert)}
+\end{figure}
+\begin{equation}
+		\sigma(x)=\frac{1}{1+e^{-x}}
+\end{equation}
+
+et g\'en\'eralis\'ee par : \\
+\begin{equation}
+		\sigma(x)=\frac{1}{1+e^{-\lambda_\sigma x}}
+\end{equation}
+elle permet de d'obtenir des valeurs comprises entre [0;1] \\
+
+Pour la retropropagation nous utilisons ca d\'eriv\'ee :
+\begin{equation}
+		\sigma'(x) = \sigma(x)(1-\sigma(x))
+\end{equation}
+
+
+Cette fonction possede de bonne propri\'et\'es pour le calcul par ordinateur
+car ca derivee peut aussi s'ecrire TODO
+
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {Definition de la fonction {\em sigmoid} et de sa d\'eriv\'ee},
+language = python,
+basicstyle=\small}
+\begin{lstlisting}
+def sigmoid(z, prime=False):
+    if prime:
+		return sigmoid(z)*(1-sigmoid(z))
+	else:
+		return 1.0 / (1.0 + np.exp(np.negative(np.clip(z, -50, 50))))
+\end{lstlisting}
+
+\paragraph{La fonction tangente hyperbolique}($\tanh$) est d\'efinie par:
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.5]{img/act_tanh.png}
+	\caption{Representation de la fonction tanh (blue) et de sa derivee (vert)}
+\end{figure}
+\begin{equation}
+		\tanh(x)=\frac{\sinh(x)}{\cosh(x)}
+\end{equation}
+
+Elle permet d'obtenir des valeurs comprises entre [-1;1]
+
+Pour la retropropagation nous utilisons ca d\'eriv\'ee :
+\begin{equation}
+		\tanh'(x)=1-\tanh^2(x)
+\end{equation}
+
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {D\'efinition de la fonction tanh et de sa derivee},
+language = python,
+basicstyle=\small}
+\begin{lstlisting}
+def tanh(z, prime=False):
+    if prime:
+		return 1.0 - np.square(tanh(z))
+	else:
+		return np.tanh(z)
+\end{lstlisting}
+
+
+\paragraph{La fonction Softplus} est d\'efinie par:
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.5]{img/act_softplus.png}
+	\caption{Representation de la fonction softplus (blue) et de sa derivee (vert)}
+\end{figure}
+\begin{equation}
+		f(x)=ln(1+e^x)
+\end{equation}
+
+Pour la retropropagation nous utilisons ca d\'eriv\'ee :
+
+\begin{equation}
+		f'(x)=\frac{1}{1+e^{-x}}
+\end{equation}equation
+
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {Definition de la fonction {\em softplus} et de sa derivee},
+language = python,
+basicstyle=\small}
+\begin{lstlisting}
+def softplus(z, prime=False):
+	if prime:
+		return sigmoid(z)
+	else:
+		return np.log(1 + np.exp(np.clip(z, -50, 50)))
+\end{lstlisting}
+
+C'est fonction est inspir\'ee de la Sigmoid, cependant elle permet de TODO
+
 
 
 
@@ -492,6 +625,63 @@ N'ayant pas eu besoin de ces op\'erations, ces m\'ethodes n'ont
 cependant pas \'et\'e impl\'ement\'ees.
 
 \section{Interface graphique}
+L'interface graphique permet de choisir de definir les parametres du reseaux
+pour afficher ensuite les graphiques des TODO
+\subsection{Structure}
+La GUI est compos\'ee de 4 couches.
+\paragraph{Menu}
+L'application poss\'ede un menu permettant de charger un fichier de
+configuration et de sauvegarder les param\`etres actuel du r\'eseau ou de
+faire un 'reset' du r\'eseau.
+\paragraph{Param\`etres d'activation}
+Sur cette couche de l'application on peut retrouver les fonctions
+d'activations, de regularisations, de couts.\\
+Il est aussi possible de r\'egler les taux d'apprentissages et de
+regularisations.
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.4]{img/parametersLayer.png}
+	\caption{Affichage des param\`etres d'activation}
+\end{figure} \\
+
+Il faut dans un premier temps charger les donn\'ees, ensuite il faut choisir
+les param\`etres sur lesquels on veut jouer et appuyer sur play afin de les
+mettre \`a jour. Pour finir il faut cliquer sur training.\\
+
+\paragraph{Choix des couches}
+La seconde couche permet de choisir les 3 types de set de base de donn\'ees
+pour la couche d'entr\'ee (40,50,60 features), le nombre de couches cach\'ees
+et le nombres de sortie du r\'eseau. Il est aussi possible de choisir de
+d\'etecter le sexe de la personne ainsi que de choisir un facteur
+multiplicatif pour la cr\'eation des neurones.
+
+\paragraph{Choix du nombre de neurone}
+Cette troisi\`eme couche permet de choisir un nombre de neurone illimit\'e
+pour chacune des couches du r\'eseau.
+\paragraph{Affichage du r\'eseau}
+Cette derni\`ere couche permet de naviguer entre 2 'Tab' afin de visualiser le
+r\'eseau ou les erreurs et les couts de validation et d'entrainement.\\
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.25]{img/NetworkGraphics.png}
+	\caption{Affichage du r\'eseau}
+\end{figure} \\
+
+\paragraph{Affichage des couts et des erreurs}
+L'affichage ce fait pendant que le r\'eseau est entrain de de s'entrainer.
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.25]{img/courbe.png}
+	\caption{Affichage des courbes d'erreur et de co\^ut}
+\end{figure} \\
+
+\subsection{Navigation}
+Par d\'efault le r\'esau est configur\'e avec un taux d'apprentissage de 0.5,
+une fonction d'activation SoftPlus, un taux de r\'egularisation de 0.01 et une
+fonction de cout de type "cross-entropy". La couche d'entr\'ee poss\`ede par
+default un un dataset de 40 multipli\'e par 15, une seule couche cach\'ee avec
+50 neurones et 9 sorties. Ensuite les boutons d\'emarrer et pause permettent
+de respectivement de d\'emarrer l'entrainement du r\'eseau ou de le stopper.
 
 
 
@@ -619,42 +809,42 @@ basicstyle=\small} \\
 \begin{lstlisting}
 In [1]: import network as n
 In [2]: my_net = n.Network((1, 2))
-In [3]: my_net.load('foo.save')                
-In [4]: print my_net.struct 
-[3, 4, 2]                    
+In [3]: my_net.load('foo.save')
+In [4]: print my_net.struct
+[3, 4, 2]
 
-In [15]: print my_net.weights[0]                                                           
-[[ 0.12737432  0.97734051 -0.56505148]                                                     
- [ 0.9090921   0.19178132 -0.15200818]                                                     
- [-0.07138651 -0.59903432 -0.78958921]                                                     
- [-0.55362229  0.51319807  0.2935551 ]]                                                    
-                                                                                           
-In [16]: print my_net.weights[1]                                                           
-[[-0.69519106  0.15539354 -0.46978019 -0.88703575]                                         
- [-0.44994898 -0.57113777 -0.3736959  -0.00245537]]                                        
-                                                                                           
-In [17]: cat foo.save                                                                      
-# vim: set ft=yaml:                                                                        
-activation: sigmoid                                                                        
-biases:                                                                                    
-- - [-0.920441751728251]                                                                   
-  - [-0.36244765002601287]                                                                 
-  - [-0.2926753984327689]                                                                  
-  - [-0.12034180777419923]                                                                 
-- - [1.1212748305651405]                                                                   
-  - [-0.565286303186786]                                                                   
-cost: cross-entropy                                                                        
-eta: 0.5                                                                                   
-lambda: 0.1                                                                                
-regularization: none                                                                       
-struct: [3, 4, 2]                                                                          
-weights:                                                                                   
-- - [0.12737431801447707, 0.9773405101355827, -0.5650514778232817]                         
-  - [0.90909209744093, 0.19178132268834805, -0.1520081800115934]                           
-  - [-0.07138650509286246, -0.5990343151487274, -0.7895892103519402]                       
-  - [-0.5536222909987745, 0.5131980654305697, 0.29355509901743354]                         
-- - [-0.6951910582048451, 0.1553935350379862, -0.4697801922017521, 
-		-0.8870357534796379]    
+In [15]: print my_net.weights[0]
+[[ 0.12737432  0.97734051 -0.56505148]
+ [ 0.9090921   0.19178132 -0.15200818]
+ [-0.07138651 -0.59903432 -0.78958921]
+ [-0.55362229  0.51319807  0.2935551 ]]
+
+In [16]: print my_net.weights[1]
+[[-0.69519106  0.15539354 -0.46978019 -0.88703575]
+ [-0.44994898 -0.57113777 -0.3736959  -0.00245537]]
+
+In [17]: cat foo.save
+# vim: set ft=yaml:
+activation: sigmoid
+biases:
+- - [-0.920441751728251]
+  - [-0.36244765002601287]
+  - [-0.2926753984327689]
+  - [-0.12034180777419923]
+- - [1.1212748305651405]
+  - [-0.565286303186786]
+cost: cross-entropy
+eta: 0.5
+lambda: 0.1
+regularization: none
+struct: [3, 4, 2]
+weights:
+- - [0.12737431801447707, 0.9773405101355827, -0.5650514778232817]
+  - [0.90909209744093, 0.19178132268834805, -0.1520081800115934]
+  - [-0.07138650509286246, -0.5990343151487274, -0.7895892103519402]
+  - [-0.5536222909987745, 0.5131980654305697, 0.29355509901743354]
+- - [-0.6951910582048451, 0.1553935350379862, -0.4697801922017521,
+		-0.8870357534796379]
   - [-0.44994897980803156, -0.5711377657299319, -0.3736959026341852,
 		-0.002455368584577519]
 \end{lstlisting}
