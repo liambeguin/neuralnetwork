@@ -12,11 +12,11 @@ dosummary = True
 #       0 - Print nothing
 #       2 - Print epoch number
 #       3 - Print epoch number and summary
-net_verbose  = 3
+net_verbose  = 2
 
 evalsample         = False
 sample_file        = 'test/woman/nh/5b.txt'
-dataset_size       = 50
+dataset_size       = 60
 sex_classification = True
 
 
@@ -29,9 +29,31 @@ training_data, validation_data, test_data = utils.extract_datasets(
 
 input_size  = len(training_data[0][0])
 output_size = len(training_data[0][1])
-
-
-
+print(" ** Initializing Network...")
+net = network.Network(
+        (input_size,output_size),
+        activation     = 'sigmoid',
+        cost           = 'cross-entropy',
+        regularization = 'L2',
+        learning_rate  = 0.5,
+        lambda_        = 0.001,
+        verbose        = net_verbose,
+        )
+if os.path.exists('autoload.save.gz'):
+    print(" *** Found autoload, loading config...")
+    net.load('autoload.save.gz')
+    if net.struct[0] != input_size:
+        raise Exception("Autoload conf file does not match your dataset!")
+print(net)
+print(" ** Starting training...")
+tr_err, tr_cost, va_err, va_cost = net.train(
+        training_data,
+        epochs       = 100,
+        batch_size   = 10,
+        va_d         = validation_data,
+        early_stop_n = 50,
+        monitoring   = {'error':True, 'cost':True},
+        )
     #available_functions = {
     #        'quadratic': quadratic,
     #        'cross-entropy': crossentropy
@@ -47,37 +69,6 @@ output_size = len(training_data[0][1])
     #        'L2': weightdecay,
     #        'weight-decay': weightdecay,
     #        }
-
-print(" ** Initializing Network...")
-net = network.Network(
-        (input_size, 150, output_size),
-        activation     = 'sigmoid',
-        cost           = 'cross-entropy',
-        regularization = 'L2',
-        learning_rate  = 0.5,
-        lambda_        = 0.001,
-        verbose        = net_verbose,
-        )
-
-if os.path.exists('autoload.save.gz'):
-    print(" *** Found autoload, loading config...")
-    net.load('autoload.save.gz')
-    if net.struct[0] != input_size:
-        raise Exception("Autoload conf file does not match your dataset!")
-
-#print(net)
-
-
-
-print(" ** Starting training...")
-tr_err, tr_cost, va_err, va_cost = net.train(
-        training_data,
-        epochs       = 100,
-        batch_size   = 10,
-        va_d         = validation_data,
-        early_stop_n = 30,
-        monitoring   = {'error':True, 'cost':True},
-        )
 
 
 
