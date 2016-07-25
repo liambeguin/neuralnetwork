@@ -12,7 +12,7 @@ dosummary = True
 #       0 - Print nothing
 #       2 - Print epoch number
 #       3 - Print epoch number and summary
-net_verbose  = 3
+net_verbose  = 2
 
 evalsample         = False
 sample_file        = 'test/woman/nh/5b.txt'
@@ -32,25 +32,9 @@ output_size = len(training_data[0][1])
 
 
 
-    #available_functions = {
-    #        'quadratic': quadratic,
-    #        'cross-entropy': crossentropy
-    #        }
-    #available_functions = {
-    #        'sigmoid' : sigmoid,
-    #        'tanh'    : tanh,
-    #        'softplus': softplus,
-    #        }
-    #available_functions = {
-    #        'none': noreg,
-    #        'L1': l1_reg,
-    #        'L2': weightdecay,
-    #        'weight-decay': weightdecay,
-    #        }
-
 print(" ** Initializing Network...")
 net = network.Network(
-        (input_size, 150, output_size),
+        (input_size,output_size),
         activation     = 'sigmoid',
         cost           = 'cross-entropy',
         regularization = 'L2',
@@ -65,7 +49,7 @@ if os.path.exists('autoload.save.gz'):
     if net.struct[0] != input_size:
         raise Exception("Autoload conf file does not match your dataset!")
 
-#print(net)
+print(net)
 
 
 
@@ -75,7 +59,7 @@ tr_err, tr_cost, va_err, va_cost = net.train(
         epochs       = 100,
         batch_size   = 10,
         va_d         = validation_data,
-        early_stop_n = 5,
+        early_stop_n = 50,
         monitoring   = {'error':True, 'cost':True},
         )
 
