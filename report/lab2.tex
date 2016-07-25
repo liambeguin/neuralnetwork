@@ -1,12 +1,12 @@
 \documentclass[11pt]{article}
 \input{ets_page.tex}
 
-\usepackage{color, colortbl}
 \usepackage{graphicx}
 \usepackage{multirow}
+\usepackage{color, colortbl}
 \usepackage[
 	pdftitle   ={ELE778 rapport de laboratoire 2.2},
-	pdfsubject ={Detail de l'implementation d'un r\'eseau de Neurones a
+	pdfsubject ={Detail de l'implementation d'un reseau de Neurones a
 		retro-propagation du gradient d'erreur},
 	pdfauthor  ={Liam BEGUIN - Louis LAPORTE},
 	pdfkeywords={Neural network, mini-batch SGD, TiDigits classification},
@@ -643,69 +643,78 @@ for x, y in mini_batch:
 \newpage
 \subsection{Ajustement des hyper-param\`etres}
 % http://neuralnetworksanddeeplearning.com/chap3.html#how_to_choose_a_neural_network's_hyper-parameters
-
 \begin{table}[h]
-  \centering
+	\centering
 
-\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-  \hline
-  dataset & out & activation  & cost & $\Omega$ & $\eta$ & $\lambda$ & iter  & batch & hidden & tr(\%) & va(\%) & test(\%) & t(s)\\
-  \hline
-	50 & 18 & sigmoid & C & L2 & 0.01 & 0.001 & 5 & 10 & 150 & 59 & 53 & 60 & 11 \\
-  \hline
-	50 & 18 & sigmoid & C & L2 & 0.05 & 0.001 & 5 & 10 & 150 & 38 & 34 & 43  & 10\\
-  \hline
-	50	& 18 & sigmoid & C & L2 & 0.1 & 0.001 & 5 & 10 & 150 & 20 & 15 & 24  & 10\\
-  \hline
-	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 5 & 10 & 150 & 9 & 6 & 16  & 10 \\
-  \hline
-	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 20 & 10 & 20 & 3 & 8 & 15 & 10 \\
-  \hline
-	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 3 & 12 & 20 \\
-  \hline
-  \rowcolor{green}
-	40	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 2 & 14 & 20 \\
-  \hline
-	60	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 6 & 12 & 20 \\
-  \hline
-  \rowcolor{green}
-	40	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 1 & 1 & 7 & 20 \\
-   \hline
-	50	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 2 & 1 & 7 & 20 \\
-   \hline
-	60	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 5 & 1 & 9 & 20 \\
-	\hline
-	40	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 12 & 10 & 21 & 40 \\
-	\hline
-	50	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 11 & 8 & 20  & 50\\
-\hline
-	60	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 10 & 13 & 21  & 53\\
-\hline
-	40	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 10  & 15\\
-	\hline
-	50	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 12  & 15\\
-\hline
-	60	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 4 & 1 & 11  & 15\\
-\hline
-	40	& 18 & softplus & Q & L2 & 0.1 & 0.001 & 30 & 10 & 50 & 10 & 6 & 16  & 20\\
-	\hline
-	50	& 18 & softplus & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 15  & 20\\
-\hline
-	60	& 18 & softplus & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 13  & 20\\
-\hline
-	40	& 9 & softplus & Q & L2 & 0.01 & 0.0001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
-	\hline
-	50	& 9 & softplus & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
-\hline
-	60	& 9 & softplus & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 6 & 2 & 9  & 20\\
+	\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline
+		dataset & out & $\sigma$  & cost & $\Omega$ & $\eta$ & $\lambda$ &
+			epoch  & batch & hidden & tr(\%) & va(\%) & test(\%) & t(s)\\
+		\hline
+		50 & 18 & s & C & L2 & 0.01 & 0.001 & 5 & 10 & 150 & 59 & 53 & 60 & 11 \\
+		\hline
+		50 & 18 & s & C & L2 & 0.05 & 0.001 & 5 & 10 & 150 & 38 & 34 & 43  & 10\\
+		\hline
+		50	& 18 & s & C & L2 & 0.1 & 0.001 & 5 & 10 & 150 & 20 & 15 & 24  & 10\\
+		\hline
+		50	& 18 & s & C & L2 & 0.5 & 0.001 & 5 & 10 & 150 & 9 & 6 & 16  & 10 \\
+		\hline
+		50	& 18 & s & C & L2 & 0.5 & 0.001 & 20 & 10 & 20 & 3 & 8 & 15 & 10 \\
+		\hline
+		50	& 18 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 3 & 12 & 20 \\
+		\hline
+		\rowcolor{green}
+		40	& 18 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 2 & 14 & 20 \\
+		\hline
+		60	& 18 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 6 & 12 & 20 \\
+		\hline
+		\rowcolor{green}
+		40	& 9 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 1 & 1 & 7 & 20 \\
+		\hline
+		50	& 9 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 2 & 1 & 7 & 20 \\
+		\hline
+		60	& 9 & s & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 5 & 1 & 9 & 20 \\
+		\hline
+		40	& 18 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 12 & 10 & 21 & 40 \\
+		\hline
+		50	& 18 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 11 & 8 & 20  & 50\\
+		\hline
+		60	& 18 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 10 & 13 & 21  & 53\\
+		\hline
+		40	& 9 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 10  & 15\\
+		\hline
+		50	& 9 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 12  & 15\\
+		\hline
+		60	& 9 & t & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 4 & 1 & 11  & 15\\
+		\hline
+		40	& 18 & sp & Q & L2 & 0.1 & 0.001 & 30 & 10 & 50 & 10 & 6 & 16  & 20\\
+		\hline
+		50	& 18 & sp & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 15  & 20\\
+		\hline
+		60	& 18 & sp & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 13  & 20\\
+		\hline
+		40	& 9 & sp & Q & L2 & 0.01 & 0.0001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
+		\hline
+		50	& 9 & sp & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
+		\hline
+		60	& 9 & sp & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 6 & 2 & 9  & 20\\
 
-  \hline
+		\hline
 \end{tabular}
-  \caption{Tableau r\'ecapitalif des tests effectu\'es sur les hyper-param\`etres }
+  \caption{Tableau r\'ecapitalif des tests effectu\'es sur les
+	hyper-param\`etres sur un {\em i5 dual-core, 2.2GHz} }
 \end{table}
-Pour obtenir la meilleur solution nous avons chercher en premier le {\em learning rate}  qui donnait la plus petite erreur, ensuite nous avons ajust\'e le {\em regularization rate} avec un faible nombre d'epochs, pour finir nous avons ajust\'e le nombre de neurone sur une seule couche cach\'ee. 
-Les valeurs de sortie 18 et 9  repr\'esentent respectivement avec et sans d\'etection de sexe.
-C repre\'esente la m\'ethode de {\em cross-entropy} et Q la m\'ethode {\em quadratic}
+Pour obtenir la meilleur solution nous avons chercher en premier le
+{\em learning rate}  qui donnait la plus petite erreur sur le training set,
+ensuite nous avons
+ajust\'e le {\em regularization rate} avec un faible nombre d'epochs et pour
+finir nous avons ajust\'e le nombre de neurone sur une seule couche cach\'ee.
+Les valeurs de sortie 18 et 9 repr\'esentent respectivement avec et sans
+classification Homme/Femme.
+C repr\'esente la m\'ethode de {\em cross-entropy}, Q la m\'ethode {\em quadratic}
+et s, t, sp sont respectivement les fonctions sigmoid, $\tanh$ et softplus.
+
+\newpage
 \subsection{Inspection du res\'eau}
 Parmis les contraintes obligatoires, il nous est aussi demand\'e de pouvoir
 inspecter les couches cach\'ees du r\'eseau. Pour ce faire, nous tirons parti du
@@ -827,7 +836,7 @@ En utilisant comme r\'ef\'erence une classification de 9 digits en combinaison
 avec une classification Homme/Femme (soit une sortie de 18 neurones) du
 {\em TiDigits} dataset, on obtient un temps d'entrainement de 10 secondes sur un
 {\em i5 dual-core, 2.2GHz} temps qui tombe \`a moins de 2 secondes sur un
-{\em i7 quad-core, 4GHz}. 
+{\em i7 quad-core, 4GHz}.
 
 On remarque aussi une bonne capacit\'e de g\'en\'eralisation avec une erreur
 d'environs 10-15\% sur le set de test apr\`es l'apprentissage.
