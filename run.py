@@ -32,6 +32,22 @@ output_size = len(training_data[0][1])
 
 
 
+    #available_functions = {
+    #        'quadratic': quadratic,
+    #        'cross-entropy': crossentropy
+    #        }
+    #available_functions = {
+    #        'sigmoid' : sigmoid,
+    #        'tanh'    : tanh,
+    #        'softplus': softplus,
+    #        }
+    #available_functions = {
+    #        'none': noreg,
+    #        'L1': l1_reg,
+    #        'L2': weightdecay,
+    #        'weight-decay': weightdecay,
+    #        }
+
 print(" ** Initializing Network...")
 net = network.Network(
         (input_size, 150, output_size),
@@ -49,7 +65,7 @@ if os.path.exists('autoload.save.gz'):
     if net.struct[0] != input_size:
         raise Exception("Autoload conf file does not match your dataset!")
 
-print(net)
+#print(net)
 
 
 
@@ -59,7 +75,7 @@ tr_err, tr_cost, va_err, va_cost = net.train(
         epochs       = 100,
         batch_size   = 10,
         va_d         = validation_data,
-        early_stop_n = 30,
+        early_stop_n = 5,
         monitoring   = {'error':True, 'cost':True},
         )
 
