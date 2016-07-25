@@ -12,7 +12,7 @@ dosummary = True
 #       0 - Print nothing
 #       2 - Print epoch number
 #       3 - Print epoch number and summary
-net_verbose  = 3
+net_verbose  = 2
 
 evalsample         = False
 sample_file        = 'test/woman/nh/5b.txt'
@@ -59,7 +59,7 @@ tr_err, tr_cost, va_err, va_cost = net.train(
         epochs       = 100,
         batch_size   = 10,
         va_d         = validation_data,
-        early_stop_n = 5,
+        early_stop_n = 50,
         monitoring   = {'error':True, 'cost':True},
         )
 
