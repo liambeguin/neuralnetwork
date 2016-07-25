@@ -3,6 +3,7 @@
 * linux
 * python
 * make
+* tar
 * gnuplot
 * numpy    
 * pyyaml
@@ -13,11 +14,14 @@
 * python3-matplotlib-qt5
 
 
+## preparation des datasets
+`$ make prep`
+Cette commande decompresse les fichiers TiDigits.
 
-# Choix 1: ligne de commande 
+## Choix 1: ligne de commande 
 
 configuration du fichier run.py
-## Variables a modifier
+### Variables a modifier
 * verbose = niveau de verbose
 * Si evalsample est a False alors sample_file n'est pas pris en compte 
 * dataset_size = taille du dataset (40,50 ou 60)
@@ -30,11 +34,11 @@ sinon il classifie que les chiffres de 1 a 9.
 * epochs       = nombre d'epochs
 * batch_size   = taille des mini-batchs
 * early_stop_n = arrete si erreur il y un plateau sur l'erreur de validation en faisant la moyenne sur les early_stop_n dernieres valeurs
-## Demarrer le script
+### Demarrer le script
 ```
 $ ./run.py
 ```
-#Choix 2: gui
+##Choix 2: gui
 ```
 $ ./neuralNetworkGui.py
 ```
