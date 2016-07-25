@@ -5,13 +5,10 @@
 \usepackage{multirow}
 \usepackage[
 	pdftitle   ={ELE778 rapport de laboratoire 2.2},
-	pdfsubject ={Detail de l'implementation d'un reseau de Neurones a
+	pdfsubject ={Detail de l'implementation d'un r\'eseau de Neurones a
 		retro-propagation du gradient d'erreur},
 	pdfauthor  ={Liam BEGUIN - Louis LAPORTE},
 	pdfkeywords={Neural network, mini-batch SGD, TiDigits classification},
-	citecolor  ={red},
-	filecolor  ={},
-	urlcolor   =blue,
 ]{hyperref} % Required for links
 \usepackage{enumitem}
 
@@ -28,8 +25,8 @@
 \begin{document}
 \EtsPageGenerate
 \tableofcontents
-% \newpage
 
+\newpage
 \section{Notations et symboles}
 \begin{tabular}{p{1.75cm}p{10cm}}
 	${\bf x}$ & Entr\'ee du r\'eseau, \\
@@ -38,7 +35,7 @@
 	${\bf a} \circ {\bf b}$ & Produit matriciel de
 		\href{https://en.wikipedia.org/wiki/Hadamard_product_(matrices)}
 		{Hadamard}, \\
-	$\epsilon_{\bf x}$ & taux d'erreur lorsque le reseau evalue l'entree ${\bf x}$, \\
+	$\epsilon_{\bf x}$ & taux d'erreur lorsque le r\'eseau evalue l'entree ${\bf x}$, \\
 	$\sigma(z)$ & Fonction d'activation generique, \\
 	$\sigma'(z)$ & Deriv\'ee de la fonction d'activation, \\
 	$C(w, b)$ & Fonction de cout g\'en\'erique, \\
@@ -56,11 +53,11 @@
 
 \section{Introduction}
 Après avoir fait une étape de pré-traitement lors du laboratoire 2.1, nous
-allons maintenant implémenter un reseau de neurones a retro-propagation du
+allons maintenant implémenter un r\'eseau de neurones a retro-propagation du
 gradient d’erreur dans le but de classifier, le plus précisément possible,
 le dataset TiDigits (english spoken digits from 1 to 9).
 
-Pour implémenter ce reseau de neurones, nous utiliserons Python.
+Pour implémenter ce r\'eseau de neurones, nous utiliserons Python.
 Voici une liste d'avantages versus inconvenients qui ont motive notre choix
 pour ce language :
 \begin{itemize}
@@ -73,8 +70,8 @@ pour ce language :
 		\subitem lang interprete donc moins rapide \\
 \end{itemize}
 
-Dans un premier temps, nous entrainerons le reseau sur un set de donnees puis
-nous evaluerons sa capacite a generaliser sur de nouvelles donnees non utilisees
+Dans un premier temps, nous entrainerons le r\'eseau sur un set de donn\'ees puis
+nous evaluerons sa capacite a generaliser sur de nouvelles donn\'ees non utilisees
 lors de l'entrainement.
 
 \section{Implementation du r\'eseau de neurones}
@@ -102,7 +99,7 @@ present sur la couche.
 Pour la couche de sortie, nous utiliserons un vecteur de
 type \emph{one-hot} ou un seul element est actif \`a la fois.
 
-D'autre part, on nous demande aussi que le reseau soit capable d'utiliser
+D'autre part, on nous demande aussi que le r\'eseau soit capable d'utiliser
 differentes fonctions d'activation. Base sur cette contrainte, nous avons
 choisi d'aussi donner a l'utilisateur la possibilite de choisir entre
 differentes fonctions de cout et differentes fonctions de regularization.
@@ -120,9 +117,9 @@ $$
 $$
 On definit donc ${\bf w}^{(l)}$ la matrice de dimension $\Big((l) \times (l-1)\Big)$
 connectant la couche $(l-1)$ \`a la couche $(l)$ cr\'eant ainsi, $(L-1)$ matrices
-de poids sur l'ensemble du reseau. \\
+de poids sur l'ensemble du r\'eseau. \\
 \paragraph{Feedforward:} cette etape propage l'entree a travers l'ensemble du
-reseau et enregistre toutes les variables intermediaires.
+r\'eseau et enregistre toutes les variables intermediaires.
 \begin{equation}
 	\begin{aligned}
 		z_j^{(l)} &= \sum_k^{d^{(l-1)}}{w_{jk}^{(l)} \cdot a_{k}^{(l-1)} + b_{j}^{(l)}\\
@@ -130,7 +127,7 @@ reseau et enregistre toutes les variables intermediaires.
 		{\bf a}_x^{(l)} &= \sigma\left({\bf z}_x^{(l)}\right)\\
 	\end{aligned}
 \end{equation}
-Pour avoir la prediction finale du reseau ${\bf \hat{y}}$, il faut repeter l'etape
+Pour avoir la prediction finale du r\'eseau ${\bf \hat{y}}$, il faut repeter l'etape
 ci-dessus jusqu'a atteindre la sortie o\`u on obtient:
 \begin{equation}
 	\begin{aligned}
@@ -140,7 +137,7 @@ ci-dessus jusqu'a atteindre la sortie o\`u on obtient:
 \end{equation}
 
 \paragraph{La fonction de cout}est la fonction utilisee lors du processus
-d'entrainement pour evaluer l'erreur entre la prediction du reseau
+d'entrainement pour evaluer l'erreur entre la prediction du r\'eseau
 ${\bf \hat{y}}$ et la sortie attendue ${\bf y}$. Les differents fonctions
 disponibles seront detaill\'ees dans la section \ref{cost}.
 Pour la suite, nous l'appelerons de fa\c con generique: $C({\bf w}, {\bf b})$.
@@ -220,7 +217,7 @@ Et sous formes matricielles:
 	\end{aligned}
 \end{equation}
 
-\paragraph{Actualisation des poids:} maintenant que le reseau est en mesure de
+\paragraph{Actualisation des poids:} maintenant que le r\'eseau est en mesure de
 quantifier l'erreur due a chaque neurone, nous pouvons mettre a jour les poids
 \`a l'aide des expressions suivantes:
 \begin{equation}
@@ -245,34 +242,79 @@ quantifier l'erreur due a chaque neurone, nous pouvons mettre a jour les poids
 	apres le traitement}
 \end{figure}
 
-
-Nous nous sommes bas\'es sur la similarit\'e entre la prononciation d'un
-m\^eme chiffre par plusieurs individus, nous avons donc filtr\'e les \'en\'ergies
-statiques et dynamiques afin de pouvoir observer des diff\'erences entre chaque chiffre.
-
-
-Le filtagre consiste \`a utiliser un seuil sur l'\'en\'ergie statique et
-guarder les N valeurs apr\`es et 10 valeurs avant pour obtenir les \'e\'ergies
-dynamiques selon les diff\'erentes attaques lors de la prononciation pour chaque
-individu.
-
-Comme les fichiers n'ont pas les m\^emes tailles nous avons du rajouter des
-z\'eros \`a la fin des courbes afin qu'elles puissent \^etre identique en
-terme de taille. De plus dans le cas o\`u les longueurs ne seraient pas
-identique, il serait impossiblle d'entraineer notre r\'eseau avec un nombre
-de neurone \`a taille variable en entr\'ee.
-L'extraction des donn\'ees a \'et\'e fait pour obtenir 40, 50 ou 60 lignes
-d'\'echantillons par fichier.
+Pour extraire les informations de la base de donn\'ee TiDigits, nous avons
+utilis\'e le code que nous avions d\'evelopp\'e pour la premi\`ere partie du laboratoire.
+Nous nous sommes bas\'es sur les similarit\'es entre la prononciation d'un
+m\^eme chiffre par plusieurs individus. Pour cela, nous avons filtr\'e
+les \'energies statiques et dynamiques afin de pouvoir accentuer les
+propri\'et\'es de chaque chiffre.
 
 
+Le filtrage consiste dans un premier temps \`a utiliser une op\'eration de
+seuillage sur l'\'energie statique afin de detecter le debut du mot et
+d'eliminer tout le {\em blanc} qui se trouve au debut de l'enregistrement.
+La seconde \'etape permet d'aligner le debut de chaque mot en utilisant le
+premier maximum de l'\'energie dynamique.
+Ceci nous permet de ne pas etre trop sensible aux diff\'erences d'attaque
+entre les individus.
+
+Comme tous les fichiers n'ont pas la m\^eme taille, nous avons devons ajouter
+du padding afin que les donn\'ees puissent \^etre utilis\'ees comme
+entr\'ee pour le r\'eseau. En effet, dans le cas o\`u les longueurs ne sont pas
+identique, il est impossible d'alimenter le r\'eseau en raison des differences
+de dimensions sur les produits matriciels.
+D'autre part, dans le but d'ameliorer la vitesse de convergence de
+l'apprentissage et de limiter la complexite du modele, nous avons choisi de ne
+garder que les donn\'ees statiques et de les normaliser (selon chaque colonne).
+
+La fonction d'extraction des donn\'ees {\em extract\_datasets()}
+est con\cc ue pour prendre 2 parametres: le nombre de features d\'esir\'e
+(40, 50, 60, ...) et un bool\'een permettant de choisir si l'on desir ou non
+classifier selon le sex de l'interprete. cette fonction retourne 3 listes:
+un {\em training\_set}, un {\em validation\_set} et un {\em test\_set} o\`u
+chaque element est une combinaison de 2 vecteurs les features {\bf x} et les
+labels {\bf y}.
+
+\lstset{tabsize = 4,
+frame=lines,
+numbers=left,
+captionpos=b,
+caption = {Fonction appele\'e pour extraire les donn\'ees d'un unique fichier},
+language = python,
+basicstyle=\small}
+\begin{lstlisting}
+def extract_sample(file_, size=60, sex=False, out_size=9):
+    # Preprocess file ...
+    x = prep.Preprocessing(file_, size)
+    x.start_point_detection(threshold=0.5, n=10)
+    x.cut_first_max(n=20)
+    x.normalize()
+    x.fit()
+    x.get_subset('static')
+
+    num = int(re.search(r'(?=.*)[0-9](?=.*)', file_).group(0))
+
+    # make a column of the whole array
+    features = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
+
+    if sex:
+        if re.search(r'.*woman.*', file_):
+            labels = vectorize_output( num - 1 + out_size, shape=(out_size*2, 1))
+        else:
+            labels = vectorize_output(num-1, shape=(out_size*2, 1))
+    else:
+        labels = vectorize_output(num-1, shape=(out_size, 1))
+
+    return (features, labels)
+
+\end{lstlisting}
 
 \subsection{Initialisation du r\'eseau}
-Lorsque le reseau est instanci\'e, les parametres tels que $\eta$ et $\lambda$
-sont copi\'es dans l'object
-\emph{Network} et les matrices de poids et de seuils (\emph{weights} et
-\emph{biases}) sont g\'en\'er\'ees. Les dimensions de ces matrices sont
-determin\'ees en fonction du nombre de neurones sur chaque couche et du nombre
-de couches $L$.
+Lorsque le r\'eeseau est instanci\'e, les parametres tels que $\eta$ et $\lambda$
+sont copi\'es dans l'object \emph{Network} et les matrices de poids et de
+seuils (\emph{weights} et \emph{biases}) sont g\'en\'er\'ees. Les dimensions
+de ces matrices sont determin\'ees en fonction du nombre de neurones sur chaque
+couche et du nombre de couches $L$.
 
 
 D'autre part, du fait que la fonction aleatoire utilis\'ee pour l'initialisation
@@ -287,9 +329,6 @@ car :
 		\sigma(z) &= \sqrt{N}
 	\end{aligned}
 \end{equation}
-
-
-
 
 \begin{figure}[htp]
 	\centering
@@ -309,43 +348,33 @@ numbers=left,
 captionpos=b,
 caption = {Initialisation des poids et seuils},
 language = python,
-basicstyle=\small} \\
+basicstyle=\small}
 \begin{lstlisting}
 self.biases  = [ np.random.randn(y, 1) for y in struct[1:] ]
 self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
 				for x, y in zip(struct[:-1], struct[1:]) ]
 \end{lstlisting}
 
-
+\newpage
 \subsection{Fonctions d'activation}
-% sigmoid  -> probability dist
-% tanh     -> soft threshold (linear arround 0 hard threshold far)
-% softplus -> linear above 0
-% add plots
-\paragraph{La fonction sigmoid} est definie de la maniere suivante: \\
+% http://tflearn.org/activations/
+\paragraph{La fonction sigmoid} est la fonctions de r\'ef\'erence dans les r\'eseaux de
+neurones et est definie de la mani\`ere suivante: \\
+\begin{equation}
+	\begin{aligned}
+		\sigma(x)  &= \frac{1}{1+e^{-x}} \\
+		\sigma'(x) &= \sigma(x)(1-\sigma(x))
+	\end{aligned}
+\end{equation}
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.5]{img/act_sigmoid.png}
 	\caption{Representation de la fonction sigmoid (blue) et de sa derivee (vert)}
 \end{figure}
-\begin{equation}
-		\sigma(x)=\frac{1}{1+e^{-x}}
-\end{equation}
 
-et g\'en\'eralis\'ee par : \\
-\begin{equation}
-		\sigma(x)=\frac{1}{1+e^{-\lambda_\sigma x}}
-\end{equation}
-elle permet de d'obtenir des valeurs comprises entre [0;1] \\
-
-Pour la retropropagation nous utilisons ca d\'eriv\'ee :
-\begin{equation}
-		\sigma'(x) = \sigma(x)(1-\sigma(x))
-\end{equation}
-
-
-Cette fonction possede de bonne propri\'et\'es pour le calcul par ordinateur
-car ca derivee peut aussi s'ecrire TODO
+elle permet de d'obtenir une sortie comprise dans l'intervalle [0;1] qui peut
+dans certain cas \^etre assimil\'e \`a une probabilit\'e. C'est principalement
+cette fonction que nous utiliserons.
 
 \lstset{tabsize = 4,
 frame=lines,
@@ -362,21 +391,25 @@ def sigmoid(z, prime=False):
 		return 1.0 / (1.0 + np.exp(np.negative(np.clip(z, -50, 50))))
 \end{lstlisting}
 
-\paragraph{La fonction tangente hyperbolique}($\tanh$) est d\'efinie par:
+\newpage
+\paragraph{La fonction tangente hyperbolique} est aussi tres rependue dans les
+r\'eseau de neurones et permet de definir un {\em soft threshold}. En d'autres termes,
+c'est une version derivable de la fonction de seuil utilisee par le perceptron.
+Elle se comporte comme une fonction lineaire proche de 0 et comme une fonction
+de seuil sur le reste de son ensemble de definition.
+Elle est d\'efinie de la maniere suivante:
+\begin{equation}
+	\begin{aligned}
+		\tanh(x)  &= \frac{\sinh(x)}{\cosh(x)} \\
+		\tanh'(x) &= 1-\tanh^2(x)
+	\end{aligned}
+\end{equation}
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.5]{img/act_tanh.png}
 	\caption{Representation de la fonction tanh (blue) et de sa derivee (vert)}
 \end{figure}
 \begin{equation}
-		\tanh(x)=\frac{\sinh(x)}{\cosh(x)}
-\end{equation}
-
-Elle permet d'obtenir des valeurs comprises entre [-1;1]
-
-Pour la retropropagation nous utilisons ca d\'eriv\'ee :
-\begin{equation}
-		\tanh'(x)=1-\tanh^2(x)
 \end{equation}
 
 \lstset{tabsize = 4,
@@ -394,23 +427,21 @@ def tanh(z, prime=False):
 		return np.tanh(z)
 \end{lstlisting}
 
-
-\paragraph{La fonction Softplus} est d\'efinie par:
+\newpage
+\paragraph{La fonction Softplus} est quant \`a elle beaucoup moins utilisee mais
+semblait interessante au vue de sa simplicite. Elle est d\'efinie de la mani\`ere
+suivante :
+\begin{equation}
+	\begin{aligned}
+		f(x)  &= ln(1+e^x) \\
+		f'(x) &= \frac{1}{1+e^{-x}}
+	\end{aligned}
+\end{equation}
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.5]{img/act_softplus.png}
 	\caption{Representation de la fonction softplus (blue) et de sa derivee (vert)}
 \end{figure}
-\begin{equation}
-		f(x)=ln(1+e^x)
-\end{equation}
-
-Pour la retropropagation nous utilisons ca d\'eriv\'ee :
-
-\begin{equation}
-		f'(x)=\frac{1}{1+e^{-x}}
-\end{equation}equation
-
 \lstset{tabsize = 4,
 frame=lines,
 numbers=left,
@@ -426,16 +457,12 @@ def softplus(z, prime=False):
 		return np.log(1 + np.exp(np.clip(z, -50, 50)))
 \end{lstlisting}
 
-C'est fonction est inspir\'ee de la Sigmoid, cependant elle permet de TODO
 
-
-
-
-\subsection{Fonctions de cout}\label{cost}
-% cross-entropy -> prevent neuron saturation
-Comme ennonce precedemment, nous offrons aussi \`a l'utilisateur la possibilite
-de choisir parmis differentes fonctions de couts, la fonctions que le reseau
-cherche a minimiser en ajustant les poids et seuils des connections.
+\newpage
+\subsection{Fonctions de co\^ut}\label{cost}
+Comme \'ennonc\'e pr\'ec\'edemment, nous offrons aussi \`a l'utilisateur la
+possibilit\'e de choisir parmis diff\'erentes fonctions de co\^uts, soit la fonction
+que le r\'eseau cherche \`a minimiser en ajustant les poids et seuils des connections.
 \paragraph{quadratic} est une
 \href{https://fr.wikipedia.org/wiki/Erreur_quadratique_moyenne}
 {fonction d'erreur quadratique moyenne}. Cete fonction est la plus simple et
@@ -446,11 +473,11 @@ est definie de la maniere suivante:
 		{\bf C'}(w, b) &= \frac{1}{d^{(L)}}\cdot({\bf\hat y} - {\bf y})
 	\end{aligned}
 \end{equation}
-\paragraph{cross-entropy} est la seconde option et est implementee dans le but
-de limiter le phenomene de \emph{learning slowdown} en evitant la saturation des
-neurones. Cette fonction permet au reseau de corriger ses poids plus efficacement
-dans le cas d'une erreur importante. Elle ne peut etre seulement utilisee
-avec une fonction d'activation \emph{sigmoid} et est construite pour annuler la
+\paragraph{cross-entropy} est la seconde option et est implement\'ee dans le but
+de limiter le ph\'enom\`ene de \emph{learning slowdown} en \'evitant la saturation des
+neurones. Cette fonction permet au r\'eseau de corriger ses poids plus efficacement
+dans le cas d'une erreur importante. Elle ne peut \^etre seulement utilis\'ee
+avec une fonction d'activation {\em sigmoid} et est construite pour annuler la
 multiplication par $\sigma'(z)$ dans l'expression de $\boldsymbol\delta^{(L)}$.
 \begin{equation}
 	\begin{aligned}
@@ -463,65 +490,68 @@ NOTE: On remarque ici que les d\'eriv\'ees des deux fonctions sont identiques. E
 revanche, une condition dans le code est ajout\'ee pour supprimer la multiplication
 par $\sigma'(z)$.
 
-
+\newpage
 \subsection{Eviter le sur-ajustement}\label{overfitting}
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.4]{img/overfitting.png}
 	\caption{erreurs sur le set d'entrainement(bleu) et de validation(rouge)}
 \end{figure}
-Le sur-ajustement (\emph{overfitting}) survient lorsque le reseau n'est plus
+Le sur-ajustement (ou {\em overfitting}) survient lorsque le r\'eseau n'est plus
 en train d'apprendre du dataset mais est en train de le m\'emoriser. Ceci se
-traduit par un apprentissage trop sp\'ecifique aux donn\'ees, le reseau est
-donc en train de modeliser le \emph{bruit}. Ceci survient lorsque le mod\`ele
+traduit par un apprentissage trop sp\'ecifique aux donn\'ees, le r\'eseau est
+donc en train de mod\'eliser le {\em bruit}. Ceci survient lorsque le mod\`ele
 (nombre de neurones et couches) est plus complexe que la fonction \`a
-mod\'eliser. Ce sur-apprentissage a des consequences nefastes sur les
-performances du reseau lorsqu'il est confronte a de nouvelles donnees il convient
-donc de le detecter et de le minimiser.
-\paragraph{Validation crois\'ee:} Pour detecter le sur-ajustement, il est
-important de separer le set de donnees en deux une partie pour l'entrainement
-l'autre pour la validation. Plusieurs methodes differentes sont disponibles
-pour determiner comment separer le dataset. Plus on a de donnees dans le set
-d'entrainement plus la prediction sera bonne mais moins on sera capable de
+mod\'eliser. Ce sur-apprentissage \`a des cons\'equences n\'efastes sur les
+performances du r\'eseau au moment de la g\'en\'eralisation, lorsqu'il est
+confront\'e \`a de nouvelles donn\'ees. Il est donc imp\'eratif de le
+d\'etecter et de le minimiser.
+
+\paragraph{Validation crois\'ee:} Pour d\'etecter le sur-ajustement, il est
+important de s\'eparer le set de donn\'ees en deux une partie pour l'entrainement
+l'autre pour la validation. Plusieurs m\'ethodes diff\'erentes sont disponibles
+pour determiner comment s\'eparer le dataset. Plus on \`a de donn\'ees dans le set
+d'entrainement plus la pr\'ediction sera bonne mais moins on sera capable de
 quantifier la capacit\'e de g\'en\'eralisation du r\'eseau et inversement.
 
-Une methode interessante a citer est le \href{http://work.caltech.edu/slides/slides13.pdf}
-{\emph{V-folds} ou \emph{K-folds}} qui permet de maximiser le nombre d'echantillons
-d'entrainement en divisant le set complet en $V$ sous ensembles. Le reseau est
+Une m\'ethode int\'eressante \`a citer est le \href{http://work.caltech.edu/slides/slides13.pdf}
+{\emph{V-folds} ou \emph{K-folds}} qui permet de maximiser le nombre d'\'echantillons
+d'entrainement en divisant le set complet en $V$ sous ensembles. Le r\'eseau est
 ensuite entrain\'e sur tous les sous-ensembles moins un qui est utilis\'e pour la
-validation (le sous-ensemble de validation est choisi aleatoirement et change
-a chaque epoque d'apprentissage). Il faut noter qu'il est important de
-selectionner les echantillons de maniere aleatoire afin de ne pas biaiser
-l'apprentissage du reseau.
+validation (le sous-ensemble de validation est choisi al\'eatoirement et change
+\`a chaque \'epoque d'apprentissage). Il faut noter qu'il est important de
+s\'electionner les \'echantillons de mani\`ere al\'eatoire afin de ne pas biaiser
+l'apprentissage du r\'eseau.
 
-Cependant, notre set de donnees etant deja separe en plusieurs sous-ensembles,
-nous garderons ces methodes comme pistes d'amelioration futures.
+Cependant, notre set de donn\'ees \'etant d\'ej\`a s\'epar\'e en plusieurs sous-ensembles,
+nous garderons ces m\'ethodes comme pistes d'am\'elioration futures.
 
-\paragraph{Detection: }Le sur-ajustement peut etre aisement detecte lorsque
-l'erreur sur le set de validation commence a augmenter tandis que l'erreur sur
-le set d'entrainement continue de decroitre.
-\paragraph{Early stopping} est une methode de limitation du sur-ajustement. Elle
-consiste a monitorer les erreurs au cours de l'entrainement du reseau et
+\paragraph{Detection: }Le sur-ajustement peut etre aisement d\'etect\'e lorsque
+l'erreur sur le set de validation commence \`a augmenter tandis que l'erreur sur
+le set d'entrainement continue de d\'ecroitre.
+
+\paragraph{Early stopping} est une m\'ethode de limitation du sur-ajustement. Elle
+consiste \`a monitorer les erreurs au cours de l'entrainement du r\'eseau et
 de l'interrompre sous certaines conditions(seuil, moyenne glissante, ...).
 
-\paragraph{Les fonctions de r\'egularisation} sont une autre methode permettant
-de limiter le sur-ajustement. Celles-ci ont pour approche de \emph{penaliser}
-la minimisation de la fonction d'erreur dans le but d'ameliorer la capacite de
-generalisation du reseau.
+\paragraph{Les fonctions de r\'egularisation} sont une autre m\'ethode permettant
+de limiter le sur-ajustement. Celles-ci ont pour approche de {\em penaliser}
+la minimisation de la fonction d'erreur dans le but d'am\'eliorer la capacit\'e de
+g\'en\'eralisation du r\'eseau.
 
-Ici, sont implement\'e deux des methodes les plus rependues :
-r\'egularisation \emph{L1} et \emph{L2}. Toute deux visent a limiter
-la magnitude poids dans l'ensemble du reseau.
-Redefinissons la fonction de cout de la maniere suivante:
+Ici, sont implement\'ees deux des m\'ethodes les plus r\'ependues :
+r\'egularisation \emph{L1} et \emph{L2}. Toute deux visent \`a limiter
+la magnitude des poids dans l'ensemble du r\'eseau.
+Red\'efinissons la fonction de co\^ut de la mani\`ere suivante:
 \begin{equation}
 	\begin{aligned}
 		C({\bf w}, {\bf b}) &= C_0({\bf w}, {\bf b}) + \Omega({\bf w})
 	\end{aligned}
 \end{equation}
 
-O\`u $\Omega(w)$ est l'expression generale de la fonction de regularization.
+O\`u $\Omega(w)$ est l'expression g\'en\'erale de la fonction de r\'egularization.
 
-On peut maintenant definir $\Omega({\bf w})$ pour chaque type de regularization:
+On peut maintenant definir $\Omega({\bf w})$ pour chaque type de r\'egularization:
 \begin{equation}
 	\begin{aligned}
 		\Omega_{L1} ({\bf w}) &= \frac{\lambda}{2\cdot d^{(l)}} \cdot \sum{|{\bf w}^{(l)}|}\\
@@ -538,31 +568,32 @@ NOTE: \href{http://work.caltech.edu/slides/slides12.pdf}{La r\'egularisation
 \emph{Tikhonov}} est une forme generalis\'ee de ces approches et permet une
 plus grande flexibilit\'e.
 
+\newpage
 \subsection{Entrainement}
-L'entrainement du reseau est un processus gourmand en calculs et demandant
+L'entrainement du r\'eseau est un processus gourmand en calculs et demandant
 beaucoup de ressources. Il est donc important de bien l'optimiser. Dans ce but,
-nous sommes pass\'es par plusieurs methodes avant d'arriver a la plus optimale.
+nous sommes pass\'es par plusieurs m\'ethodes avant d'arriver \`a la plus optimale.
 
-\paragraph{batch gradient descent} consiste a calculer le gradient en une seule
-iteration sur l'ensemble des echantillons d'entrainement avant de pouvoir
-actualiser les poids. Etant donn\'e que l'entrainement necessite un grand
+\paragraph{batch gradient descent} consiste \`a calculer le gradient en une seule
+it\'eration sur l'ensemble des \'echantillons d'entrainement avant de pouvoir
+actualiser les poids. Etant donn\'e que l'entrainement n\'ecessite un grand
 nombre d'echantillons pour donner des resultats satisfaisant, cette approche
 impose des calculs sur des matrices de {\bf grande} dimensions.
 
-\paragraph{stochastic gradient descent : } contrairement \`a la methode
-precedente, le gradient est ici calcule sur un seul echantillon selectionn\'e
-aleatoirement (d'o\`u son nom). Ceci permet de reduire considerablement le
-cout des calculs et est prouv\'e de converger vers la meme valeur que le
-\emph{batch gradient descent} en montrant que l'esperance mathematique des deux
-versions du gradient sont egales.
+\paragraph{stochastic gradient descent : } contrairement \`a la m\'ethode
+pr\'ec\'edente, le gradient est ici calcul\'e sur un seul \'echantillon selectionn\'e
+al\'eatoirement (d'o\`u son nom). Ceci permet de r\'eduire consid\'erablement le
+co\^ut des calculs et est prouv\'e de converger vers la m\^eme valeur que le
+{\em batch gradient descent} en montrant que l'esp\'erance math\'ematique des deux
+versions du gradient sont \'egales.
 
 \paragraph{Mini-batch stochastic gradient descent} est la m\'ethode impl\'ement\'ee
 dans le r\'eseau. Cette version est une g\'en\'eralisation des deux approches
 pr\'ec\'edentes. Au lieu de selectionner un seul \'el\'ement al\'eatoirement,
 le set d'entrainement est divis\'e en sous ensembles de taille $N$. Il est
-interessant de noter que si $N=1$, on obtient un \emph{stochastic gradient descent}
-standard et si $N$ est egal a la taille du set d'entrainement, on obtient un
-\emph{batch gradient descent}.
+int\'er\'essant de noter que si $N=1$, on obtient un {\em stochastic gradient descent}
+standard et si $N$ est \'egal \`a la taille du set d'entrainement, on obtient un
+{\em batch gradient descent}.
 
 \lstset{tabsize = 4,
 frame=lines,
@@ -570,7 +601,7 @@ numbers=left,
 captionpos=b,
 caption = {division du set ${\bf x}$ en sous-ensembles de taille $N$},
 language = python,
-basicstyle=\small} \\
+basicstyle=\small}
 \begin{lstlisting}
 In [1]: x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 In [2]: N = 2
@@ -578,20 +609,25 @@ In [3]: print zip(*[iter(x)]*N)
 [(1, 2), (3, 4), (5, 6), (7, 8)]
 \end{lstlisting}
 
-Par manque de temps, la backpropagation implement\'ee permet simplement de
-calculer le gradient sur un echantillon unique (un vecteur) et non une matrice
-des $N$ echantillons. Il faut donc sommer les gradients sur tous les elements de
-la mini-batch: $\nabla_bC = \sum_{i}^{N}{{\nabla_bC}_i}$ (idem pour $\nabla_wC$).
+Par manque de temps, la r\'etro-propagation impl\'ement\'ee permet seulement de
+calculer le gradient sur un \'echantillon unique (un vecteur) et non une matrice
+des $N$ \'echantillons. Il faut donc sommer les gradients sur tous les elements de
+la mini-batch:
+$
+		\nabla_wC = \sum_{i}^{N}{{\nabla_wC}_i}
+$ (Idem pour $\nabla_bC$).
 
-Une implementation matricielle permettrait d'am\'eliorer les performances en
-exploitant pleinement les capacit\'es de \emph{numpy} (le module de calcul utilis\'e).
+Une implementation 'enti\`erement' matricielle permettrait d'am\'eliorer encore
+les performances en exploitant pleinement les capacit\'es de \emph{numpy}
+(le module de calcul utilis\'e). Il est aussi int\'eressant de noter que,
+si plusieurs CPU sont disponibles, les calculs seront alors {\bf distribu\'es}.
 \lstset{tabsize = 4,
 frame=lines,
 numbers=left,
 captionpos=b,
 caption = {sommation $N$ des gradients},
 language = python,
-basicstyle=\small} \\
+basicstyle=\small}
 \begin{lstlisting}
 for x, y in mini_batch:
 	# Sum all the gradients over the mini-batch
@@ -601,7 +637,7 @@ for x, y in mini_batch:
 	nabla_wC = np.add(nabla_wC, nabla_wC_i)
 \end{lstlisting}
 
-
+\newpage
 \subsection{Ajustement des hyper-param\`etres}
 % http://neuralnetworksanddeeplearning.com/chap3.html#how_to_choose_a_neural_network's_hyper-parameters
 
@@ -616,64 +652,49 @@ objects {\em Network} sous la forme de fichiers (compress\'es ou non), nous
 pouvons ais\'ement analyser chaque couche (voir annexe \ref{saveload}).
 
 D'autre part, la conception du r\'eseau permetterai, avec peu d'effort, de coupler
-plusieurs objects {\em Network} en un {\em super} reseau.
-Ceci pourrai \^etre fait en impl\'ementant les methodes {\em \_\_add\_\_()}
+plusieurs objects {\em Network} en un {\em super} r\'eseau.
+Ceci pourrai \^etre fait en impl\'ementant les m\'ethodes {\em \_\_add\_\_()}
 et {\em \_\_getslice\_\_()} pour respectivement concat\'ener et couper des objects
 {\em Network}.
 
 N'ayant pas eu besoin de ces op\'erations, ces m\'ethodes n'ont
 cependant pas \'et\'e impl\'ement\'ees.
 
+\newpage
 \section{Interface graphique}
-L'interface graphique permet de choisir de definir les parametres du reseaux
-pour afficher ensuite les graphiques des TODO
-\subsection{Structure}
-La GUI est compos\'ee de 4 couches.
-\paragraph{Menu}
-L'application poss\'ede un menu permettant de charger un fichier de
-configuration et de sauvegarder les param\`etres actuel du r\'eseau ou de
-faire un 'reset' du r\'eseau.
-\paragraph{Param\`etres d'activation}
-Sur cette couche de l'application on peut retrouver les fonctions
-d'activations, de regularisations, de couts.\\
+{\color{red}
+L'interface graphique permet de choisir de definir les parametres du r\'eseaux
+pour afficher ensuite les graphiques des TODO}
+\paragraph{Menu} L'application poss\'ede un menu permettant de charger un
+fichier de configuration et de sauvegarder les param\`etres actuel du r\'eseau
+ou de faire un 'reset' du r\'eseau.
+
+\paragraph{Param\`etres d'activation} Sur cette couche de l'application on
+peut retrouver les fonctions d'activations, de regularisations, de couts.
 Il est aussi possible de r\'egler les taux d'apprentissages et de
-regularisations.
+regularisations. Il faut dans un premier temps charger les donn\'ees, ensuite il faut choisir
+les param\`etres sur lesquels on veut jouer et appuyer sur play afin de les
+mettre \`a jour. Pour finir il faut cliquer sur training.
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.4]{img/parametersLayer.png}
 	\caption{Affichage des param\`etres d'activation}
-\end{figure} \\
+\end{figure}
 
-Il faut dans un premier temps charger les donn\'ees, ensuite il faut choisir
-les param\`etres sur lesquels on veut jouer et appuyer sur play afin de les
-mettre \`a jour. Pour finir il faut cliquer sur training.\\
+\paragraph{Choix des couches} La seconde couche permet de choisir les 3 types
+de set de base de donn\'ees pour la couche d'entr\'ee (40,50,60 features), le
+nombre de couches cach\'ees et le nombres de sortie du r\'eseau. Il est aussi
+possible de choisir de d\'etecter le sexe de la personne ainsi que de choisir
+un facteur multiplicatif pour la cr\'eation des neurones.
 
-\paragraph{Choix des couches}
-La seconde couche permet de choisir les 3 types de set de base de donn\'ees
-pour la couche d'entr\'ee (40,50,60 features), le nombre de couches cach\'ees
-et le nombres de sortie du r\'eseau. Il est aussi possible de choisir de
-d\'etecter le sexe de la personne ainsi que de choisir un facteur
-multiplicatif pour la cr\'eation des neurones.
+\paragraph{Choix du nombre de neurone} Cette troisi\`eme couche permet de
+choisir un nombre de neurone illimit\'e pour chacune des couches du r\'eseau.
 
-\paragraph{Choix du nombre de neurone}
-Cette troisi\`eme couche permet de choisir un nombre de neurone illimit\'e
-pour chacune des couches du r\'eseau.
-\paragraph{Affichage du r\'eseau}
-Cette derni\`ere couche permet de naviguer entre 2 'Tab' afin de visualiser le
-r\'eseau ou les erreurs et les couts de validation et d'entrainement.\\
-\begin{figure}[htp]
-	\centering
-	\includegraphics[scale=.25]{img/NetworkGraphics.png}
-	\caption{Affichage du r\'eseau}
-\end{figure} \\
-
-\paragraph{Affichage des couts et des erreurs}
-L'affichage ce fait pendant que le r\'eseau est entrain de de s'entrainer.
-\begin{figure}[htp]
-	\centering
-	\includegraphics[scale=.25]{img/courbe.png}
-	\caption{Affichage des courbes d'erreur et de co\^ut}
-\end{figure} \\
+\paragraph{Affichage du r\'eseau} Cette derni\`ere couche permet de naviguer
+entre 2 'Tab' afin de visualiser le r\'eseau ou les erreurs et les couts de
+validation et d'entrainement (voir \ref{guinet} en annexe \ref{gui}).
+\paragraph{L'affichage des couts et des erreurs} ce fait pendant que le
+r\'eseau est entrain de de s'entrainer(voir \ref{guierr} en annexe \ref{gui}).
 
 \subsection{Navigation}
 Par d\'efault le r\'esau est configur\'e avec un taux d'apprentissage de 0.5,
@@ -687,10 +708,10 @@ de respectivement de d\'emarrer l'entrainement du r\'eseau ou de le stopper.
 
 \section{Discussions}
 \subsection{Problemes rencontr\'es}
-Lors de l'entrainement du reseau, nous avons d'abord ete confronte a de tres
+Lors de l'entrainement du r\'eseau, nous avons d'abord ete confronte a de tres
 mauvaises performances. Nous avons initialement pense que notre pr\'e-traitement
 etait inefficace voir destructeur. En analysant les performances plus en detail,
-nous nous sommes apercu que le reseau etait moins performant que si nous lui
+nous nous sommes apercu que le r\'eseau etait moins performant que si nous lui
 faisions faire des predictions aleatoires
 $\epsilon_{\bf x} \ge \left (1 - \frac{1}{9} = 88.9\% \right)$.
 Ce qui est impossible et sugg\`ere que notre \'evaluation du cout \'etait fausse.
@@ -750,7 +771,7 @@ numbers=none,
 captionpos=b,
 caption = {Sauvegarde et chargement interactif d'une configuration},
 language = python,
-basicstyle=\small} \\
+basicstyle=\small}
 \begin{lstlisting}
 In [1]: import network as n
 In [2]: my_net = n.Network([3, 4, 2], activation='sigmoid',
@@ -805,7 +826,7 @@ numbers=none,
 captionpos=b,
 caption = {Exemple d'inspection interactive d'un r\'eseau de neurones},
 language = python,
-basicstyle=\small} \\
+basicstyle=\small}
 \begin{lstlisting}
 In [1]: import network as n
 In [2]: my_net = n.Network((1, 2))
@@ -848,6 +869,22 @@ weights:
   - [-0.44994897980803156, -0.5711377657299319, -0.3736959026341852,
 		-0.002455368584577519]
 \end{lstlisting}
+
+\section{Visuels de l'interface graphique} \label{gui}
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.27]{img/NetworkGraphics.png}
+	\caption{Repr\'esentation visuelle du r\'eseau}
+	\label{guinet}
+\end{figure}
+
+\begin{figure}[htp]
+	\centering
+	\includegraphics[scale=.27]{img/courbe.png}
+	\caption{Affichage des courbes d'erreur et de co\^ut}
+	\label{guierr}
+\end{figure}
+
 
 \end{document}
 % vim: cc=80 :
