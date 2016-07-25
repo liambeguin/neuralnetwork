@@ -4,22 +4,22 @@
 * python
 * make
 * gnuplot
-    
-## Preprocessing
-Pour generer tous les fichiers de sortie executer la commande make:
-```
-$ make
-```
-Pour generer seulement les fichiers text executer:
-```
-$ make prep
-```
+
+* numpy    
+* pyyaml
+* matplotlib
+* re 
+* fnmatch
+* python3-qt5
+* python3-matplotlib-qt5
+
+
 * Les fichiers .txt de sorties se trouvent dans le repertoire `out/train` 
 * Les courbes pour chaque chiffre se trouvent dans le repertoire `plot/comp`
 lancer en ligne de commande:
-## Etape 1
+# Etape 1
 configuration du fichier run.py
-### Variables a modifier
+## Variables a modifier
 * verbose = niveau de verbose
 * Si evalsample est a False alors sample_file n'est pas pris en compte 
 * dataset_size = taille du dataset (40,50 ou 60)
@@ -31,6 +31,4 @@ sinon il classifie que les chiffres de 1 a 9.
 
 epochs       = nombre d'epochs
 batch_size   = taille des mini-batchs
-early_stop_n =
-
-
+early_stop_n = arrete si erreur il y un plateau sur l'erreur de validation en faisant la moyenne sur les early_stop_n dernieres valeurs
