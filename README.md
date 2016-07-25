@@ -4,7 +4,6 @@
 * python
 * make
 * gnuplot
-
 * numpy    
 * pyyaml
 * matplotlib
@@ -14,10 +13,9 @@
 * python3-matplotlib-qt5
 
 
-* Les fichiers .txt de sorties se trouvent dans le repertoire `out/train` 
-* Les courbes pour chaque chiffre se trouvent dans le repertoire `plot/comp`
-lancer en ligne de commande:
-# Etape 1
+
+# Choix 1: ligne de commande 
+
 configuration du fichier run.py
 ## Variables a modifier
 * verbose = niveau de verbose
@@ -25,10 +23,24 @@ configuration du fichier run.py
 * dataset_size = taille du dataset (40,50 ou 60)
 * Si sex_classification est a True alors le reseau classifie les chiffres selon homme et femme
 sinon il classifie que les chiffres de 1 a 9.
-* La fonction d'activation 'sigmoid' ne peut prendre que la fonction cost = 'cross-entropy'.
-  Les fonctions d'activation 'tanh' et 'softplus' ne peuvent prendre que cost = 'quadratic' 
-* Les fonctions d'activations dissponible sont : 'L2', 'L1','none', 'self-decay'
+* Les fonction d'activations disponibles sont 'sigmoid','tanh' ou 'sotplus'
+* Les fonctions de cout disponibles sont 'quadratic','cross-entropy'. 
+* Les fonctions de regularisation disponibles sont : 'L2', 'L1','none'
 
-epochs       = nombre d'epochs
-batch_size   = taille des mini-batchs
-early_stop_n = arrete si erreur il y un plateau sur l'erreur de validation en faisant la moyenne sur les early_stop_n dernieres valeurs
+* epochs       = nombre d'epochs
+* batch_size   = taille des mini-batchs
+* early_stop_n = arrete si erreur il y un plateau sur l'erreur de validation en faisant la moyenne sur les early_stop_n dernieres valeurs
+## Demarrer le script
+```
+$ ./run.py
+```
+#Choix 2: gui
+```
+$ ./neuralNetworkGui.py
+```
+* 1) Appuyer sur l'icon Load (Attendre la fin du chargement)
+* 2) Faire la selection des parametres
+* 3) Appuyer l'icon play 
+* 4) Appuyer l'icon train
+
+Note: Les boutons du menu ne sont pas fonctionnels (save, load et reset)
