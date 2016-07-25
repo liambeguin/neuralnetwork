@@ -2,7 +2,7 @@
 \input{ets_page.tex}
 
 \usepackage{graphicx}
-\usepackage{multirow}
+%\usepackage{multirow}
 \usepackage[
 	pdftitle   ={ELE778 rapport de laboratoire 2.2},
 	pdfsubject ={Detail de l'implementation d'un r\'eseau de Neurones a
@@ -58,39 +58,39 @@ gradient d’erreur dans le but de classifier, le plus précisément possible,
 le dataset TiDigits (english spoken digits from 1 to 9).
 
 Pour implémenter ce r\'eseau de neurones, nous utiliserons Python.
-Voici une liste d'avantages versus inconvenients qui ont motive notre choix
+Voici une liste d'avantages versus inconv\'enients qui ont motiv\'e notre choix
 pour ce language :
 \begin{itemize}
 	\item avantages:
 		\subitem rapidite de developpement
-		\subitem lang interprete, pas de compilation
+		\subitem language interpr\'et\'e, pas de compilation
 		\subitem modules de calcul matriciel performants
 		\subitem language accessible
 	\item inconvenients:
-		\subitem lang interprete donc moins rapide \\
+		\subitem language interpr\'et\'e donc moins rapide \\
 \end{itemize}
 
 Dans un premier temps, nous entrainerons le r\'eseau sur un set de donn\'ees puis
-nous evaluerons sa capacite a generaliser sur de nouvelles donn\'ees non utilisees
+nous \'evaluerons sa capacit\'e a g\'en\'eraliser sur de nouvelles donn\'ees non utilis\'ees
 lors de l'entrainement.
 
-\section{Implementation du r\'eseau de neurones}
+\section{Impl\'ementation du r\'eseau de neurones}
 \subsection{Architecture globale}
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.5]{img/neuron.png}
 	\caption{Repr\'esentation symbolique d'un neurone.}
-\end{figure} \\
+\end{figure} 
 
 Comme dit en introduction, Nous allons impl\'ementer un r\'eseau de neurones a
 r\'etro-propagation du gradient d'erreur. Ici, nous \'enoncerons les notations et
 \'equations g\'en\'eriques utilis\'ees au sein du r\'eseau.
 
-La majorit\'e des calculs sont effectues sous forme matricielle afin de simplifier
+La majorit\'e des calculs sont effectu\'es sous forme matricielle afin de simplifier
 et g\'en\'eraliser les \'equations mais aussi de mieux tirer avantage des ressources
 de calcul disponibles.
 
-Etant donne que le r\'eseau doit \^etre tr\`es flexible quant au nombre de
+\'Etant donn\'e que le r\'eseau doit \^etre tr\`es flexible quant au nombre de
 couches et au nombre de neurones, nous utiliserons un tuple (une liste
 invariante) pour instancier le r\'eseau.
 Chaque \'el\'ement de la liste repr\'esente une couche du r\'eseau
@@ -102,7 +102,7 @@ type \emph{one-hot} ou un seul element est actif \`a la fois.
 D'autre part, on nous demande aussi que le r\'eseau soit capable d'utiliser
 differentes fonctions d'activation. Base sur cette contrainte, nous avons
 choisi d'aussi donner a l'utilisateur la possibilite de choisir entre
-differentes fonctions de cout et differentes fonctions de regularization.
+differentes fonctions de cout et differentes fonctions de r\'egularisation.
 
 \paragraph{Notations: }Soit, $w_{jk}^{(l)}$ le poid connectant le neurone $k$
 de la couche $(l-1)$ au neurone $j$ de la couche $(l)$, o\`u :
@@ -115,20 +115,20 @@ $$
 	\end{aligned}
 \right .
 $$
-On definit donc ${\bf w}^{(l)}$ la matrice de dimension $\Big((l) \times (l-1)\Big)$
+On d\'efinit donc ${\bf w}^{(l)}$ la matrice de dimension $\Big((l) \times (l-1)\Big)$
 connectant la couche $(l-1)$ \`a la couche $(l)$ cr\'eant ainsi, $(L-1)$ matrices
 de poids sur l'ensemble du r\'eseau. \\
-\paragraph{Feedforward:} cette etape propage l'entree a travers l'ensemble du
+\paragraph{Feedforward:} cette \'etape propage l'entr\'ee a travers l'ensemble du
 r\'eseau et enregistre toutes les variables intermediaires.
 \begin{equation}
 	\begin{aligned}
-		z_j^{(l)} &= \sum_k^{d^{(l-1)}}{w_{jk}^{(l)} \cdot a_{k}^{(l-1)} + b_{j}^{(l)}\\
+		z_j^{(l)} &= \sum_k^{d^{(l-1)}{w_{jk}^{(l)}}} \cdot a_{k}^{(l-1)} + b_{j}^{(l)}\\
 		{\bf z}_x^{(l)} &= {\bf w}^{(l)} \cdot {\bf a}_x^{(l-1)} + {\bf b}^{(l)}\\
 		{\bf a}_x^{(l)} &= \sigma\left({\bf z}_x^{(l)}\right)\\
 	\end{aligned}
 \end{equation}
-Pour avoir la prediction finale du r\'eseau ${\bf \hat{y}}$, il faut repeter l'etape
-ci-dessus jusqu'a atteindre la sortie o\`u on obtient:
+Pour avoir la pr\'ediction finale du r\'eseau ${\bf \hat{y}}$, il faut r\'ep\'eter l'\'etape
+ci-dessus jusqu'\`a atteindre la sortie o\`u on obtient:
 \begin{equation}
 	\begin{aligned}
 		{\bf z}_x^{(L)} &= {\bf w}^{(L)} \cdot {\bf a}_x^{(L-1)} + {\bf b}^{(L)}\\
@@ -136,21 +136,21 @@ ci-dessus jusqu'a atteindre la sortie o\`u on obtient:
 	\end{aligned}
 \end{equation}
 
-\paragraph{La fonction de cout}est la fonction utilisee lors du processus
-d'entrainement pour evaluer l'erreur entre la prediction du r\'eseau
-${\bf \hat{y}}$ et la sortie attendue ${\bf y}$. Les differents fonctions
+\paragraph{La fonction de cout}est la fonction utilis\'ee lors du processus
+d'entrainement pour \'evaluer l'erreur entre la pr\'ediction du r\'eseau
+${\bf \hat{y}}$ et la sortie attendue ${\bf y}$. Les diff\'erents fonctions
 disponibles seront detaill\'ees dans la section \ref{cost}.
 Pour la suite, nous l'appelerons de fa\c con generique: $C({\bf w}, {\bf b})$.
 
 \paragraph{La fonction de regularization}est la fonction utilisee lors du processus
 d'entrainement pour p\'enaliser la minimisation de la fonction de cout. Ceci sera
 couvert plus en detail dans la section \ref{overfitting}.
-Pour la suite, nous l'appelerons de fa\c con generique: $\Omega({\bf w})$.
+Pour la suite, nous l'appelerons de fa\c con g\'en\'erique: $\Omega({\bf w})$.
 
 \paragraph{retro-propagation:} Cette \'etape calcule l'impacte de chaque poids
 (et seuil) sur l'erreur finale. Pour obtenir l'erreur $\delta_j^l$ due au neurone
-$j$ de la couche $l$, il faut propager l'erreur de la sortie vers l'entree
-avec les equations suivantes:
+$j$ de la couche $l$, il faut propager l'erreur de la sortie vers l'entr\'ee
+avec les \'equations suivantes:
 
 \begin{equation}
 	\begin{aligned}
@@ -162,7 +162,7 @@ avec les equations suivantes:
 	\end{aligned}
 \end{equation}
 
-De la m\^eme mani\`ere, on definit une notation recursive:
+De la m\^eme mani\`ere, on d\'efinit une notation r\'ecursive:
 \begin{equation}
 	\begin{aligned}
 		\delta_j^{(l)} &= \frac{\partial C}{\partial z_j^{(l)}} =
@@ -173,7 +173,7 @@ De la m\^eme mani\`ere, on definit une notation recursive:
 \end{equation}
 Or,
 $$
-	z_k^{(l+1)} &= \sum_j^{d^{(l)}}{w_{jk}^{(l+1)}\cdot a_j^{(l)} + b_k^{(l+1)}}\\
+	z_k^{(l+1)} = \sum_j^{d^{(l)}}{w_{jk}^{(l+1)}\cdot a_j^{(l)} + b_k^{(l+1)}}\\
 $$
 Donc,
 $$
@@ -238,8 +238,8 @@ quantifier l'erreur due a chaque neurone, nous pouvons mettre a jour les poids
 \begin{figure}[h]
 	\centering
 	\includegraphics[scale=.3]{img/preprocessing.png}
-	\caption{Representation des energies statiques et dynamiques avant et
-	apres le traitement}
+	\caption{Repr\'esentation des \'en\'ergies statiques et dynamiques avant et
+	apr\`es le traitement}
 \end{figure}
 
 Pour extraire les informations de la base de donn\'ee TiDigits, nous avons
@@ -251,28 +251,28 @@ propri\'et\'es de chaque chiffre.
 
 
 Le filtrage consiste dans un premier temps \`a utiliser une op\'eration de
-seuillage sur l'\'energie statique afin de detecter le debut du mot et
-d'eliminer tout le {\em blanc} qui se trouve au debut de l'enregistrement.
-La seconde \'etape permet d'aligner le debut de chaque mot en utilisant le
+seuillage sur l'\'energie statique afin de d'\'et\'ecter le d\'ebut du mot et
+d'\'eliminer tout le {\em blanc} qui se trouve au d\'ebut de l'enregistrement.
+La seconde \'etape permet d'aligner le d\'ebut de chaque mot en utilisant le
 premier maximum de l'\'energie dynamique.
-Ceci nous permet de ne pas etre trop sensible aux diff\'erences d'attaque
+Ceci nous permet de ne pas \^etre trop sensible aux diff\'erences d'attaque
 entre les individus.
 
-Comme tous les fichiers n'ont pas la m\^eme taille, nous avons devons ajouter
+Comme tous les fichiers n'ont pas la m\^eme taille, nous devons ajouter
 du padding afin que les donn\'ees puissent \^etre utilis\'ees comme
 entr\'ee pour le r\'eseau. En effet, dans le cas o\`u les longueurs ne sont pas
-identique, il est impossible d'alimenter le r\'eseau en raison des differences
+identiques, il est impossible d'alimenter le r\'eseau en raison des diff\'erences
 de dimensions sur les produits matriciels.
-D'autre part, dans le but d'ameliorer la vitesse de convergence de
-l'apprentissage et de limiter la complexite du modele, nous avons choisi de ne
+D'autre part, dans le but d'am\'eliorer la vitesse de convergence de
+l'apprentissage et de limiter la complexit\'e du mod\`ele, nous avons choisi de ne
 garder que les donn\'ees statiques et de les normaliser (selon chaque colonne).
 
 La fonction d'extraction des donn\'ees {\em extract\_datasets()}
-est con\cc ue pour prendre 2 parametres: le nombre de features d\'esir\'e
+est con\c{c}ue pour prendre 2 param\`etres: le nombre de features d\'esir\'e
 (40, 50, 60, ...) et un bool\'een permettant de choisir si l'on desir ou non
-classifier selon le sex de l'interprete. cette fonction retourne 3 listes:
+classifier selon le sexe de l'interpr\`ete. cette fonction retourne 3 listes:
 un {\em training\_set}, un {\em validation\_set} et un {\em test\_set} o\`u
-chaque element est une combinaison de 2 vecteurs les features {\bf x} et les
+chaque \'el\'ement est une combinaison de 2 vecteurs les features {\bf x} et les
 labels {\bf y}.
 
 \lstset{tabsize = 4,
@@ -310,16 +310,16 @@ def extract_sample(file_, size=60, sex=False, out_size=9):
 \end{lstlisting}
 
 \subsection{Initialisation du r\'eseau}
-Lorsque le r\'eeseau est instanci\'e, les parametres tels que $\eta$ et $\lambda$
+Lorsque le r\'eseau est instanci\'e, les param\`etres tels que $\eta$ et $\lambda$
 sont copi\'es dans l'object \emph{Network} et les matrices de poids et de
 seuils (\emph{weights} et \emph{biases}) sont g\'en\'er\'ees. Les dimensions
 de ces matrices sont determin\'ees en fonction du nombre de neurones sur chaque
 couche et du nombre de couches $L$.
 
 
-D'autre part, du fait que la fonction aleatoire utilis\'ee pour l'initialisation
-des poids donne une distribution avec les parametres suivants $\mu=0$ et $\sigma=1$,
-l'initialisation des poids a tendance a saturer les neurones et ralentire l'apprentissage.
+D'autre part, du fait que la fonction al\'eatoire utilis\'ee pour l'initialisation
+des poids donne une distribution avec les param\`etres suivants $\mu=0$ et $\sigma=1$,
+l'initialisation des poids a tendance \`a saturer les neurones et ralentire l'apprentissage.
 car :
 \begin{equation}
 	\begin{aligned}
@@ -335,11 +335,11 @@ car :
 	\includegraphics[scale=.5]{img/sigmoid_sat.png}
 	\caption{Visualisation de la saturation de la fonction \emph{sigmoid} si
 	$|z| \ge 5$.}
-\end{figure} \\
+\end{figure}
 
 Pour contrer cette saturation et donc accelerer les premi\`eres \'epoques
 d'apprentissage, nous utiliserons une distribution plus \'etroite avec les
-parametres $\mu=0$ et $\sigma =1/\sqrt{N}$ \\
+param\`etres $\mu=0$ et $\sigma =1/\sqrt{N}$ \\
 
 
 \lstset{tabsize = 4,
@@ -359,7 +359,7 @@ self.weights = [ np.random.randn(y, x) / np.sqrt(x) \
 \subsection{Fonctions d'activation}
 % http://tflearn.org/activations/
 \paragraph{La fonction sigmoid} est la fonctions de r\'ef\'erence dans les r\'eseaux de
-neurones et est definie de la mani\`ere suivante: \\
+neurones et elle est definie de la mani\`ere suivante: \\
 \begin{equation}
 	\begin{aligned}
 		\sigma(x)  &= \frac{1}{1+e^{-x}} \\
@@ -395,9 +395,9 @@ def sigmoid(z, prime=False):
 \paragraph{La fonction tangente hyperbolique} est aussi tres rependue dans les
 r\'eseau de neurones et permet de definir un {\em soft threshold}. En d'autres termes,
 c'est une version derivable de la fonction de seuil utilisee par le perceptron.
-Elle se comporte comme une fonction lineaire proche de 0 et comme une fonction
-de seuil sur le reste de son ensemble de definition.
-Elle est d\'efinie de la maniere suivante:
+Elle se comporte comme une fonction lin\'eaire proche de 0 et comme une fonction
+de seuil sur le reste de son ensemble de d\'efinition.
+Elle est d\'efinie de la mani\`ere suivante:
 \begin{equation}
 	\begin{aligned}
 		\tanh(x)  &= \frac{\sinh(x)}{\cosh(x)} \\
@@ -407,7 +407,7 @@ Elle est d\'efinie de la maniere suivante:
 \begin{figure}[htp]
 	\centering
 	\includegraphics[scale=.5]{img/act_tanh.png}
-	\caption{Representation de la fonction tanh (blue) et de sa derivee (vert)}
+	\caption{Repr\`esentation de la fonction tanh (blue) et de sa deriv\'ee (vert)}
 \end{figure}
 \begin{equation}
 \end{equation}
@@ -416,7 +416,7 @@ Elle est d\'efinie de la maniere suivante:
 frame=lines,
 numbers=left,
 captionpos=b,
-caption = {D\'efinition de la fonction tanh et de sa derivee},
+caption = {D\'efinition de la fonction tanh et de sa deriv\'ee},
 language = python,
 basicstyle=\small}
 \begin{lstlisting}
@@ -428,8 +428,8 @@ def tanh(z, prime=False):
 \end{lstlisting}
 
 \newpage
-\paragraph{La fonction Softplus} est quant \`a elle beaucoup moins utilisee mais
-semblait interessante au vue de sa simplicite. Elle est d\'efinie de la mani\`ere
+\paragraph{La fonction Softplus} est quant \`a elle beaucoup moins utilis\'ee mais
+semblait int\'eressante au vue de sa simplicit\'e. Elle est d\'efinie de la mani\`ere
 suivante :
 \begin{equation}
 	\begin{aligned}
@@ -510,7 +510,7 @@ d\'etecter et de le minimiser.
 \paragraph{Validation crois\'ee:} Pour d\'etecter le sur-ajustement, il est
 important de s\'eparer le set de donn\'ees en deux une partie pour l'entrainement
 l'autre pour la validation. Plusieurs m\'ethodes diff\'erentes sont disponibles
-pour determiner comment s\'eparer le dataset. Plus on \`a de donn\'ees dans le set
+pour d\'eterminer comment s\'eparer le dataset. Plus on \`a de donn\'ees dans le set
 d'entrainement plus la pr\'ediction sera bonne mais moins on sera capable de
 quantifier la capacit\'e de g\'en\'eralisation du r\'eseau et inversement.
 
@@ -535,7 +535,7 @@ consiste \`a monitorer les erreurs au cours de l'entrainement du r\'eseau et
 de l'interrompre sous certaines conditions(seuil, moyenne glissante, ...).
 
 \paragraph{Les fonctions de r\'egularisation} sont une autre m\'ethode permettant
-de limiter le sur-ajustement. Celles-ci ont pour approche de {\em penaliser}
+de limiter le sur-ajustement. Celles-ci ont pour approche de {\em p\'enaliser}
 la minimisation de la fonction d'erreur dans le but d'am\'eliorer la capacit\'e de
 g\'en\'eralisation du r\'eseau.
 
@@ -611,13 +611,13 @@ In [3]: print zip(*[iter(x)]*N)
 
 Par manque de temps, la r\'etro-propagation impl\'ement\'ee permet seulement de
 calculer le gradient sur un \'echantillon unique (un vecteur) et non une matrice
-des $N$ \'echantillons. Il faut donc sommer les gradients sur tous les elements de
+des $N$ \'echantillons. Il faut donc sommer les gradients sur tous les \'el\'ements de
 la mini-batch:
 $
 		\nabla_wC = \sum_{i}^{N}{{\nabla_wC}_i}
 $ (Idem pour $\nabla_bC$).
 
-Une implementation 'enti\`erement' matricielle permettrait d'am\'eliorer encore
+Une impl\'em\'entation 'enti\`erement' matricielle permettrait d'am\'eliorer encore
 les performances en exploitant pleinement les capacit\'es de \emph{numpy}
 (le module de calcul utilis\'e). Il est aussi int\'eressant de noter que,
 si plusieurs CPU sont disponibles, les calculs seront alors {\bf distribu\'es}.
@@ -662,9 +662,9 @@ cependant pas \'et\'e impl\'ement\'ees.
 
 \newpage
 \section{Interface graphique}
-{\color{red}
+
 L'interface graphique permet de choisir de definir les parametres du r\'eseaux
-pour afficher ensuite les graphiques des TODO}
+pour afficher le r\'eseau ainsi que les courbes d'erreur et de cout.
 \paragraph{Menu} L'application poss\'ede un menu permettant de charger un
 fichier de configuration et de sauvegarder les param\`etres actuel du r\'eseau
 ou de faire un 'reset' du r\'eseau.
