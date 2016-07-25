@@ -25,7 +25,7 @@ from PyQt5 import QtCore, QtWidgets,QtGui
 from PyQt5.QtCore import QObject,QThread, Qt,pyqtSignal,pyqtSlot
 utils.set_level(3)
 # NOTE: This allows us to always use the same random numbers. used for debug
-np.random.seed(1)
+# np.random.seed(1)
 
 
 
@@ -46,10 +46,10 @@ class Network:
 
     def __init__(self, struct, \
             activation='sigmoid', cost='quadratic', regularization='none', \
-            learning_rate=3.0, momentum=0.5, lambda_=0.1):
-        """Generate the network's architecture based on a list.
-
-        ex: [2, 3, 1]
+            learning_rate=3.0, lambda_=0.1,
+            verbose=3):
+        """Generate a neural network based on a tuple of integers.
+        ex: (2, 3, 1)
         this will generate a 2 layer network with 2 input, 3 neurons on the
         hidden layer and one output.
 
@@ -57,22 +57,33 @@ class Network:
         inputs of the network
 
         notation:
-        we'll use w^l_{jk} to denote the weight of the connection from the k^th
-        neuron in the (l-1)^th layer to the j^th neuron in the l^th layer
-         * `lambda_` is the regularization parameter.
+        we'll use w^(l)_{jk} to denote the weight of the connection from
+        the k^{th} neuron in the (l-1)^{th} layer to the j^{th} neuron in
+        the l^{th} layer.
+
+        parameters:
+         * activation     : type of activation function,
+         * cost           : type of cost function,
+         * regularization : type of regularization function,
+         * learning_rate  : \eta, learning rate parameter,
+         * lambda_        : \lambda, regularization parameter.
+         * verbose        : Verbose level.
         """
 
         if cost == 'cross-entropy' and activation != 'sigmoid':
-            raise Exception("cross-entropy can only be used with a sigmoid activation")
+            raise Exception("cross-entropy can only be used with" +
+            " a sigmoid activation")
 
         self.n_layers = len(struct)
-        self.struct = struct
-        self.regularization = RegularizationFunction(func=regularization)
+        self.struct   = struct
+        self.verbose  = verbose
+
+        self.lambda_ = lambda_
+        self.eta     = learning_rate
+
+        self.regularization = RegularizationFunction(func=regularization, lambda_=lambda_)
         self.activation     = ActivationFunction(func=activation)
         self.cost           = CostFunction(func=cost)
-        self.eta     = learning_rate
-        self.alpha   = momentum
-        self.lambda_ = lambda_
 
         self.a = [ np.random.randn(layer,1) for layer in struct ]
         self.z = [ np.random.randn(layer,1) for layer in struct ]
@@ -88,7 +99,10 @@ class Network:
         """Returns a representation of the Network."""
         ret  = "Neural Network      : {}\n".format(self.struct)
         ret += "Activation function : {}\n".format(self.activation.type)
-        ret += "Cost function       : {}\n\n".format(self.cost.type)
+        ret += "Cost function       : {}\n".format(self.cost.type)
+        ret += "Regularization func : {}\n".format(self.regularization.type)
+        ret += "learning rate       : {}\n".format(self.eta)
+        ret += "Regularization rate : {}\n\n".format(self.lambda_)
         if max(self.struct) <= 35:
             for idx, val in enumerate(self.struct):
                 ret += 'L{:>0{n}} {:^{num}}\n'.format(str(idx), \
@@ -101,18 +115,30 @@ class Network:
         """Propagate input data through the network."""
         return self.feedforward(X)
 
+    def verbose_level(self, level):
+        self.verbose = level
+
+    def log(self, lvl, msg):
+        if lvl < self.verbose:
+            print(msg)
 
     def save(self, filename):
         """Save the current state of the Network to a YAML file.
-        YAML format is convenient since it has no dependency on python and can
-        be edited by hand."""
+        YAML format is convenient since it has no dependency on
+        python and can be edited by hand.
+        If the filename has a '.gz' extension, it will be compressed
+        automatically"""
         data = {
-                "struct"     : self.struct,
-                "activation" : self.activation.type,
-                "cost"       : self.cost.type,
-                "eta"        : self.eta,
-                "weights"    : [ w.tolist() for w in self.weights ],
-                "biases"     : [ b.tolist() for b in self.biases  ],
+                "struct"         : self.struct,
+                "eta"            : self.eta,
+                "lambda"         : self.lambda_,
+
+                "cost"           : self.cost.type,
+                "activation"     : self.activation.type,
+                "regularization" : self.regularization.type,
+
+                "weights"        : [ w.tolist() for w in self.weights ],
+                "biases"         : [ b.tolist() for b in self.biases  ],
                 }
 
         if filename.endswith('.gz'):
@@ -125,15 +151,22 @@ class Network:
                     os.remove(tmp)
         else:
             with open(filename, 'wb') as f:
+                f.write('# vim: set ft=yaml:\n')
                 yaml.dump(data, f)
 
 
     def _load_file(self, f):
         data = yaml.load(f)
-        self.struct     = data['struct']
-        self.activation = ActivationFunction(func=data['activation'])
-        self.cost       = CostFunction(func=data['cost'])
-        self.eta        = data['eta']
+
+        self.struct         = data['struct']
+        self.eta            = data['eta']
+        self.lambda_        = data['lambda']
+
+        self.cost           = CostFunction(func=data['cost'])
+        self.activation     = ActivationFunction(func=data['activation'])
+        self.regularization = RegularizationFunction(
+                func=data['regularization'],
+                lambda_=self.lambda_)
 
         self.biases  = [ np.array(b) for b in data['biases']  ]
         self.weights = [ np.array(w) for w in data['weights'] ]
@@ -173,15 +206,25 @@ class Network:
             monitoring={'error':True, 'cost':True}):
         """Train the network using mini-batch stochastic gradient descent.
 
-        Mini-batch stochastic gradient descent is based on the fact that
-        provided `batch_size` is large enough, the average value of nabla_wC
-        and nabla_bC over the mini-batch is roughly equal to the average over
-        all the training input. Note that if `batch_size=1` this performs a
-        regular stochastic gradient descent.
-         * `epochs` is the number of epochs which should be done.
-         * `tr_d` and `va_d` are lists of (Input, Output) tuples
-         * `monitoring` is a list of strings."""
+        As opposed to batch gradient descent, stochastic gradient descent
+        uses a single sample of the training set (selected at random!) to
+        compute the gradient. Since the expected value of a single random
+        pick is close to the actual value, this allows us to speed up the
+        whole process while not loosing in precision.
+        The mini-batch version allows us to seedup a little more by taking
+        advantage of large martix calculation modules available with python.
+        Instead of computing the gradient N times on a single sample, we
+        compute it (N/batch_size) times on a matrix of N samples.
+        Note that if batch_size=1, this performs a regular SGD.
 
+        Parameters:
+         * tr_d         : Training set to be used,
+         * epochs       : Maximum number of epochs,
+         * batch_size   : Size of the mini-batch
+         * va_d         : Validation set,
+         * early_stop_n : number of epochs to consider for early stopping,
+         * monitoring   : dict of what to monitor.
+        """
 
         tr_err, tr_cost = [], []
         va_err, va_cost = [], []
@@ -201,8 +244,9 @@ class Network:
                 nabla_wC = np.multiply(np.array(self.weights, copy=True), 0)
 
                 for x, y in mini_batch:
-                    # Sum all the derivatives over the mini-batch
-                    nabla_bC_i, nabla_wC_i = self.backpropagation(x, y)
+                    # Sum all the gradients over the mini-batch
+                    self.feedforward(x)
+                    nabla_bC_i, nabla_wC_i = self.backpropagation(y)
                     nabla_bC = np.add(nabla_bC, nabla_bC_i)
                     nabla_wC = np.add(nabla_wC, nabla_wC_i)
 
@@ -213,43 +257,44 @@ class Network:
                 self.biases  = [ b - self.eta * nb \
                         for b, nb in zip(self.biases, nabla_bC) ]
                 self.weights = [ w - self.eta * (nw + \
-                        self.regularization.derivative(w, self.lambda_, len(tr_d))) \
+                    self.regularization.derivative(w) ) \
                         for w, nw in zip(self.weights, nabla_wC) ]
 
-            print("Epoch {:2d} training done.".format(i) )
+            self.log(1, "Epoch {:2d} training done.".format(i) )
 
-            utils.log_print(2, " * Training   set accuracy   : {}/{}".format( \
+            self.log(2, " * Training   set accuracy   : {}/{}".format( \
                     self.eval_accuracy(tr_d), len(tr_d)) )
-            utils.log_print(2, " * Validation set accuracy   : {}/{}".format( \
+            self.log(2, " * Validation set accuracy   : {}/{}".format( \
                     self.eval_accuracy(va_d), len(va_d)) )
 
             if monitoring['error']:
-                utils.log_print(2, " * Training   set error rate : {:.3%}"\
+                self.log(2, " * Training   set error rate : {:.3%}"\
                         .format(self.eval_error_rate(tr_d)) )
                 tr_err.append(self.eval_error_rate(tr_d))
                 if va_d:
                     error_rate = self.eval_error_rate(va_d)
-                    utils.log_print(2, " * Validation set error rate : {:.3%}"\
+                    self.log(2, " * Validation set error rate : {:.3%}"\
                             .format(error_rate) )
                     va_err.append(error_rate)
 
             if monitoring['cost']:
-                utils.log_print(2, " * Training   set cost       : {}"\
+                self.log(2, " * Training   set cost       : {}"\
                         .format(self.eval_cost(tr_d)) )
                 tr_cost.append(self.eval_cost(tr_d))
                 if va_d:
-                    utils.log_print(2, " * Validation set cost       : {}"\
+                    self.log(2, " * Validation set cost       : {}"\
                             .format(self.eval_cost(va_d)) )
                     va_cost.append(self.eval_cost(va_d))
 
             # If we do not improve, stop training !
-            if early_stop_n and i > early_stop_n and \
+            if self.eval_error_rate(va_d) < 0.01 or \
+                    early_stop_n and i > early_stop_n and \
                     error_rate - np.mean(va_err[-early_stop_n:]) < 0.05:
                 break
 
             # Print empty line if monitoring for easy reading
             if monitoring:
-                utils.log_print(2, "")
+                self.log(2, "")
 
             if monitoring['error'] and not va_d:
                 self.qnet.errValueChange.emit([tr_err[-1]])
@@ -265,23 +310,30 @@ class Network:
         return tr_err, tr_cost, va_err, va_cost
 
 
-    def backpropagation(self, X, y):
-        """This returns a tuple of matrices of derivatives of the cost function
+    # TODO: transform this so that it works with a matrix and not just a vector
+    #       this would be a little more efficient since it takes advantage full
+    #       advantage of numpy.
+    def backpropagation(self, y):
+        """Backpropagate the errors through the Network.
+
+        This returns a tuple of matrices of derivatives of the cost function
         with respect to biases and weights.
-        Here, nabla_wC is used to refer to dCdW, the derivative of the cost
+        Here, nabla_wC is used to refer to dC/dW, the derivative of the cost
         function with respect to the weights (same for nabla_bC).
 
-        https://en.wikipedia.org/wiki/Matrix_calculus
+        ref: https://en.wikipedia.org/wiki/Matrix_calculus
+
+        Parameters:
+         * y : vector of labels
         """
         # Create copies of the weights and biases and init to 0.
         nabla_bC = np.multiply(np.array(self.biases,  copy=True), 0)
         nabla_wC = np.multiply(np.array(self.weights, copy=True), 0)
 
-        self.feedforward(X)
-
         # Before the for loop, delta = delta_L, the error on the last layer
         # NOTE: array[-1] refers to the last element.
         if self.cost.type == 'cross-entropy':
+            # Since (for now?) this only works with sigmoid, remove act'
             delta = self.cost.derivative(self.a[-1], y)
         else:
             delta = self.cost.derivative(self.a[-1], y) * \
@@ -302,6 +354,7 @@ class Network:
 
 
     def get_confusion(self, data):
+        """Generate a confusion matrix on a given dataset. """
         dim, _ = data[0][1].shape
         mat = np.zeros(shape=(dim,dim))
         for (x, y) in data:
@@ -312,6 +365,7 @@ class Network:
         return mat
 
     def eval_accuracy(self, data):
+        """Evaluate accuracy on a given dataset. """
         count = 0
         for (x, y) in data:
             # Since y is a vector get the index of it's max
@@ -323,18 +377,16 @@ class Network:
 
 
     def eval_error_rate(self, data):
+        """Evaluate error rate on a given dataset. """
         return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
 
     def eval_cost(self, data):
-        total_cost = 0
-
-        for x, y in data:
-            a = self.feedforward(x)
-            total_cost += self.cost(a, y)
-
-        total_cost += 0.5*(self.lambda_/len(data))*sum(
-                np.linalg.norm(w)**2 for w in self.weights)
+        """Evaluate cost on a given dataset. """
+        # Compute C0, the cost function alone
+        total_cost = np.sum([ self.cost(self.feedforward(x), y) for (x, y) in data ])
+        # Add \Omega(h), the regularization term
+        total_cost += np.sum([ self.regularization(w) for w in self.weights ])
 
         return total_cost
 

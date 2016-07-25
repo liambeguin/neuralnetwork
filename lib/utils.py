@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # vim: cc=80:
 
-import os, fnmatch
+import os, fnmatch, re
 import numpy as np
 
 import preprocessing as prep
@@ -15,10 +15,10 @@ def vectorize_output(n, shape=(9, 1)):
 
 
 
-def extract_datasets(basename='', size=60, out_size=9, verbose=False):
-    tr_d = _extract(basename + 'train',      size=size, out_size=out_size)
-    va_d = _extract(basename + 'validation', size=size, out_size=out_size)
-    te_d = _extract(basename + 'test',       size=size, out_size=out_size)
+def extract_datasets(basename='', size=60, sex=False, verbose=False):
+    tr_d = _extract(basename + 'train',      size=size, sex=sex)
+    va_d = _extract(basename + 'validation', size=size, sex=sex)
+    te_d = _extract(basename + 'test',       size=size, sex=sex)
 
     if verbose:
         print(" *** Training")
@@ -37,24 +37,55 @@ def extract_datasets(basename='', size=60, out_size=9, verbose=False):
 
 
 
-def _extract(dirname='train', size=60, out_size=9):
+def _extract(dirname='train', size=60, sex=False, out_size=9):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
     for num in xrange(1, out_size+1):
         for file_ in get_filelist(dirname, num):
-            x = prep.Preprocessing(file_, size)
-            x.start_point_detection(threshold=0.5, n=10)
-            x.cut_first_max(n=20)
-            x.normalize()
-            x.fit()
-            x.get_subset('static')
-            # make a column of the whole array
-            input_ = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
-
-            dataset.append( (input_, vectorize_output(num-1, shape=(out_size, 1))) )
+            sample = extract_sample(file_, size=size, sex=sex)
+            dataset.append(sample)
 
     return dataset
+
+
+
+def extract_sample(file_, size=60, sex=False, out_size=9):
+    # Preprocess file ...
+    x = prep.Preprocessing(file_, size)
+    x.start_point_detection(threshold=0.5, n=10)
+    x.cut_first_max(n=20)
+    x.normalize()
+    x.fit()
+    x.get_subset('static')
+
+    num = int(re.search(r'(?=.*)[0-9](?=.*)', file_).group(0))
+
+    # make a column of the whole array
+    features = x.data.reshape((len(x.data)*len(x.data[0]), 1) )
+
+    if sex:
+        if re.search(r'.*woman.*', file_):
+            labels = vectorize_output( num - 1 + out_size, shape=(out_size*2, 1))
+        else:
+            labels = vectorize_output(num-1, shape=(out_size*2, 1))
+    else:
+        labels = vectorize_output(num-1, shape=(out_size, 1))
+
+    return (features, labels)
+
+
+
+def unpack_prediction(yhat):
+    p = np.argmax(yhat)+1
+    if len(yhat) != 9:
+    # classifying M/W
+        if p > 8:
+            return "woman - {}".format(p-9)
+        else:
+            return "man   - {}".format(p)
+    else:
+        return str(p)
 
 
 
@@ -140,7 +171,7 @@ def plot_training_summary(basename, tr_err, tr_cost,
     f, axarr = plt.subplots(2, sharex=True)
     axarr[0].set_ylabel('Error rate')
     axarr[0].grid(True)
-    # axarr[0].set_ylim(ymin = -0.1)
+    axarr[0].set_ylim(ymin=-0.1)
 
     axarr[0].plot(tr_err, label='training')
     if va_err:
@@ -172,23 +203,31 @@ def plot_training_summary(basename, tr_err, tr_cost,
     plt.clf()
 
 def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
-    # http://matplotlib.org/examples/images_contours_and_fields/interpolation_methods.html
-    # http://matplotlib.org/examples/color/colormaps_reference.html
-    # cmap = gray Greys gnuplot gist_stern
-    # blur (+) to (-) : bicubic, quadrix, hamming, None, none
-
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+
+    # plt.xkcd()
 
     if style == 'simple':
         inter = 'none'
         cm    = 'Grays'
     else:
         inter = 'bicubic'
-        colors = [(1,1,1), (0.4,0.2,0.0), (0,0.3,0.4)]
-        ### Create an array or list of positions from 0 to 1.
-        position = [0, 0.05, 1]
+        # NOTE: this is a list containing color, position
+        color_data = [
+                [ (1.0, 1.0, 1.0), 0.00],
+                [ (0.5, 0.5, 0.5), 0.05],
+                [ (0.4, 0.2, 0.0), 0.20],
+                [ (0.4, 0.2, 0.0), 0.60],
+                [ (0.0, 0.3, 0.4), 0.80],
+                [ (0.0 ,0.4, 0.3), 1.00]]
+
+        colors, position = [], []
+        for elt in color_data:
+            colors.append(elt[0])
+            position.append(elt[1])
+
         cm = make_cmap(colors, position=position)
 
     if interpolation:
@@ -200,9 +239,23 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     plt.xlabel('Prediction $(\hat{y})$')
     plt.colorbar(conf)
 
-    plt.tight_layout(pad=2)
-    plt.title('Confusion Matrix')
+    # If classifying M/W
+    labels = []
+    if len(matrix[0]) > 9:
+        for l in xrange(1, len(matrix[0])+1):
+            if l <= 9:
+                l = '{:2}M'.format(l)
+            else:
+                l = '{:2}W'.format(l-9)
+            labels.append(l)
+    else:
+        labels = range(1, len(matrix[0])+1)
 
+    plt.tight_layout(pad=2)
+    plt.xticks(xrange(0, len(matrix[0])), labels)
+    plt.yticks(xrange(0, len(matrix[1])), labels)
+    plt.grid(True)
+    plt.title('Confusion Matrix')
 
     out = os.path.join('out', 'plots', basename, 'confusion.png')
     if not os.path.exists(os.path.dirname(out)):
@@ -210,14 +263,4 @@ def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
 
     plt.savefig(out)
     plt.clf()
-
-
-
-LOGLEVEL = 0
-def set_level(lvl):
-    LOGLEVEL = lvl
-
-def log_print(lvl, msg):
-    if lvl > LOGLEVEL:
-        print("{}".format(msg))
 
