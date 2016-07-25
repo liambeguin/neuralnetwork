@@ -1,6 +1,7 @@
 \documentclass[11pt]{article}
 \input{ets_page.tex}
 
+\usepackage{color, colortbl}
 \usepackage{graphicx}
 \usepackage{multirow}
 \usepackage[
@@ -643,6 +644,68 @@ for x, y in mini_batch:
 \subsection{Ajustement des hyper-param\`etres}
 % http://neuralnetworksanddeeplearning.com/chap3.html#how_to_choose_a_neural_network's_hyper-parameters
 
+\begin{table}[h]
+  \centering
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+  \hline
+  dataset & out & activation  & cost & $\Omega$ & $\eta$ & $\lambda$ & iter  & batch & hidden & tr(\%) & va(\%) & test(\%) & t(s)\\
+  \hline
+	50 & 18 & sigmoid & C & L2 & 0.01 & 0.001 & 5 & 10 & 150 & 59 & 53 & 60 & 11 \\
+  \hline
+	50 & 18 & sigmoid & C & L2 & 0.05 & 0.001 & 5 & 10 & 150 & 38 & 34 & 43  & 10\\
+  \hline
+	50	& 18 & sigmoid & C & L2 & 0.1 & 0.001 & 5 & 10 & 150 & 20 & 15 & 24  & 10\\
+  \hline
+	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 5 & 10 & 150 & 9 & 6 & 16  & 10 \\
+  \hline
+	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 20 & 10 & 20 & 3 & 8 & 15 & 10 \\
+  \hline
+	50	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 3 & 12 & 20 \\
+  \hline
+  \rowcolor{green}
+	40	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 2 & 14 & 20 \\
+  \hline
+	60	& 18 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 0 & 6 & 12 & 20 \\
+  \hline
+  \rowcolor{green}
+	40	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 1 & 1 & 7 & 20 \\
+   \hline
+	50	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 2 & 1 & 7 & 20 \\
+   \hline
+	60	& 9 & sigmoid & C & L2 & 0.5 & 0.001 & 30 & 10 & 0 & 5 & 1 & 9 & 20 \\
+	\hline
+	40	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 12 & 10 & 21 & 40 \\
+	\hline
+	50	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 11 & 8 & 20  & 50\\
+\hline
+	60	& 18 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 150 & 10 & 13 & 21  & 53\\
+\hline
+	40	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 10  & 15\\
+	\hline
+	50	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 12  & 15\\
+\hline
+	60	& 9 & tanh & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 4 & 1 & 11  & 15\\
+\hline
+	40	& 18 & softplus & Q & L2 & 0.1 & 0.001 & 30 & 10 & 50 & 10 & 6 & 16  & 20\\
+	\hline
+	50	& 18 & softplus & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 15  & 20\\
+\hline
+	60	& 18 & softplus & Q & L2 & 0.1 & 0.0001 & 30 & 10 & 50 & 7 & 6 & 13  & 20\\
+\hline
+	40	& 9 & softplus & Q & L2 & 0.01 & 0.0001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
+	\hline
+	50	& 9 & softplus & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 5 & 1 & 9  & 20\\
+\hline
+	60	& 9 & softplus & Q & L2 & 0.01 & 0.001 & 30 & 10 & 50 & 6 & 2 & 9  & 20\\
+
+  \hline
+\end{tabular}
+  \caption{Tableau r\'ecapitalif des tests effectu\'es sur les hyper-param\`etres }
+\end{table}
+Pour obtenir la meilleur solution nous avons chercher en premier le {\em learning rate}  qui donnait la plus petite erreur, ensuite nous avons ajust\'e le {\em regularization rate} avec un faible nombre d'epochs, pour finir nous avons ajust\'e le nombre de neurone sur une seule couche cach\'ee. 
+Les valeurs de sortie 18 et 9  repr\'esentent respectivement avec et sans d\'etection de sexe.
+C repre\'esente la m\'ethode de {\em cross-entropy} et Q la m\'ethode {\em quadratic}
 \subsection{Inspection du res\'eau}
 Parmis les contraintes obligatoires, il nous est aussi demand\'e de pouvoir
 inspecter les couches cach\'ees du r\'eseau. Pour ce faire, nous tirons parti du
