@@ -53,21 +53,21 @@
 
 \section{Introduction}
 Après avoir fait une étape de pré-traitement lors du laboratoire 2.1, nous
-allons maintenant implémenter un r\'eseau de neurones a retro-propagation du
+allons maintenant implémenter un r\'eseau de neurones \`a r\'etro-propagation du
 gradient d’erreur dans le but de classifier, le plus précisément possible,
-le dataset TiDigits (english spoken digits from 1 to 9).
+le dataset {\em TiDigits} (english spoken digits from 1 to 9).
 
-Pour implémenter ce r\'eseau de neurones, nous utiliserons Python.
+Pour implémenter ce r\'eseau de neurones, nous utiliserons {\em Python}.
 Voici une liste d'avantages versus inconv\'enients qui ont motiv\'e notre choix
 pour ce language :
 \begin{itemize}
-	\item avantages:
-		\subitem rapidite de developpement
-		\subitem language interpr\'et\'e, pas de compilation
-		\subitem modules de calcul matriciel performants
-		\subitem language accessible
-	\item inconvenients:
-		\subitem language interpr\'et\'e donc moins rapide \\
+	\item Avantages:
+		\subitem Rapidit\'e de d\'eveloppement,
+		\subitem Language interpr\'et\'e donc pas de compilation,
+		\subitem Modules de calcul matriciel performants,
+		\subitem Language accessible.
+	\item Inconvenients:
+		\subitem Language interpr\'et\'e donc moins rapide. \\
 \end{itemize}
 
 Dans un premier temps, nous entrainerons le r\'eseau sur un set de donn\'ees puis
@@ -80,7 +80,7 @@ lors de l'entrainement.
 	\centering
 	\includegraphics[scale=.5]{img/neuron.png}
 	\caption{Repr\'esentation symbolique d'un neurone.}
-\end{figure} 
+\end{figure}
 
 Comme dit en introduction, Nous allons impl\'ementer un r\'eseau de neurones a
 r\'etro-propagation du gradient d'erreur. Ici, nous \'enoncerons les notations et
@@ -261,12 +261,12 @@ entre les individus.
 Comme tous les fichiers n'ont pas la m\^eme taille, nous devons ajouter
 du padding afin que les donn\'ees puissent \^etre utilis\'ees comme
 entr\'ee pour le r\'eseau. En effet, dans le cas o\`u les longueurs ne sont pas
-identiques, il est impossible d'alimenter le r\'eseau en raison des diff\'erences
+identiques, il est impossible d'alimenter le r\'eseau en raison d'erreurs
 de dimensions sur les produits matriciels.
 D'autre part, dans le but d'am\'eliorer la vitesse de convergence de
 l'apprentissage et de limiter la complexit\'e du mod\`ele, nous avons choisi de
 ne garder que les donn\'ees statiques et de les normaliser, selon chaque colonne.
-La figure \ref{fig:w_prep} donne un aper{\cc}u de l'impacte du pr\'e-traitement
+La figure \ref{fig:w_prep} donne un aper\c cu de l'impacte du pr\'e-traitement
 sur les performances du r\'eseau.
 
 La fonction d'extraction des donn\'ees {\em extract\_datasets()}
@@ -710,17 +710,18 @@ de respectivement de d\'emarrer l'entrainement du r\'eseau ou de le stopper.
 
 \section{Discussions}
 \subsection{Problemes rencontr\'es}
-Lors de l'entrainement du r\'eseau, nous avons d'abord ete confronte a de tres
-mauvaises performances. Nous avons initialement pense que notre pr\'e-traitement
-etait inefficace voir destructeur. En analysant les performances plus en detail,
-nous nous sommes apercu que le r\'eseau etait moins performant que si nous lui
-faisions faire des predictions aleatoires
+Lors de l'entrainement du r\'eseau, nous avons d'abord \'et\'e confront\'e \`a
+de tr\`es mauvaises performances. Nous avons initialement pens\'e que notre
+pr\'e-traitement \'etait inefficace voir destructeur. En analysant les
+performances plus en d\'etail,
+nous nous sommes aper\c cu que le r\'eseau \'etait moins performant que si
+nous lui faisions faire des pr\'edictions al\'eatoires
 $\epsilon_{\bf x} \ge \left (1 - \frac{1}{9} = 88.9\% \right)$.
-Ce qui est impossible et sugg\`ere que notre \'evaluation du cout \'etait fausse.
+Ce qui est impossible et sugg\`ere que notre \'evaluation du co\^ut \'etait fausse.
 
-En effet, nous avions commis une erreur dans la generation de nos vecteurs de
-sortie. Lorsque la prediction etait comparee a la sortie attendue, celle-ci etait
-decalee de 1 (en raison des indices commencant a 0 et non a 1):
+En effet, nous avions commis une erreur dans la g\'en\'eration de nos vecteurs de
+sortie. Lorsque la pr\'ediction \'etait compar\'ee \`a la sortie attendue,
+celle-ci \'etait d\'ecal\'ee de 1 comme suit:
 \begin{equation}
 	\left (
 	{\bf \hat y}_3 =
@@ -753,17 +754,58 @@ decalee de 1 (en raison des indices commencant a 0 et non a 1):
 	\right )
 \end{equation}
 
-\subsection{conclusion et pistes d'am\'elioration}
-utiliser une forme matricielle pour le backpropagation
+\subsection{Conclusion et pistes d'am\'elioration}
+Comme expliqu\'e pr\'ec\'edement, du \`a un manque de temps, nous avons
+\'et\'e contrain de couper certaines optimisations notemment sur
+l'impl\'ementation matricielle du {\em Mini-batch SGD}.
 
-option pour utiliser une fonction d'activation different sur la couche de sortie
+En revanche, malgr\'e cela, on observe tout de m\^eme de bonnes performances.
+En utilisant comme r\'ef\'erence une classification de 9 digits en combinaison
+avec une classification Homme/Femme (soit une sortie de 18 neurones) du
+{\em TiDigits} dataset, on obtient un temps d'entrainement de 10 secondes sur un
+{\em i5 dual-core, 2.2GHz} temps qui tombe \`a moins de 2 secondes sur un
+{\em i7 quad-core, 4GHz}. 
 
-automatiser l'ajustement des hyper-parameters
-% ajouter autres pistes d'amelioration
-% conclure sur performance globale du systeme
-% classification homme/femme
+On remarque aussi une bonne capacit\'e de g\'en\'eralisation avec une erreur
+d'environs 10-15\% sur le set de test apr\`es l'apprentissage.
 
+En observant attentivement les matrices de
+confusions en figure \ref{fig:w_prep} on remarque que le r\'eseau commet
+principalement des erreurs lors de la classification Homme/Femme. Ceci pourrait
+probablement \^etre du \`a un pr\'e-traitement trop {\em agressif} ou encore \`a
+manque d'\'echantillons d'entrainement. Cette classification erron\'ee pourrai
+peut-\^etre \^etre ajust\'ee en impl\'ementant une m\'ethode de
+validation-crois\'ee plus avanc\'ee telle que le {\em V-folds} cit\'e pr\'ec\'edemment.
+
+D'autres pistes d'am\'eliorations seraient d'ajouter la possibilit\'e de choisir une
+fonctions d'activation diff\'erente pour la couche de sortie ou encore
+l'impl\'ementation de techniques permettant de determiner {\em automatiquement}
+les hyper-param\`eters du r\'eseau.
+
+
+\newpage
 \appendix
+\section{Influences du pr\'e-traitement sur les performances du r\'eseau}
+\begin{figure}[htp]
+    \centering
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/confusion_wo_prep.png} }}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/training_wo_prep.png} }}
+    \caption{Performances sans pr\'e-traitement}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/confusion_w_prep.png} }}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/training_w_prep.png} }}
+    \caption{Performances avec pr\'e-traitement}
+    \label{fig:w_prep}
+\end{figure}
+\begin{figure}[htp]
+    \centering
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/confusion_swo_prep.png} }}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/training_swo_prep.png} }}
+    \caption{Performances sans pr\'e-traitement}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/confusion_sw_prep.png} }}
+    \subfloat{{\includegraphics[width=.45\textwidth]{img/training_sw_prep.png} }}
+    \caption{Performances avec pr\'e-traitement}
+    \label{fig:w_prep}
+\end{figure}
 \newpage
 \section{sauvegarde/chargement d'une configuration}
 \label{saveload}
