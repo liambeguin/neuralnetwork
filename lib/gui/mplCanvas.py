@@ -42,7 +42,7 @@ class MplCanvas(FigureCanvas):
         self.axes.set_title(title)
 
         #axe.set_bg_color=set_facecolor
-        self.axes.set_facecolor('white')
+        # self.axes.set_facecolor('white')
         # We want the axes cleared every time plot() is called
         #self.axes.hold(True)
 

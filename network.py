@@ -23,11 +23,6 @@ from lib import utils
 
 from PyQt5 import QtCore, QtWidgets,QtGui
 from PyQt5.QtCore import QObject,QThread, Qt,pyqtSignal,pyqtSlot
-utils.set_level(3)
-# NOTE: This allows us to always use the same random numbers. used for debug
-# np.random.seed(1)
-
-
 
 
 class qNetwork(QObject):

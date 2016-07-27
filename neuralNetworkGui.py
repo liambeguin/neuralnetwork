@@ -846,7 +846,7 @@ class backend( QObject ):
                 self.p.append(self.output_size)
                 
                 
-                print("layers {}".format(self.parameters['layers']))
+                # print("layers {}".format(self.parameters['layers']))
                 self.net = network.Network(
                 self.p,
                 activation     = self.parameters['activation'],
@@ -863,7 +863,7 @@ class backend( QObject ):
             
             elif self.parameters['button'] == "train":
 
-                print("layers {}".format(self.parameters['layers']))
+                # print("layers {}".format(self.parameters['layers']))
                 self.net.qnet.costValueChange  = self.updateCost
                 self.net.qnet.errValueChange   = self.updateErr
                 self.net.qnet.epochValueChange = self.updateIterations
