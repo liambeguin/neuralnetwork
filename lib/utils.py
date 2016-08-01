@@ -8,17 +8,20 @@ import preprocessing as prep
 
 
 
-def vectorize_output(n, shape=(9, 1)):
-    v =  np.zeros(shape)
-    v[n] = 1.0
-    return v
+def vectorize_output(n, do_vector=True, shape=(9, 1)):
+    if do_vector:
+        v =  np.zeros(shape)
+        v[n] = 1.0
+        return v
+    else:
+        return n
 
 
 
-def extract_datasets(basename='', size=60, sex=False, verbose=False):
-    tr_d = _extract(basename + 'train',      size=size, sex=sex)
-    va_d = _extract(basename + 'validation', size=size, sex=sex)
-    te_d = _extract(basename + 'test',       size=size, sex=sex)
+def extract_datasets(basename='', vectorize=True, size=60, sex=False, verbose=False):
+    tr_d = _extract(basename + 'train',      vectorize=vectorize, size=size, sex=sex)
+    va_d = _extract(basename + 'validation', vectorize=vectorize, size=size, sex=sex)
+    te_d = _extract(basename + 'test',       vectorize=vectorize, size=size, sex=sex)
 
     if verbose:
         print(" *** Training")
@@ -37,20 +40,20 @@ def extract_datasets(basename='', size=60, sex=False, verbose=False):
 
 
 
-def _extract(dirname='train', size=60, sex=False, out_size=9):
+def _extract(dirname='train', vectorize=True, size=60, sex=False, out_size=9):
     """Takes a folder containing training data and returns a
     list of tuples (input, output)"""
     dataset = []
     for num in xrange(1, out_size+1):
         for file_ in get_filelist(dirname, num):
-            sample = extract_sample(file_, size=size, sex=sex)
+            sample = extract_sample(file_, vectorize=vectorize, size=size, sex=sex)
             dataset.append(sample)
 
     return dataset
 
 
 
-def extract_sample(file_, size=60, sex=False, out_size=9):
+def extract_sample(file_, vectorize=True, size=60, sex=False, out_size=9):
     # Preprocess file ...
     x = prep.Preprocessing(file_, size)
     x.start_point_detection(threshold=0.5, n=10)
@@ -66,11 +69,11 @@ def extract_sample(file_, size=60, sex=False, out_size=9):
 
     if sex:
         if re.search(r'.*woman.*', file_):
-            labels = vectorize_output( num - 1 + out_size, shape=(out_size*2, 1))
+            labels = vectorize_output( num - 1 + out_size, do_vector=vectorize, shape=(out_size*2, 1))
         else:
-            labels = vectorize_output(num-1, shape=(out_size*2, 1))
+            labels = vectorize_output(num-1, do_vector=vectorize, shape=(out_size*2, 1))
     else:
-        labels = vectorize_output(num-1, shape=(out_size, 1))
+        labels = vectorize_output(num-1, do_vector=vectorize, shape=(out_size, 1))
 
     return (features, labels)
 
