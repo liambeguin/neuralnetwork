@@ -45,7 +45,6 @@ class LVQ:
 
     def init_weights(self, tr_d):
         if type(tr_d[0][1]) != int:
-            # TODO: convert if it's not an int
             raise Exception("Output should be an int !")
 
         np.random.shuffle(tr_d)
@@ -70,6 +69,7 @@ class LVQ:
         if not self.init:
             self.init_weights(tr_d)
 
+        va_err = []
         self.learn_time = datetime.datetime.now()
         for _ in xrange(0, epochs):
             for x, y in tr_d:
@@ -81,99 +81,45 @@ class LVQ:
 
                 # find closest centroid
                 bmu = np.argmin(d)
-
                 # Update closest weight: Best Matching Unit
-                self.weights[bmu] += eta * (x - self.weights[bmu])
+                if bmu == y:
+                    self.weights[bmu] += eta * (x - self.weights[bmu])
+                else:
+                    self.weights[bmu] -= eta * (x - self.weights[bmu])
+
+            # Validation
+            if va_d:
+                va_err.append(self.eval_error_rate(va_d))
 
         self.learn_time = datetime.datetime.now() - self.learn_time
+        return va_err
 
 
 
-    def feedforward(self, X):
-        ret = []
-        # if X[0][0].shape != self.weights[0].shape:
-        #     # NOTE: handle single inputs as well as array inputs
-        #     X = [X]
-
-        for x in X:
-            d = []
-            for w in self.weights:
-                # Compute distances
-                dist = np.linalg.norm(x - w)
-                d.append(dist)
-
-            # find closest centroid
-            ret.append(np.argmin(d))
-        return ret
+    def feedforward(self, x):
+        d = []
+        for w in self.weights:
+            # Compute distances
+            dist = np.linalg.norm(x - w)
+            d.append(dist)
+        # find closest centroid
+        return np.argmin(d)
 
 
 
+    def eval_accuracy(self, data):
+        """Evaluate accuracy on a given dataset. """
+        count = 0
+        for (x, y) in data:
+            if self.feedforward(x) == y:
+                count += 1
 
-if  __name__ == "__main__":
+        return count
 
-    from mpl_toolkits.mplot3d import Axes3D
-    import matplotlib.pyplot as plt
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
 
-    tr_d = [
-        (np.array([[1.0], [4.0], [2.0]]), 0),
-        (np.array([[2.0], [4.0], [2.0]]), 0),
-        (np.array([[1.0], [5.0], [1.0]]), 0),
-        (np.array([[2.0], [5.0], [0.0]]), 0),
-        (np.array([[3.0], [5.0], [0.0]]), 0),
+    def eval_error_rate(self, data):
+        """Evaluate error rate on a given dataset. """
+        return 1.0 - float(self.eval_accuracy(data)) / len(data)
 
-        (np.array([[4.0], [1.0], [2.0]]), 1),
-        (np.array([[4.0], [2.0], [3.0]]), 1),
-        (np.array([[5.0], [1.0], [1.0]]), 1),
-        (np.array([[5.0], [2.0], [0.0]]), 1),
-        (np.array([[5.0], [3.0], [1.0]]), 1),
-        ]
-
-    # te_d = [
-    #     (np.array([[1.0], [6.0], [1.0]]), 0),
-    #     (np.array([[4.0], [1.0], [6.0]]), 1),
-    #     ]
-
-    te_d = [
-        np.array([[1.0], [6.0], [1.0]]),
-        np.array([[4.0], [1.0], [6.0]]),
-        ]
-    eta = 0.1
-
-    lvq = LVQ(3, 2)
-    print lvq
-
-    print lvq.weights
-
-    lvq.init_weights(tr_d)
-    print lvq.weights
-
-    lvq.train(tr_d, eta, 1000)
-    print lvq.weights
-
-    print "******************"
-    print te_d
-    yhat = lvq(te_d)
-    print "******************"
-    print yhat
-
-    # TODO: fix this graph to work with new format
-    # for x, y in zip(te_d[:,0], yhat):
-    #     if y < 1:
-    #         ax.scatter(x[0], x[1], x[2], marker='x', c='b')
-    #     else:
-    #         ax.scatter(x[0], x[1], x[2], marker='x', c='g')
-    #
-    # for x, y in tr_d:
-    #     if y < 1:
-    #         ax.scatter(x[0], x[1], x[2], c='b')
-    #     else:
-    #         ax.scatter(x[0], x[1], x[2], c='g')
-    #
-    # for w in lvq.weights:
-    #     ax.scatter(w[0], w[1], w[2], marker='^', c='r')
-    # plt.show()
-    # plt.savefig("lvq.png")
 

@@ -18,7 +18,7 @@ net_verbose  = 2
 evalsample         = True
 sample_file        = 'test/woman/nh/5b.txt'
 dataset_size       = 40
-sex_classification = False
+sex_classification = True
 
 
 
@@ -44,7 +44,7 @@ if os.path.exists('autoload.save.gz'):
 
 print(lvq)
 print(" ** Starting training...")
-lvq.train(training_data, 0.1, 200)
+training_va_err = lvq.train(training_data, 0.1, 100, va_d=validation_data)
 
 print
 print
@@ -66,6 +66,22 @@ if autosave:
 if dosummary:
     print
     print " ** Summary : "
+    print "  ** Accuracy on train      dataset : {}/{} -> error: {:.3%}".format(
+            lvq.eval_accuracy(training_data),
+            len(training_data),
+            lvq.eval_error_rate(training_data)
+            )
+    print "  ** Accuracy on validation dataset : {}/{} -> error: {:.3%}".format(
+            lvq.eval_accuracy(validation_data),
+            len(validation_data),
+            lvq.eval_error_rate(validation_data)
+            )
+    print "  ** Accuracy on test       dataset : {}/{} -> error: {:.3%}".format(
+            lvq.eval_accuracy(test_data),
+            len(test_data),
+            lvq.eval_error_rate(test_data)
+            )
+    print
 
 
 
@@ -82,13 +98,10 @@ if evalsample:
             size=dataset_size,
             sex=sex_classification)
 
-    print "******************"
     yhat = lvq([feat])
-    print "expected value : {}".format(lab)
-    print "prediction     : {}".format(yhat)
-    # print("    * prediction  : {}".format(utils.unpack_prediction(yhat)) )
-    # print("    * actual value: {}".format(utils.unpack_prediction(lab)) )
-    # print
+    print("    * prediction  : {}".format(yhat) )
+    print("    * actual value: {}".format(lab) )
+    print
 
 
 
