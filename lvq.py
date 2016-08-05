@@ -11,13 +11,32 @@ import numpy as np
 
 from lib import utils
 
+def euclidean(x, w):
+    return np.linalg.norm(x - w)
+
+class DistanceFunction:
+    available_functions = {'euclidean': euclidean,}
+
+    def __init__(self, func='euclidian'):
+        self.function = DistanceFunction.available_functions[func]
+        self.type     = func
+
+    def __call__(self, x, w):
+        return self.function(x, w)
+
+
+
 
 class LVQ:
-    def __init__(self, input_size, output_size, verbose=3):
+    def __init__(self, input_size, output_size, dist_function='euclidean',
+            verbose=3):
         """
         """
         self.input_size  = input_size
         self.output_size = output_size
+        self.distance = DistanceFunction(func=dist_function)
+        self.verbose = verbose
+
         self.weights = [ np.zeros(shape=(input_size, 1)) ] * output_size
         self.init    = False
 
@@ -26,6 +45,7 @@ class LVQ:
         ret  = "Learning Vector Quatizer:\n"
         ret += "N inputs    : {}\n".format(self.input_size)
         ret += "N outputs   : {}\n".format(self.output_size)
+        ret += "distance    : {}\n".format(self.distance.type)
         ret += "initialized : {}\n".format(self.init)
         return ret
 
@@ -65,19 +85,19 @@ class LVQ:
 
 
 
-    def train(self, tr_d, eta, epochs, va_d=None):
+    def train(self, tr_d, eta, epochs, eta_decay=False, va_d=None):
         if not self.init:
             self.init_weights(tr_d)
 
         va_err = []
         self.learn_time = datetime.datetime.now()
-        for _ in xrange(0, epochs):
+        for i in xrange(0, epochs):
+            self.log(1, "Epoch {:2d} training done.".format(i) )
             for x, y in tr_d:
                 d = []
                 for w in self.weights:
                     # Compute distances
-                    dist = np.linalg.norm(x - w)
-                    d.append(dist)
+                    d.append(self.distance(x, w))
 
                 # find closest centroid
                 bmu = np.argmin(d)
@@ -87,9 +107,15 @@ class LVQ:
                 else:
                     self.weights[bmu] -= eta * (x - self.weights[bmu])
 
+            if eta_decay:
+                self.log(1, " * eta = {}.".format(eta) )
+                eta -= eta/100.0
+
             # Validation
             if va_d:
                 va_err.append(self.eval_error_rate(va_d))
+                self.log(2, " * Validation set error rate : {:.3%}"\
+                .format(va_err[-1]))
 
         self.learn_time = datetime.datetime.now() - self.learn_time
         return va_err
@@ -100,8 +126,7 @@ class LVQ:
         d = []
         for w in self.weights:
             # Compute distances
-            dist = np.linalg.norm(x - w)
-            d.append(dist)
+            d.append(self.distance(x, w))
         # find closest centroid
         return np.argmin(d)
 
