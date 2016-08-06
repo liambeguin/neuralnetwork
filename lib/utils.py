@@ -79,22 +79,23 @@ def extract_sample(file_, vectorize=True, size=60, sex=False, out_size=9):
 
 
 
-def unpack_prediction(yhat):
-    p = np.argmax(yhat)+1
-    if len(yhat) != 9:
-    # classifying M/W
-        if p > 8:
-            return "woman - {}".format(p-9)
-        else:
-            return "man   - {}".format(p)
+def unpack_prediction(yhat, sex=False, vectorized=False):
+    if vectorized: p = np.argmax(yhat)
+    else: p = yhat
+
+    if sex:
+        ret = "woman - " if  (p / 10) else "man   - "
     else:
-        return str(p)
+        ret = ""
+
+    return ret + str((p%9)+1)
 
 
 
 def inspect_dataset(dataset, size=60):
     print("    * size : {}".format(len(dataset)))
-    print("    * input  shape: {} -> {}x{}".format(dataset[0][0].shape, dataset[0][0].shape[0]/size, size) )
+    print("    * input  shape: {} -> {}x{}".format(dataset[0][0].shape,
+        dataset[0][0].shape[0]/size, size) )
     if isinstance(dataset[0][1], np.ndarray):
         print("    * output shape: {}".format(dataset[0][1].shape) )
     else:
@@ -204,6 +205,44 @@ def plot_training_summary(basename, tr_err, tr_cost,
 
     plt.savefig(out)
     plt.clf()
+
+def plot_training_summary2(basename, tr_err, va_err=None, te_err=None):
+    """
+    basename is a suffix for the name of the output file
+    tr_err, tr_cost vectors returned by Network.train
+    va_err, va_cost vectors returned by Network.train
+    te_err, te_cost single value evaluated after training on test set
+    """
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+
+    plt.ylabel('Error rate')
+    plt.grid(True)
+    plt.ylim(ymin=-0.1)
+
+    plt.plot(tr_err, label='training')
+    if va_err:
+        plt.plot(va_err, label='validation')
+    if te_err:
+        plt.plot([te_err]*len(tr_err), label='test')
+
+
+    plt.title('TIDIGITS training summary')
+    plt.xlabel('Epoch')
+    plt.legend(loc='best')
+    plt.tight_layout()
+
+    out = os.path.join('out', 'plots', basename, 'training.png')
+    if not os.path.exists(os.path.dirname(out)):
+        os.makedirs(os.path.dirname(out))
+
+    plt.savefig(out)
+    plt.clf()
+
+
 
 def plot_confusion_matrix(basename, matrix, interpolation=None, style=None):
     import matplotlib
