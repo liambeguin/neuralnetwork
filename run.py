@@ -31,12 +31,16 @@ training_data, validation_data, test_data = utils.extract_datasets(
 
 input_size  = len(training_data[0][0])
 if sex_classification:
-    output_size = 16
+    output_size = 18
 else:
-    output_size = 8
+    output_size = 9
 
 print(" ** Initializing Network...")
-lvq = lvq.LVQ(input_size, output_size)
+lvq = lvq.LVQ(input_size,
+        output_size,
+        prototypes_per_class = 20,
+
+        dist_function='euclidean')
 
 if os.path.exists('autoload.save.gz'):
     print(" *** Found autoload, loading config...")
@@ -44,7 +48,11 @@ if os.path.exists('autoload.save.gz'):
 
 print(lvq)
 print(" ** Starting training...")
-training_va_err = lvq.train(training_data, 0.1, 100, va_d=validation_data)
+training_tr_err, training_va_err = lvq.train(training_data,
+        eta = 0.1,
+        epochs = 5,
+        eta_decay = True,
+        va_d = validation_data)
 
 print
 print
@@ -86,7 +94,7 @@ if dosummary:
 
 
 print(" ** Evaluating confusion on test dataset..")
-# confusion = net.get_confusion(test_data)
+confusion = lvq.get_confusion(test_data)
 
 
 
@@ -99,10 +107,17 @@ if evalsample:
             sex=sex_classification)
 
     yhat = lvq([feat])
-    print("    * prediction  : {}".format(yhat) )
-    print("    * actual value: {}".format(lab) )
+    print("    * prediction  : {}".format(utils.unpack_prediction(
+        yhat, sex=sex_classification, vectorized=False)))
+    print("    * actual value: {}".format(utils.unpack_prediction(
+        lab, sex=sex_classification, vectorized=False)))
     print
 
+
+print(" ** Generating image output...")
+utils.plot_training_summary2('test', training_tr_err, training_va_err, \
+        lvq.eval_error_rate(test_data))
+utils.plot_confusion_matrix('test', confusion, interpolation='none', style=None)
 
 
 print(" ** Done")

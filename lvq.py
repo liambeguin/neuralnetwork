@@ -10,36 +10,23 @@ import datetime
 import numpy as np
 
 from lib import utils
-
-def euclidean(x, w):
-    return np.linalg.norm(x - w)
-
-class DistanceFunction:
-    available_functions = {'euclidean': euclidean,}
-
-    def __init__(self, func='euclidian'):
-        self.function = DistanceFunction.available_functions[func]
-        self.type     = func
-
-    def __call__(self, x, w):
-        return self.function(x, w)
-
-
-
+from lib.lvq.distance import DistanceFunction
+from lib.lvq.weight_init import WeightInitFunction
 
 class LVQ:
     def __init__(self, input_size, output_size, prototypes_per_class=1,
-            dist_function='euclidean', verbose=3):
+            dist_function='euclidean', init_function='average', verbose=3):
         """
         """
         self.input_size  = input_size
         self.output_size = output_size
         self.ppc         = prototypes_per_class
 
-        self.distance = DistanceFunction(func=dist_function)
-        self.verbose  = verbose
+        self.distance    = DistanceFunction(func=dist_function)
+        self.weight_init = WeightInitFunction(func=init_function)
+        self.weights     = None
+        self.verbose     = verbose
 
-        self.weights = [ np.zeros(shape=(input_size, 1)) ] * (output_size * self.ppc)
         self.init    = False
 
 
@@ -66,31 +53,11 @@ class LVQ:
             print(msg)
 
 
-    def init_weights(self, tr_d):
-        if type(tr_d[0][1]) != int:
-            raise Exception("Output should be an int !")
-
-        np.random.shuffle(tr_d)
-        self.tr_dX = []
-        self.tr_dY = []
-        for x, y in tr_d:
-            self.tr_dX.append(x)
-            self.tr_dY.append(y)
-
-        self.tr_dX = np.array(self.tr_dX)
-        self.tr_dY = np.array(self.tr_dY)
-
-        for w_idx, w in enumerate(self.weights):
-            match = np.where(self.tr_dY == w_idx%self.output_size)[0][0]
-            self.weights[w_idx] = self.tr_dX[match]
-
-        self.init = True
-
-
-
-    def train(self, tr_d, eta, epochs, eta_decay=False, va_d=None):
+    def train(self, tr_d, eta, epochs, eta_decay=False, va_d=None, estop=True):
         if not self.init:
-            self.init_weights(tr_d)
+            self.weights = self.weight_init(self.input_size, self.output_size,
+                    self.ppc, tr_d)
+            self.init = True
 
         va_err, tr_err = [], []
         self.learn_time = datetime.datetime.now()
@@ -110,14 +77,21 @@ class LVQ:
                 self.weights[bmu] += s * eta * (x - self.weights[bmu])
 
             if eta_decay:
-                self.log(1, " * eta = {}.".format(eta) )
-                eta -= eta/100.0
+                self.log(1, " * eta                       : {:.3}".format(eta))
+                # Compute optimized learning rate
+                eta = eta / (1 + s * eta) if eta < 1 else 1
+
+            tr_err.append(self.eval_error_rate(tr_d))
+            self.log(2, " * Training set error rate   : {:.3%}"\
+                    .format(tr_err[-1]))
 
             # Validation
             if va_d:
                 va_err.append(self.eval_error_rate(va_d))
                 self.log(2, " * Validation set error rate : {:.3%}"\
                 .format(va_err[-1]))
+                # Stop early if validation error is very low
+                if estop and va_err[-1] < 0.01: break
 
         self.learn_time = datetime.datetime.now() - self.learn_time
         return tr_err, va_err
@@ -130,7 +104,19 @@ class LVQ:
             # Compute distances
             d.append(self.distance(x, w))
         # find closest centroid
-        return np.argmin(d)
+        return np.argmin(d)%self.output_size
+
+
+
+    def get_confusion(self, data):
+        """Generate a confusion matrix on a given dataset. """
+        dim = self.output_size
+        mat = np.zeros(shape=(dim,dim))
+        for (x, y) in data:
+            a = self.feedforward(x)
+            mat[y][a] += 1.0
+
+        return mat
 
 
 
