@@ -28,25 +28,28 @@ class DistanceFunction:
 
 
 class LVQ:
-    def __init__(self, input_size, output_size, dist_function='euclidean',
-            verbose=3):
+    def __init__(self, input_size, output_size, prototypes_per_class=1,
+            dist_function='euclidean', verbose=3):
         """
         """
         self.input_size  = input_size
         self.output_size = output_size
-        self.distance = DistanceFunction(func=dist_function)
-        self.verbose = verbose
+        self.ppc         = prototypes_per_class
 
-        self.weights = [ np.zeros(shape=(input_size, 1)) ] * output_size
+        self.distance = DistanceFunction(func=dist_function)
+        self.verbose  = verbose
+
+        self.weights = [ np.zeros(shape=(input_size, 1)) ] * (output_size * self.ppc)
         self.init    = False
 
 
     def __repr__(self):
         ret  = "Learning Vector Quatizer:\n"
-        ret += "N inputs    : {}\n".format(self.input_size)
-        ret += "N outputs   : {}\n".format(self.output_size)
-        ret += "distance    : {}\n".format(self.distance.type)
-        ret += "initialized : {}\n".format(self.init)
+        ret += "initialized          : {}\n".format(self.init)
+        ret += "N inputs             : {}\n".format(self.input_size)
+        ret += "N outputs            : {}\n".format(self.output_size)
+        ret += "Prototypes per class : {}\n".format(self.ppc)
+        ret += "distance function    : {}\n".format(self.distance.type)
         return ret
 
 
@@ -78,7 +81,7 @@ class LVQ:
         self.tr_dY = np.array(self.tr_dY)
 
         for w_idx, w in enumerate(self.weights):
-            match = np.where(self.tr_dY == w_idx)[0][0]
+            match = np.where(self.tr_dY == w_idx%self.output_size)[0][0]
             self.weights[w_idx] = self.tr_dX[match]
 
         self.init = True
@@ -89,7 +92,7 @@ class LVQ:
         if not self.init:
             self.init_weights(tr_d)
 
-        va_err = []
+        va_err, tr_err = [], []
         self.learn_time = datetime.datetime.now()
         for i in xrange(0, epochs):
             self.log(1, "Epoch {:2d} training done.".format(i) )
@@ -102,10 +105,9 @@ class LVQ:
                 # find closest centroid
                 bmu = np.argmin(d)
                 # Update closest weight: Best Matching Unit
-                if bmu == y:
-                    self.weights[bmu] += eta * (x - self.weights[bmu])
-                else:
-                    self.weights[bmu] -= eta * (x - self.weights[bmu])
+                if bmu%self.output_size == y: s = 1
+                else: s = -1
+                self.weights[bmu] += s * eta * (x - self.weights[bmu])
 
             if eta_decay:
                 self.log(1, " * eta = {}.".format(eta) )
@@ -118,7 +120,7 @@ class LVQ:
                 .format(va_err[-1]))
 
         self.learn_time = datetime.datetime.now() - self.learn_time
-        return va_err
+        return tr_err, va_err
 
 
 
@@ -136,9 +138,7 @@ class LVQ:
         """Evaluate accuracy on a given dataset. """
         count = 0
         for (x, y) in data:
-            if self.feedforward(x) == y:
-                count += 1
-
+            if self.feedforward(x) == y: count += 1
         return count
 
 
