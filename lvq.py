@@ -14,7 +14,7 @@ from lib.lvq.distance import DistanceFunction
 from lib.lvq.weight_init import WeightInitFunction
 
 class LVQ:
-    def __init__(self, input_size, output_size, prototypes_per_class=1,
+    def __init__(self, input_size, output_size, eta=0.1, prototypes_per_class=1,
             dist_function='euclidean', init_function='average', verbose=3):
         """
         """
@@ -27,7 +27,8 @@ class LVQ:
         self.weights     = None
         self.verbose     = verbose
 
-        self.init    = False
+        self.init = False
+        self.eta  = eta
 
 
     def __repr__(self):
@@ -51,6 +52,70 @@ class LVQ:
     def log(self, lvl, msg):
         if lvl < self.verbose:
             print(msg)
+
+
+    def save(self, filename):
+        """Save the current state of the Network to a YAML file.
+        YAML format is convenient since it has no dependency on
+        python and can be edited by hand.
+        If the filename has a '.gz' extension, it will be compressed
+        automatically"""
+        data = {
+                "input_size"  : self.input_size,
+                "output_size" : self.output_size,
+                "ppc"         : self.ppc,
+
+                "distance"    : self.distance.type,
+                "weight_init" : self.weight_init.type,
+
+                "init"        : self.init,
+                "eta"         : self.eta,
+
+                "weights"     : self.weights,
+                }
+
+        if filename.endswith('.gz'):
+            with tarfile.open(filename, 'w:gz') as tar:
+                tmp = filename.split('.gz')[0]
+                with open(tmp, 'wb') as f:
+                    f.write('# vim: set ft=yaml:\n')
+                    yaml.dump(data, f)
+                    tar.add(tmp)
+                    os.remove(tmp)
+        else:
+            with open(filename, 'wb') as f:
+                f.write('# vim: set ft=yaml:\n')
+                yaml.dump(data, f)
+
+
+
+    def _load_file(self, f):
+        data = yaml.load(f)
+
+        self.input_size     = data['input_size']
+        self.output_size    = data['output_size']
+        self.ppc            = data['ppc']
+
+
+        self.distance       = DistanceFunction(func=data['distance'])
+        self.weight_init    = WeightInitFunction(func=data['weight_init'])
+        self.weights        = [ np.array(w) for w in data['weights'] ]
+
+        self.init           = data['init']
+        self.eta            = data['eta']
+
+
+    def load(self, filename):
+        """Load a Network configuration from a YAML file."""
+        if filename.endswith('.gz'):
+            with tarfile.open(filename, 'r:gz') as tar:
+                # NOTE: this only uses the first file of the archive!
+                f = tar.extractfile(tar.getmembers()[0])
+                self._load_file(f)
+        else:
+            with open(filename, 'rb') as f:
+                    self._load_file(f)
+
 
 
     def train(self, tr_d, eta, epochs, eta_decay=False, va_d=None, estop=True):
@@ -79,7 +144,7 @@ class LVQ:
             if eta_decay:
                 self.log(1, " * eta                       : {:.3}".format(eta))
                 # Compute optimized learning rate
-                eta = eta / (1 + s * eta) if eta < 1 else 1
+                eta = eta / (1 + s * eta) if eta < 1.0 else 1.0
 
             tr_err.append(self.eval_error_rate(tr_d))
             self.log(2, " * Training set error rate   : {:.3%}"\
@@ -94,6 +159,8 @@ class LVQ:
                 if estop and va_err[-1] < 0.01: break
 
         self.learn_time = datetime.datetime.now() - self.learn_time
+        self.eta        = eta
+
         return tr_err, va_err
 
 

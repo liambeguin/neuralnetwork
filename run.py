@@ -7,7 +7,7 @@ import numpy as np
 import lvq
 from lib import utils
 
-autosave  = False
+autosave  = True
 dosummary = True
 # NOTE: the higher this is, the more the network will log information
 #       0 - Print nothing
@@ -38,13 +38,13 @@ else:
 print(" ** Initializing Network...")
 lvq = lvq.LVQ(input_size,
         output_size,
-        prototypes_per_class = 20,
+        prototypes_per_class = 2,
 
         dist_function='euclidean')
 
 if os.path.exists('autoload.save.gz'):
     print(" *** Found autoload, loading config...")
-    # net.load('autoload.save.gz')
+    lvq.load('autoload.save.gz')
 
 print(lvq)
 print(" ** Starting training...")
@@ -67,7 +67,7 @@ print(" ** Learned in : {} days, {} seconds and {} us".format(
 
 if autosave:
     print(" ** Saving state of the Network...")
-    # net.save('conf.save.gz')
+    lvq.save('autoload.save.gz')
 
 
 
