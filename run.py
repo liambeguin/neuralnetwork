@@ -38,8 +38,8 @@ else:
 print(" ** Initializing Network...")
 lvq = lvq.LVQ(input_size,
         output_size,
-        prototypes_per_class = 2,
-
+        prototypes_per_class = 10,
+        init_function = 'average',
         dist_function='euclidean')
 
 if os.path.exists('autoload.save.gz'):
@@ -49,8 +49,8 @@ if os.path.exists('autoload.save.gz'):
 print(lvq)
 print(" ** Starting training...")
 training_tr_err, training_va_err = lvq.train(training_data,
-        eta = 0.1,
-        epochs = 5,
+        eta = 0.5,
+        epochs = 20,
         eta_decay = True,
         va_d = validation_data)
 
