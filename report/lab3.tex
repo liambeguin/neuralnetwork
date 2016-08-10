@@ -53,7 +53,7 @@ pour ce language :
 Dans un premier temps, nous entrainerons le r\'eseau sur un set de donn\'ees puis
 nous \'evaluerons sa capacit\'e a g\'en\'eraliser sur de nouvelles donn\'ees
 non utilis\'ees lors de l'entrainement.
-%%%%%%%%%%%%%%
+
 \section{Impl\'ementation du r\'eseau de neurones}
 \subsection{Architecture globale}
 \begin{figure}[htp]
@@ -62,7 +62,7 @@ non utilis\'ees lors de l'entrainement.
 	\caption{Repr\'esentation d'une classification de type dans $\mathbb{R}^2$.}
 \end{figure}
 
-Comme dit en introduction, Nous allons impl\'ementer un r\'eseau de neurones
+Comme dit en introduction, nous allons impl\'ementer un r\'eseau de neurones
 de type LVQ. Le LVQ est un algorithme supervis\'e dit comp\'etitif dans le sens
 o\`u les sorties com\'petitionnent afin de ne donner qu'une seule sortie active. 
 
@@ -70,10 +70,9 @@ Le LVQ est une m\'ethode de classification o\`u chaque sortie repr\'esente une
 classe, le nombre de classes doit cependant etre fournit par l'utilisateur.
 Au cours du processus d'apprentissage les poids (ou prototypes ou encore
 codebooks) de chaque classe sont attir\'es ou repouss\'es
-dans le but de positionner les optimalement par rapport aux donn\'ees d'entrainement.
+dans le but de les positionner optimalement par rapport aux donn\'ees
+d'entrainement.
 
-
-%%%%%%%
 
 \paragraph{Actualisation des poids:} Les poids sont mis \`a jour  \`a l'aide
 de expression suivante:\\
@@ -87,8 +86,7 @@ O\`u:
 \begin{equation}
 	\left\{
 	\begin{aligned}
-		j &= \text{{\em numero} de la classe,} \\
-		t &= \text{instant ou epoch} \\
+		j &= \text{{\em numero} de la classe,} \\ t &= \text{instant ou epoch} \\
 		s &= 1 \text{ si } {\hat y} = y \text{ sinon } s= -1\\
 		\eta &= \text{taux d'apprentissage}
 	\end{aligned}
@@ -151,7 +149,7 @@ Le premier choix permet d'initialiser en choisissant des \'echantillons de test
 de mani\`ere al\'etoire parmis le dataset.
 
 La seconde m\'ethode permet de choisir les prototypes initiaux en calculant le
-centro\"id de l'ensemble des points du training set pour chaque classe.
+centro\"ide de l'ensemble des points du training set pour chaque classe.
 
 \lstset{tabsize = 4,
 frame=lines,
@@ -336,14 +334,14 @@ def train(self, tr_d, eta, epochs, eta_decay=False, va_d=None, estop=True):
 \end{table}
 
 
-Pour obtenir la meilleur solution nous avons chercher en premier lieu le
+Pour obtenir la meilleur solution nous avons cherch\'e en premier lieu le
 taux d'apprentissage $\eta$  qui donnait la plus petite erreur sur le training
 set, ensuite nous avons ajust\'e le nombre de prototype par classe avec et sans
 la r\'eduction du taux d'apprentissage. Nous pouvons conclure qu'aux vues des
 r\'esultats la meilleur configuration est pour un dataset contenant de 40
 \'el\'ements avec un taux d'apprentissage de $0.5$.
 Lorsque nous avons fait la classification homme/femme, nous avons observ\'e
-qu\'a partir de 10 prototypes (par classe) les performances sur le taux
+qu'\'a partir de 10 prototypes (par classe) les performances sur le taux
 d'erreur du dataset de test n'\'etait pas am\'elior\'ees.
 
 En ce qui concerne la classification des chiffres uniquement le choix
@@ -357,7 +355,7 @@ inspecter les couches cach\'ees du r\'eseau. Pour ce faire, nous tirons parti du
 fait que {\em Python} est un language interpr\'et\'e et qu'il fournit \`a
 l'utilisateur une interface int\'eractive(c.f. laboratoire 2.2).
 
-En combinaison avec la possibilit\'e de savegarder l'\'etat des
+En combinaison avec la possibilit\'e de sauvegarder l'\'etat des
 objects {\em LVQ} sous la forme de fichiers (compress\'es ou non), nous
 pouvons ais\'ement analyser chaque couche.
 
@@ -413,32 +411,31 @@ Le {\em LVQ} est donc plus rapide pour nombre d'entr\'ees limit\'ees et fixes
 tandis que le {\em MLP} est plus g\'en\'erique.
 
 \subsection{Conclusion et pistes d'am\'elioration}
-Comme expliqu\'e pr\'ec\'edement, du \`a un manque de temps, nous avons
-\'et\'e contrain de couper certaines optimisations notemment sur
-l'impl\'ementation matricielle du {\em Mini-batch SGD}.
+Encore une fois, du a un manque de temps, nous n'avons pas pouss\'e plus que
+necessaire sur les optimisations de type (convertion des listes de np.array en
+matrices). Ceci permettrai certainement de rendre le syst\`eme un peu plus
+rapide.
 
 En revanche, malgr\'e cela, on observe tout de m\^eme de bonnes performances.
-En utilisant comme r\'ef\'erence une classification de 9 digits en combinaison
-avec une classification Homme/Femme (soit une sortie de 18 neurones) du
-{\em TiDigits} dataset, on obtient un temps d'entrainement de 10 secondes sur un
-{\em i5 dual-core, 2.2GHz} temps qui tombe \`a moins de 2 secondes sur un
-{\em i7 quad-core, 4GHz}.
-
 On remarque aussi une bonne capacit\'e de g\'en\'eralisation avec une erreur
-d'environs 10-15\% sur le set de test apr\`es l'apprentissage.
+d'environs 5-10\% sur le set de test apr\`es l'apprentissage.
 
-En observant attentivement les matrices de
-confusions en figure \ref{fig:w_prep} on remarque que le r\'eseau commet
+Ici aussi, nous avons impl\'ement\'e la g\'en\'eration des matrices de confusion.
+En iles observant attentivement, on remarque que le r\'eseau commet
 principalement des erreurs lors de la classification Homme/Femme. Ceci pourrait
 probablement \^etre du \`a un pr\'e-traitement trop {\em agressif} ou encore \`a
-manque d'\'echantillons d'entrainement. Cette classification erron\'ee pourrait
-peut-\^etre \^etre ajust\'ee en impl\'ementant une m\'ethode de
-validation-crois\'ee plus avanc\'ee telle que le {\em V-folds} cit\'e pr\'ec\'edemment.
+un manque d'\'echantillons d'entrainement. Cette classification erron\'ee
+pourrait peut-\^etre \^etre ajust\'ee en impl\'ementant une m\'ethode de
+validation-crois\'ee plus avanc\'ee telle que le {\em V-folds}
+cit\'e pr\'ec\'edemment.
 
-D'autres pistes d'am\'eliorations seraient d'ajouter la possibilit\'e de choisir une
-fonctions d'activation diff\'erente pour la couche de sortie ou encore
-l'impl\'ementation de techniques permettant de determiner {\em automatiquement}
-les hyper-param\`eters du r\'eseau.
+D'autres pistes d'am\'eliorations seraient d'impl\'ementer un ajustement dynamique
+du nombre de prototypes par classes ou encore d'implementer des variantes du
+{\em LVQ} plus performantes telles que le
+\href{http://www.cis.hut.fi/research/lvq_pak/lvq_doc.txt}{{\em LVQ2}, {\em LVQ3}}
+ou encore le {\em DVQ}.
+On pourrait aussi penser combiner plusieurs types de r\'eseaux (c.f. {\em DTW})
+en utilisant des methodes \href{http://work.caltech.edu/slides/slides18.pdf}{d'agr\'egation}. 
 
 
 \end{document}
